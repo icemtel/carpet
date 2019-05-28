@@ -1,0 +1,7 @@
+# Files to be ignored
+
+*.pyd
+*.pyc
+# PyCharm-specific
+.idea
+*/.idea
