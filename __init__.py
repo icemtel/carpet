@@ -1,2 +1,2 @@
-from carpet2D import *
-from visualize import *
+from .carpet2D import *
+from .visualize import *
