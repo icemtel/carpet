@@ -100,8 +100,8 @@ def get_q_glob():
 if __name__ == '__main__':
     # OK: both triangular and rectangular lattice
     # Plot:
-    # OK: translations
-    # OK: translation direction
+    # OK: translations lengths
+    # OK: translations direction
 
     import matplotlib.pyplot as plt
     e1 = sp.array([1, 0])
