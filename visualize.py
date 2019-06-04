@@ -14,6 +14,7 @@ def get_colors(num, cmap='viridis'):
     cm = getattr(ccmm, cmap)
     return cm(sp.linspace(0, 1, num))
 
+
 def plot_nodes(coords, Phi=None, color=(0.5, 0.5, 0.5), colorbar=True):
     '''
     TODO: use scatterplot instead of a loop
@@ -34,9 +35,9 @@ def plot_nodes(coords, Phi=None, color=(0.5, 0.5, 0.5), colorbar=True):
         norm = mpl.colors.Normalize(vmin=0, vmax=2 * sp.pi)
         cmap = 'hsv'
         legend = plt.gcf().add_axes([0.92, 0.25, 0.07, 0.5])  # [0.85, 0.25, 0.1, 0.5]
-        cb = mpl.colorbar.ColorbarBase(legend, cmap=cmap, norm=norm, orientation='vertical',
-                                       ticks=[0, sp.pi / 2, sp.pi, 3 * sp.pi / 2, 2 * sp.pi])
-        cb.set_ticklabels(['$0$', r'$\frac{\pi}{2}$',  r'$\pi$',  r'$\frac{3 \pi}{2}$', r'$2 \pi$'])
+        cb = mpl.colorbar.ColorbarBase(legend, cmap=cmap, norm=norm, orientation='vertical')
+        cb.set_ticks(ticks=[0, sp.pi / 2, sp.pi, 3 * sp.pi / 2, 2 * sp.pi])
+        cb.set_ticklabels(['$0$', r'$\frac{\pi}{2}$', r'$\pi$', r'$\frac{3 \pi}{2}$', r'$2 \pi$'])
 
 
 def plot_edges(coords, T1):
@@ -72,4 +73,4 @@ if __name__ == '__main__':
     plot_edges(coords, T1)
     plot_nodes(coords, Phi=sp.linspace(0, 2 * sp.pi, len(coords)))
 
-    plt.show()
+    plt.savefig('1.png')
