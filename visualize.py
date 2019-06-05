@@ -34,8 +34,8 @@ def plot_nodes(coords, Phi=None, color=(0.5, 0.5, 0.5), colorbar=True):
     if Phi is not None and colorbar is True:
         norm = mpl.colors.Normalize(vmin=0, vmax=2 * sp.pi)
         cmap = 'hsv'
-        if isinstance(cmap, str):
-            cmap = colors.Colormap(cmap)
+        # if isinstance(cmap, str):
+        #     cmap = colors.Colormap(cmap)
 
         legend = plt.gcf().add_axes([0.92, 0.25, 0.07, 0.5])  # [0.85, 0.25, 0.1, 0.5]
         cb = mpl.colorbar.ColorbarBase(legend, cmap=cmap, norm=norm, orientation='vertical')
