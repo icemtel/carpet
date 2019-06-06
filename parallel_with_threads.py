@@ -1,5 +1,6 @@
 '''
 Copied from `hydro` package on 2019-06-06 - Anton Solovev.
+Idea similar to https://stackoverflow.com/a/24092195
 
 Use `run_parallel` function to parallelize a job.
 Before use make sure that the function does not change some objects which are shared by the other instances of the function.
