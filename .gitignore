@@ -1,7 +1,14 @@
-# Files to be ignored
-
+# Compiled python modules.
 *.pyd
 *.pyc
+
 # PyCharm-specific
 .idea
 */.idea
+
+
+# Setuptools distribution folder.
+/dist/
+
+# Python egg metadata, regenerated from source files by setuptools.
+/*.egg-info
