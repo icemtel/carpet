@@ -3,20 +3,20 @@ Generate triangular lattice
 '''
 import scipy as sp
 from scipy.linalg import norm
-import friction
+import carpet.friction as friction
 
-def get_cell_sizes_triangular(a):
+def get_cell_sizes(a):
     cell_length = a
     cell_height = a * 3 ** (1 / 2) / 2
     return cell_length, cell_height
 
-def get_basis_triangular():
+def get_basis():
     e1 = sp.array([1, 0])
     e2 = sp.array([0.5, sp.sqrt(3) / 2])
     return e1,e2
 
-def get_domain_sizes_triangular(nx, ny, a):
-    cell_length, cell_height = get_cell_sizes_triangular(a)
+def get_domain_sizes(nx, ny, a):
+    cell_length, cell_height = get_cell_sizes(a)
     L1 = cell_length * nx
     L2 = cell_height * ny
     return L1, L2
@@ -31,10 +31,10 @@ def get_nodes_and_ids(nx, ny, a):
     # unit vectors
     # spatial dimension of simulation domain
 
-    e1 ,e2 = get_basis_triangular()
+    e1 ,e2 = get_basis()
 
-    cell_length, cell_height = get_cell_sizes_triangular(a)
-    L1, L2 = get_domain_sizes_triangular(nx,ny, a)
+    cell_length, cell_height = get_cell_sizes(a)
+    L1, L2 = get_domain_sizes(nx, ny, a)
     eps = 10 ** -4 * a  # better safe than sorry: small number to account for rounding errors below
 
     # generate triangular lattice
@@ -63,7 +63,7 @@ def get_neighbours_list(coords, nx, ny, a):
     '''
     eps = 10 ** -4 * a
 
-    L1, L2 = get_domain_sizes_triangular(nx, ny, a)
+    L1, L2 = get_domain_sizes(nx, ny, a)
 
     N = len(coords)
 
@@ -98,6 +98,8 @@ def get_neighbours_list(coords, nx, ny, a):
                 T1[j].append(- translation)
     return N1, T1
 
+### Friction coefficients - ver 1. ###
+
 
 def get_connections():
     '''
@@ -118,12 +120,36 @@ def define_gmat_glob_and_q_glob_triangular(set_name, a, neighbours_indices, neig
     :return: gmat, q_glob  - functions
     '''
     connections = get_connections()
-    e1, e2 = get_basis_triangular()
+    e1, e2 = get_basis()
     return friction.define_gmat_glob_and_q_glob0(set_name, connections, e1, e2, a,
                                                  neighbours_indices, neighbours_rel_positions,
                                                  order_g11, order_g12, T)
 
 
+
+import scipy.sparse.linalg as splin
+
+def define_right_side_of_ODE(gmat_glob, q_glob):
+    def right_side_of_ODE(t, phi):
+        '''
+        Which method to use?
+        One test on sparse and iterative sparse methods gave the same result ~270s of computation
+        (maybe solving the linear equation is not the bottleneck?)
+        '''
+        ## Dense
+        # phidot = lin.inv(gmat_glob(phi)) @ q_glob(phi)
+        ## Sparse
+        phidot = splin.spsolve(gmat_glob(phi), q_glob(phi))
+        ## Sparse - iterative
+        # phidot, info = splin.bicgstab(gmat_glob(phi), q_glob(phi), tol=tol) #Check if this tolerance is sufficient
+        return phidot
+
+    return right_side_of_ODE
+
+
+# TODO: Optimize:
+#  - dont calculate gii twice in gmat and qglob
+#  - Cubic interpolation for gamma_ij
 
 
 if __name__ == '__main__':
@@ -134,7 +160,7 @@ if __name__ == '__main__':
 
     import visualize
 
-    a = 10
+    a = 18
     nx = 6
     ny = 6
 
@@ -151,4 +177,5 @@ if __name__ == '__main__':
     order_g11 = (8,0)
     order_g12 = (4,4)
     T = 31.25
-    define_gmat_glob_and_q_glob_triangular('machemer_1', a, N1, T1,order_g11, order_g12,T)
+    gmat, qglob = define_gmat_glob_and_q_glob_triangular('machemer_1', a, N1, T1,order_g11, order_g12,T)
+

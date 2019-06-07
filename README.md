@@ -1,15 +1,11 @@
-## Requirements
-
-```
-python>=3.6
-scipy>=1.2.0
-pandas>=0.22.0
-matplotlib>=3.0.0
-```
+## Installation
+- Run in terminal `python setup.py develop`. 
+- After that one can use the package everywhere.
+- Any code changes to the code will be immediately active.
 
 ## Structure
-- Visualization function in `visualize.py`
-- Notes in `docs`
+- Code in `carpet` folder
+  - Visualizations `visualize.py`
+- Theory notes in `docs`
+- Examples in `examples`
 
-
-TODO: add examples (in `docs`or `examples` folder)

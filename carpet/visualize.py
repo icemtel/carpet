@@ -20,7 +20,7 @@ def simple_figure():
     ax = plt.subplot(111)
     return fig, ax
 
-def plot_nodes(coords, Phi=None, color=(0.5, 0.5, 0.5), colorbar=True, fig=None, ax=None):
+def plot_nodes(coords, phi=None, color=(0.5, 0.5, 0.5), colorbar=True, fig=None, ax=None):
     '''
     TODO: use scatterplot instead of a loop
     '''
@@ -32,10 +32,10 @@ def plot_nodes(coords, Phi=None, color=(0.5, 0.5, 0.5), colorbar=True, fig=None,
 
     # Plot nodes
     for ix, coord in enumerate(coords):
-        if Phi is None:
+        if phi is None:
             rgb = color
         else:
-            rgb = colorsys.hsv_to_rgb(Phi[ix] / (2 * sp.pi), 1, 1)
+            rgb = colorsys.hsv_to_rgb(phi[ix] / (2 * sp.pi), 1, 1)
         ax.plot(coord[0], coord[1], '.', color=rgb, markersize=24)
     ax.set_aspect('equal')
     #  plt.gca().get_xaxis().set_visible(False)
@@ -43,7 +43,7 @@ def plot_nodes(coords, Phi=None, color=(0.5, 0.5, 0.5), colorbar=True, fig=None,
     # plt.gcf().set_size_inches(8,6)
 
     # Add colorbar
-    if Phi is not None and colorbar is True:
+    if phi is not None and colorbar is True:
         norm = mpl.colors.Normalize(vmin=0, vmax=2 * sp.pi)
         cmap = 'hsv'
         # if isinstance(cmap, str):
@@ -83,6 +83,8 @@ def plot_node_numbers(coords, spacing, fig=None, ax=None):
 
     return fig, ax
 
+
+
 if __name__ == '__main__':
     '''
     OK: plot nodes of a triangular lattice
@@ -102,7 +104,7 @@ if __name__ == '__main__':
 
     #   plot_node_numbers(coords, a)
     plot_edges(coords, T1)
-    fig,ax = plot_nodes(coords, Phi=sp.linspace(0, 2 * sp.pi, len(coords)))
+    fig,ax = plot_nodes(coords, phi=sp.linspace(0, 2 * sp.pi, len(coords)))
     plot_node_numbers(coords, a, fig=fig, ax=ax)
 
     plt.savefig('1.png', bbox_inches='tight')
