@@ -4,7 +4,11 @@ import colorsys
 import matplotlib as mpl
 import matplotlib.colors as colors
 
-def get_colors(num, cmap='viridis'):
+default_colormap = 'viridis'
+default_midpoint_colormap = 'RdBu_r'
+default_cyclic_colormap = 'hsv'
+
+def get_colors(num, cmap=default_colormap):
     '''
     :param num: How many colors to return
     :param cmap: e.g. 'jet' 'viridis' 'RdBu_r' 'hsv'
@@ -83,6 +87,120 @@ def plot_node_numbers(coords, spacing, fig=None, ax=None):
 
     return fig, ax
 
+
+## Plot local friction  gij(phi1,phi2)
+
+# HELPER FUNCTIONS
+
+class MidpointNormalize(colors.Normalize):
+    '''
+    Note: check out colors.OffsetNorm() in newer versions
+    '''
+
+    def __init__(self, vmin=None, vmax=None, midpoint=0, clip=False):
+        self.midpoint = midpoint
+        colors.Normalize.__init__(self, vmin, vmax, clip)
+
+    def __call__(self, value, clip=None):
+        normalized_min = max(0, 1 / 2 * (1 - abs((self.midpoint - self.vmin) / (self.midpoint - self.vmax))))
+        normalized_max = min(1, 1 / 2 * (1 + abs((self.vmax - self.midpoint) / (self.midpoint - self.vmin))))
+        normalized_mid = 0.5
+        x, y = [self.vmin, self.midpoint, self.vmax], [normalized_min, normalized_mid, normalized_max]
+        return sp.ma.masked_array(sp.interp(value, x, y))
+
+def _trajectory(ax, x, y, colors, *args, **kwargs):  # use 'quick.get_colors' as 'colors' argument
+    ax.field(x, y, list(range(len(x))), colors(len(x)), *args, **kwargs)
+
+def _field(ax, x, y, z, colors, *args, **kwargs):
+    mn = sp.amin(z)
+    mx = sp.amax(z)
+    for (x1, x2, y1, y2, zz) in zip(x, x[1:], y, y[1:], z):
+        index = int((len(z) - 1) * (zz - mn) / (mx - mn))
+        ax.plot([x1, x2], [y1, y2], *args,
+                      color=colors[index], **kwargs)
+
+
+
+def midpoint_imshow(vals, x1_min, x1_max, x2_min, x2_max, ax=None,
+                    filename=None, grid=False, colorbar=True,
+                    title=None, xlabel=None, ylabel=None, midpoint=None, norm=None, cmap=None,
+                    **kwargs):
+    '''
+    If =ax= exists, plot to ax, else plot to file or on screen if there is no filename given
+    '''
+    if ax == None:
+        ax = plt.gca()
+
+    if cmap is None:
+        if midpoint is not None:
+            cmap = default_midpoint_colormap
+        else:
+            cmap = default_colormap
+
+    if midpoint is not None:
+        norm = MidpointNormalize(sp.amin(vals), sp.amax(vals), midpoint)
+
+    ax.imshow(vals, extent=[x1_min, x1_max, x2_min, x2_max],
+              origin='lower', cmap=cmap, norm=norm, **kwargs)  # origin lower - to specifiy how this matrix has to b
+
+    ax.set_xlim((x1_min, x1_max))
+    ax.set_ylim((x2_min, x2_max))
+    if xlabel is not None:
+        ax.xlabel(xlabel)
+    if ylabel is not None:
+        ax.ylabel(ylabel)
+    if title is not None:
+        ax.title(title)
+    ax.set_aspect(1)
+
+    if colorbar:
+        ax.colorbar(vals, cmap=cmap, norm=norm)
+
+    # if colorbar is True:
+    #     qp.midpoint_colorbar(vals, cmap=cmap, midpoint=midpoint)
+
+    return ax
+
+# END: HElPER FUNCTIONS
+
+# Function to plot local friction: gij(phi1, phi2)
+
+def phase_plot(vals, ax=None,
+               filename=None, grid=False, colorbar=True,
+               title=None, midpoint=None, norm=None, cmap=None,
+               xlabel=r'$\phi_1$', ylabel=r'$\phi_2$',
+               phase_colored_lines=True, num_phases=20,
+               **kwargs):
+    '''
+    Makes a 2D colormap in the range from 0 to 2pi; add ticks proportional to pi/2;
+    :param phase_colored_lines: If True - add colors near the plot, representing each of phases, as defined by the default colormap
+    :param num_phases: Used by phase_colored_lines;
+    :param filename: If given - will save the plot to the file. If ax is given - it has to be a quick.Plot instance
+    :param kwargs:
+    :return:
+    '''
+    ax = midpoint_imshow(vals, 0, 2 * sp.pi, 0, 2 * sp.pi,
+                                ax=ax, filename=filename,
+                                grid=grid, colorbar=colorbar, title=title,
+                                midpoint=midpoint, norm=norm, cmap=cmap,
+                                xlabel=xlabel, ylabel=ylabel, **kwargs)
+    ax.set_phaseticks()
+    ax.set_phaseticks_y()
+
+    if phase_colored_lines:
+        shift = 2 * sp.pi / 200 * 2
+        phi = sp.array(range(num_phases)) * 2 * sp.pi / (num_phases - 1)
+        # color_coding
+        magic_num = 10
+        for i in range(magic_num):
+            ax.trajectory(phi, sp.zeros(num_phases) - shift * (i + 1 / 2), get_colors, lw=2)
+            ax.trajectory(sp.zeros(num_phases) - shift * (i + 1 / 2), phi, get_colors, lw=2)
+
+        ax.set_xlim((-shift * (magic_num), sp.pi * 2))
+        ax.set_ylim((-shift * (magic_num), sp.pi * 2))
+
+    if filename is not None:
+        ax.exit()
 
 
 

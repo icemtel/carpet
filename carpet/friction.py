@@ -308,6 +308,7 @@ if __name__ == "__main__":
 
     plt.plot(phis.T[0], 1 / 2 / sp.pi * T * sp.array([q_glob(phi) for phi in phis]))
     plt.show()
+
 ## Checks
 # # Ben checked: mtwist solution -> classes of cilia with different inital phase have the same phase after N cycles
 # # Is self-friction different if cilia are located differently? Check
