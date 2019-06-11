@@ -178,8 +178,12 @@ def phase_plot(vals, ax=None, colorbar=True,
                           ax=ax, colorbar=colorbar, title=title,
                           midpoint=midpoint, norm=norm, cmap=cmap,
                           xlabel=xlabel, ylabel=ylabel, **kwargs)
-    ax.set_phaseticks()
-    ax.set_phaseticks_y()
+    # set x phase ticks
+    ax.set_xticks(ticks=[0, sp.pi / 2, sp.pi, 3 * sp.pi / 2, 2 * sp.pi])
+    ax.set_xticklabels(['$0$', r'$\frac{\pi}{2}$', r'$\pi$', r'$\frac{3 \pi}{2}$', r'$2 \pi$'])
+    # set y phase ticks
+    ax.set_yticks(ticks=[0, sp.pi / 2, sp.pi, 3 * sp.pi / 2, 2 * sp.pi])
+    ax.set_yticklabels(['$0$', r'$\frac{\pi}{2}$', r'$\pi$', r'$\frac{3 \pi}{2}$', r'$2 \pi$'])
 
     if phase_colored_lines:
         shift = 2 * sp.pi / 200 * 2
