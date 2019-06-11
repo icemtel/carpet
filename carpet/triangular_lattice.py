@@ -1,6 +1,7 @@
 '''
 Generate triangular lattice
 '''
+import math
 import scipy as sp
 from scipy.linalg import norm
 import carpet.friction as friction
@@ -85,7 +86,7 @@ def get_neighbours_list(coords, nx, ny, a):
     N1 = [[] for _ in coords]  # list of lists of neighbours
     T1 = [[] for _ in coords]  # list of translation vectors between neighbours
     # loop over pairs of lattice points
-    for i in range(N):  # TODO: optimize
+    for i in range(N):
         for j in range(i + 1, N):
             # lattice points close?
             # (account for periodic boundary conditions)
@@ -98,10 +99,55 @@ def get_neighbours_list(coords, nx, ny, a):
                 T1[j].append(- translation)
     return N1, T1
 
+### mtwist solutions ###
+
+def get_dual_basis(a):
+    # Reciprocal lattice for rectangular unit cell
+    e1,e2 = get_basis()
+    a1 = e1
+    a2 = (2 * e2 - e1) / 2
+    R = sp.array([[0, 1], [-1, 0]])  # rotation by 90deg
+    a1dual = 2 * sp.pi * (R @ a2) / (a1 @ (R @ a2)) / a
+    a2dual = 2 * sp.pi * (R @ a1) / (a2 @ (R @ a1)) / a
+    return a1dual, a2dual # [1/L]
+
+def define_get_mtwist(coords, nx, ny, a):
+    a1dual, a2dual = get_dual_basis(a)
+
+    def get_k(k1, k2):  # get wave vector corresponding to wave numbers; code piece by Ben
+        k = k1 * a1dual / nx + k2 * a2dual / ny
+        if k[0] > a1dual[0] / 2:
+            k[0] -= a1dual[0]
+            k[1] -= a2dual[1] / 2  # TODO: think about this line
+        if k[1] > a2dual[1] / 2:
+            k[1] -= a2dual[1]
+        return k
+
+
+    def mod(x):
+        x = math.fmod(x, 2 * sp.pi)
+        if x < 0:
+            x += 2 * sp.pi
+        return x
+
+    # Fill mtwist array
+    mtwist_phi = sp.zeros((nx, ny, nx * ny))
+
+    for k1 in range(nx):
+        for k2 in range(ny):
+            # wave vector
+            k = get_k(k1, k2) # k1 * a1dual / nx + k2 * a2dual / ny
+            for ix in range(nx * ny):
+                mtwist_phi[k1, k2, ix] = mod(- sp.dot(k, coords[ix, :]))
+
+    def get_mtwist(k1, k2):
+        return sp.array(mtwist_phi[k1,k2])
+
+    return get_mtwist
+
+
 ### Friction coefficients - ver 1. ###
-
-
-def get_connections():
+def _get_connections():
     '''
     :return: Relative positions of neighbouring cilia in lattice coordinates
     '''
@@ -119,7 +165,7 @@ def define_gmat_glob_and_q_glob(set_name, a, neighbours_indices, neighbours_rel_
     :param T:
     :return: gmat, q_glob  - functions
     '''
-    connections = get_connections()
+    connections = _get_connections()
     e1, e2 = get_basis()
     return friction.define_gmat_glob_and_q_glob0(set_name, connections, e1, e2, a,
                                                  neighbours_indices, neighbours_rel_positions,
@@ -161,8 +207,8 @@ if __name__ == '__main__':
     import visualize
 
     a = 18
-    nx = 6
-    ny = 6
+    nx = 7
+    ny = 6 # must be even
 
     coords, lattice_ids = get_nodes_and_ids(nx, ny, a)
     N1, T1 = get_neighbours_list(coords, nx, ny, a)
@@ -172,6 +218,17 @@ if __name__ == '__main__':
     # visualize.plot_nodes(coords)
     # visualize.plt.show()
 
+    ### Check mtwists
+    get_mtwist_phi = define_get_mtwist(coords, nx, ny, a)
+    # Check: all m-twist solutions are indeed different from each other
+    small_number = 1e-8
+    for k1 in range(0, nx):
+        for k2 in range(0, ny):
+            for m1 in range(0, nx):
+                for m2 in range(0, ny):
+                    if max(abs(get_mtwist_phi(k1,k2) - get_mtwist_phi(m1,m2))) < small_number:
+                        assert (k1 == m1) and (k2 == m2)
+    print("OK: m-twists checked")
 
     ## Friction
     order_g11 = (8,0)
