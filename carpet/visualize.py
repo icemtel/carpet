@@ -139,7 +139,7 @@ def _midpoint_imshow(vals, x1_min, x1_max, x2_min, x2_max, ax=None, colorbar=Tru
     if midpoint is not None:
         norm = MidpointNormalize(sp.amin(vals), sp.amax(vals), midpoint)
 
-    ax.imshow(vals, extent=[x1_min, x1_max, x2_min, x2_max],
+    mappable = ax.imshow(vals, extent=[x1_min, x1_max, x2_min, x2_max],
               origin='lower', cmap=cmap, norm=norm, **kwargs)  # origin lower - to specifiy how this matrix has to b
 
     ax.set_xlim((x1_min, x1_max))
@@ -153,7 +153,7 @@ def _midpoint_imshow(vals, x1_min, x1_max, x2_min, x2_max, ax=None, colorbar=Tru
     ax.set_aspect(1)
 
     if colorbar:
-        ax.colorbar(vals, cmap=cmap, norm=norm)
+        plt.colorbar(mappable)
 
     return ax
 
