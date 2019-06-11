@@ -145,18 +145,15 @@ def _midpoint_imshow(vals, x1_min, x1_max, x2_min, x2_max, ax=None, colorbar=Tru
     ax.set_xlim((x1_min, x1_max))
     ax.set_ylim((x2_min, x2_max))
     if xlabel is not None:
-        ax.xlabel(xlabel)
+        ax.set_xlabel(xlabel)
     if ylabel is not None:
-        ax.ylabel(ylabel)
+        ax.set_ylabel(ylabel)
     if title is not None:
-        ax.title(title)
+        ax.set_title(title)
     ax.set_aspect(1)
 
     if colorbar:
         ax.colorbar(vals, cmap=cmap, norm=norm)
-
-    # if colorbar is True:
-    #     qp.midpoint_colorbar(vals, cmap=cmap, midpoint=midpoint)
 
     return ax
 
