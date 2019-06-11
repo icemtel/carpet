@@ -121,10 +121,9 @@ def _field(ax, x, y, z, colors, *args, **kwargs):
 
 
 
-def midpoint_imshow(vals, x1_min, x1_max, x2_min, x2_max, ax=None,
-                    filename=None, grid=False, colorbar=True,
-                    title=None, xlabel=None, ylabel=None, midpoint=None, norm=None, cmap=None,
-                    **kwargs):
+def _midpoint_imshow(vals, x1_min, x1_max, x2_min, x2_max, ax=None, colorbar=True,
+                     title=None, xlabel=None, ylabel=None, midpoint=None, norm=None, cmap=None,
+                     **kwargs):
     '''
     If =ax= exists, plot to ax, else plot to file or on screen if there is no filename given
     '''
@@ -165,8 +164,7 @@ def midpoint_imshow(vals, x1_min, x1_max, x2_min, x2_max, ax=None,
 
 # Function to plot local friction: gij(phi1, phi2)
 
-def phase_plot(vals, ax=None,
-               filename=None, grid=False, colorbar=True,
+def phase_plot(vals, ax=None, colorbar=True,
                title=None, midpoint=None, norm=None, cmap=None,
                xlabel=r'$\phi_1$', ylabel=r'$\phi_2$',
                phase_colored_lines=True, num_phases=20,
@@ -179,11 +177,10 @@ def phase_plot(vals, ax=None,
     :param kwargs:
     :return:
     '''
-    ax = midpoint_imshow(vals, 0, 2 * sp.pi, 0, 2 * sp.pi,
-                                ax=ax, filename=filename,
-                                grid=grid, colorbar=colorbar, title=title,
-                                midpoint=midpoint, norm=norm, cmap=cmap,
-                                xlabel=xlabel, ylabel=ylabel, **kwargs)
+    ax = _midpoint_imshow(vals, 0, 2 * sp.pi, 0, 2 * sp.pi,
+                          ax=ax, colorbar=colorbar, title=title,
+                          midpoint=midpoint, norm=norm, cmap=cmap,
+                          xlabel=xlabel, ylabel=ylabel, **kwargs)
     ax.set_phaseticks()
     ax.set_phaseticks_y()
 
