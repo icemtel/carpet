@@ -6,6 +6,6 @@ setup(name='carpet',
       url='https://cfaed.tu-dresden.de/friedrich-home',
       author='Anton Solovev, Benjamin Friedrich',
       author_email='anton.solovev@tu-dresden.de',
-     # license='MIT',
+      license='Internal Use',
       packages=['carpet'],
       zip_safe=False)
