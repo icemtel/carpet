@@ -192,13 +192,14 @@ def phase_plot(vals, ax=None, colorbar=True,
     ax.set_yticklabels(['$0$', r'$\frac{\pi}{2}$', r'$\pi$', r'$\frac{3 \pi}{2}$', r'$2 \pi$'])
 
     if phase_colored_lines:
+        color_func = lambda x: get_colors(x, cmap=default_cyclic_colormap)
         shift = 2 * sp.pi / 200 * 2
         phi = sp.array(range(num_phases)) * 2 * sp.pi / (num_phases - 1)
         # color_coding
         magic_num = 10
         for i in range(magic_num):
-            _trajectory(ax, phi, sp.zeros(num_phases) - shift * (i + 1 / 2), get_colors, lw=2)
-            _trajectory(ax, sp.zeros(num_phases) - shift * (i + 1 / 2), phi, get_colors, lw=2)
+            _trajectory(ax, phi, sp.zeros(num_phases) - shift * (i + 1 / 2), color_func, lw=2)
+            _trajectory(ax, sp.zeros(num_phases) - shift * (i + 1 / 2), phi, color_func, lw=2)
 
         ax.set_xlim((-shift * (magic_num), sp.pi * 2))
         ax.set_ylim((-shift * (magic_num), sp.pi * 2))
