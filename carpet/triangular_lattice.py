@@ -200,15 +200,17 @@ def define_right_side_of_ODE(gmat_glob, q_glob):
 
 if __name__ == '__main__':
     # OK: both triangular and rectangular lattice
-    # Plot:
-    # OK: translations lengths
-    # OK: translations direction
+    # OK: translations lengths (plot)
+    # OK: translations direction (plot)
+    # OK: mtwist no duplicates
+    # OK: mtwist (plot)
 
-    import visualize
+    import matplotlib.pyplot as plt
+    import carpet.visualize as visualize
 
     a = 18
-    nx = 7
-    ny = 6 # must be even
+    nx = 6
+    ny = 4 # must be even
 
     coords, lattice_ids = get_nodes_and_ids(nx, ny, a)
     N1, T1 = get_neighbours_list(coords, nx, ny, a)
@@ -229,6 +231,28 @@ if __name__ == '__main__':
                     if max(abs(get_mtwist_phi(k1,k2) - get_mtwist_phi(m1,m2))) < small_number:
                         assert (k1 == m1) and (k2 == m2)
     print("OK: m-twists checked")
+
+    # Visualize mtwist
+    # Visualization
+    # ... nodes
+    # wave numbers
+    k1 = 3  # [] integer
+    k2 = 1
+    phi = get_mtwist_phi(k1, k2)
+    fig, ax = visualize.plot_nodes(coords, phi=phi,colorbar=False)
+
+    # Duplicate
+    L1,L2 = get_domain_sizes(nx,ny ,a)
+    visualize.plot_nodes(coords + sp.array([L1, 0])[sp.newaxis, :], phi=phi, colorbar=False)
+    visualize.plot_nodes(coords + sp.array([0, L2])[sp.newaxis, :], phi=phi, colorbar=True)
+    visualize.plot_node_numbers(coords, a)
+
+    ax.set_title('m-twist: (' + str(k1) + ',' + str(k2) + ')')
+    ax.set_aspect('equal')
+    ax.get_xaxis().set_visible(False)
+    ax.get_yaxis().set_visible(False)
+    fig.set_size_inches(6, 8)
+    plt.show()
 
     ## Friction
     order_g11 = (8,0)
