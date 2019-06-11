@@ -248,7 +248,6 @@ if __name__ == '__main__':
     visualize.plot_node_numbers(coords, a)
 
     ax.set_title('m-twist: (' + str(k1) + ',' + str(k2) + ')')
-    ax.set_aspect('equal')
     ax.get_xaxis().set_visible(False)
     ax.get_yaxis().set_visible(False)
     fig.set_size_inches(6, 8)

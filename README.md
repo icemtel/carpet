@@ -4,8 +4,20 @@
 - Any code changes to the code will be immediately active.
 
 ## Structure
-- Code in `carpet` folder
-  - Visualizations `visualize.py`
-- Theory notes in `docs`
-- Examples in `examples`
+Importing **`carpet`** gives directly access to modules
+- `visualize` (name speaks for itself)
+- `dynamics` 
+  - Contains functions to solve ODE
+  - Define global phase
+ 
+**Other modules** can be imported separately, when needed, for example
+
+`import carpet.triangular_lattice as lattice`
+
+
+- Geometry-specific files, e.g. `triangular_lattice.py` 
+  - Contains functions to build list of cilia positions and neighbours
+  - m-twists
+  - Functions to load friction matrix, and compile the right side of ODE.
+- `parallel_with_threads.py`  - contains code to compute a function for a list of inputs in parallel manner.
 
