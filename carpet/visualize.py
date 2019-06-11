@@ -85,6 +85,7 @@ def plot_node_numbers(coords, spacing, fig=None, ax=None):
 
 
 
+
 if __name__ == '__main__':
     '''
     OK: plot nodes of a triangular lattice

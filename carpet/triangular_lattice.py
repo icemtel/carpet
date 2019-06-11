@@ -107,8 +107,8 @@ def get_connections():
     '''
     return [(-1,0),(1,0),(0,-1),(0,1),(-1,1),(1,-1)]
 
-def define_gmat_glob_and_q_glob_triangular(set_name, a, neighbours_indices, neighbours_rel_positions,
-                                           order_g11, order_g12, T):
+def define_gmat_glob_and_q_glob(set_name, a, neighbours_indices, neighbours_rel_positions,
+                                order_g11, order_g12, T):
     '''
     :param set_name: e.g. 'machemer_1'
     :param a: lattice spacing
@@ -177,5 +177,5 @@ if __name__ == '__main__':
     order_g11 = (8,0)
     order_g12 = (4,4)
     T = 31.25
-    gmat, qglob = define_gmat_glob_and_q_glob_triangular('machemer_1', a, N1, T1,order_g11, order_g12,T)
+    gmat, qglob = define_gmat_glob_and_q_glob('machemer_1', a, N1, T1, order_g11, order_g12, T)
 
