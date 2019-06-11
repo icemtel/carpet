@@ -8,6 +8,7 @@ default_colormap = 'viridis'
 default_midpoint_colormap = 'RdBu_r'
 default_cyclic_colormap = 'hsv'
 
+
 def get_colors(num, cmap=default_colormap):
     '''
     :param num: How many colors to return
@@ -23,6 +24,7 @@ def simple_figure():
     fig = plt.figure(figsize=(1.618 * 3, 3))
     ax = plt.subplot(111)
     return fig, ax
+
 
 def plot_nodes(coords, phi=None, color=(0.5, 0.5, 0.5), colorbar=True, fig=None, ax=None):
     '''
@@ -75,6 +77,7 @@ def plot_edges(coords, T1, fig=None, ax=None):
 
     return fig, ax
 
+
 def plot_node_numbers(coords, spacing, fig=None, ax=None):
     # Get a figure and axis to draw on, unless they were already specified in input
     if ax is None:
@@ -108,8 +111,10 @@ class MidpointNormalize(colors.Normalize):
         x, y = [self.vmin, self.midpoint, self.vmax], [normalized_min, normalized_mid, normalized_max]
         return sp.ma.masked_array(sp.interp(value, x, y))
 
+
 def _trajectory(ax, x, y, colors, *args, **kwargs):  # use 'quick.get_colors' as 'colors' argument
-    ax.field(x, y, list(range(len(x))), colors(len(x)), *args, **kwargs)
+    _field(ax, x, y, list(range(len(x))), colors(len(x)), *args, **kwargs)
+
 
 def _field(ax, x, y, z, colors, *args, **kwargs):
     mn = sp.amin(z)
@@ -117,8 +122,7 @@ def _field(ax, x, y, z, colors, *args, **kwargs):
     for (x1, x2, y1, y2, zz) in zip(x, x[1:], y, y[1:], z):
         index = int((len(z) - 1) * (zz - mn) / (mx - mn))
         ax.plot([x1, x2], [y1, y2], *args,
-                      color=colors[index], **kwargs)
-
+                color=colors[index], **kwargs)
 
 
 def _midpoint_imshow(vals, x1_min, x1_max, x2_min, x2_max, ax=None, colorbar=True,
@@ -140,7 +144,8 @@ def _midpoint_imshow(vals, x1_min, x1_max, x2_min, x2_max, ax=None, colorbar=Tru
         norm = MidpointNormalize(sp.amin(vals), sp.amax(vals), midpoint)
 
     mappable = ax.imshow(vals, extent=[x1_min, x1_max, x2_min, x2_max],
-              origin='lower', cmap=cmap, norm=norm, **kwargs)  # origin lower - to specifiy how this matrix has to b
+                         origin='lower', cmap=cmap, norm=norm,
+                         **kwargs)  # origin lower - to specifiy how this matrix has to b
 
     ax.set_xlim((x1_min, x1_max))
     ax.set_ylim((x2_min, x2_max))
@@ -156,6 +161,7 @@ def _midpoint_imshow(vals, x1_min, x1_max, x2_min, x2_max, ax=None, colorbar=Tru
         plt.colorbar(mappable)
 
     return ax
+
 
 # END: HElPER FUNCTIONS
 
@@ -191,13 +197,11 @@ def phase_plot(vals, ax=None, colorbar=True,
         # color_coding
         magic_num = 10
         for i in range(magic_num):
-            ax.trajectory(phi, sp.zeros(num_phases) - shift * (i + 1 / 2), get_colors, lw=2)
-            ax.trajectory(sp.zeros(num_phases) - shift * (i + 1 / 2), phi, get_colors, lw=2)
+            _trajectory(ax, phi, sp.zeros(num_phases) - shift * (i + 1 / 2), get_colors, lw=2)
+            _trajectory(ax, sp.zeros(num_phases) - shift * (i + 1 / 2), phi, get_colors, lw=2)
 
         ax.set_xlim((-shift * (magic_num), sp.pi * 2))
         ax.set_ylim((-shift * (magic_num), sp.pi * 2))
-
-
 
 
 if __name__ == '__main__':
@@ -219,7 +223,7 @@ if __name__ == '__main__':
 
     #   plot_node_numbers(coords, a)
     plot_edges(coords, T1)
-    fig,ax = plot_nodes(coords, phi=sp.linspace(0, 2 * sp.pi, len(coords)))
+    fig, ax = plot_nodes(coords, phi=sp.linspace(0, 2 * sp.pi, len(coords)))
     plot_node_numbers(coords, a, fig=fig, ax=ax)
 
     plt.savefig('1.png', bbox_inches='tight')
