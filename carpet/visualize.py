@@ -196,8 +196,6 @@ def phase_plot(vals, ax=None, colorbar=True,
         ax.set_xlim((-shift * (magic_num), sp.pi * 2))
         ax.set_ylim((-shift * (magic_num), sp.pi * 2))
 
-    if filename is not None:
-        ax.exit()
 
 
 
