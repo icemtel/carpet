@@ -4,7 +4,7 @@ import carpet.triangular_lattice as lattice
 import matplotlib.pyplot as plt
 
 
-a = 18
+a = 18 # [um]
 nx = 9
 ny = 6 # must be even
 
