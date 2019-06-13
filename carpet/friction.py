@@ -6,6 +6,7 @@ import scipy as sp
 import scipy.linalg as lin
 import scipy.sparse as sparse
 import pandas as pd
+import math
 
 script_path = os.path.dirname(os.path.realpath(__file__))
 number_format = '.4G'
@@ -14,11 +15,11 @@ number_format = '.4G'
 # Basis functions for one-dimensional Fourier series
 def get_basis_function1D(j):
     if j > 0:
-        return lambda x: sp.sin(j * x)
+        return lambda x: math.sin(j * x)
     elif j == 0:
         return lambda x: 1
     elif j < 0:
-        return lambda x: sp.cos(j * x)  # cos(-n x) = cos(n x)
+        return lambda x: math.cos(j * x)  # cos(-n x) = cos(n x)
 
 
 # Basis functions for two-dimensional Fourier series
