@@ -30,8 +30,18 @@ def get_basis_function(j1, j2):
 # Compute value of two-dimensional Fourier series, given its list of coefficients
 def fourier_series2D(coeffs, coeff_ids, swap_axes=False):
     coeffs = sp.array(coeffs)
-    # Save copies of basis functions - I guess this is faster, than calling basis_function(n) each time I want to compute series
-    basis_functions = [get_basis_function(j1, j2) for j1, j2 in coeff_ids]
+    # Save copies of basis functions - gives around 10-20%, including parallel jobs; but not sure due to high variation
+
+    # precompute basis # TODO: get coefficients in more efficient way?
+    basis1D_dict = {}
+    for j1,j2 in coeff_ids:
+        if j1 not in basis1D_dict:
+            basis1D_dict[j1] = get_basis_function1D(j1)
+        if j2 not in basis1D_dict:
+            basis1D_dict[j2] = get_basis_function1D(j2)
+
+
+    basis_functions = [(lambda x1,x2: basis1D_dict[j1](x1) * basis1D_dict[j2](x2)) for j1, j2 in coeff_ids]
 
     if swap_axes:
         def series(x, y):
