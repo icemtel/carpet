@@ -158,12 +158,16 @@ def load_self_friction_and_interactions(set_name, connections, e1, e2, a, order_
         # Get file name and load g_ij as a function
         translation3D = (*translation, 0.)
         translation_folder = get_translation_rotation_folder(translation3D, (0, 0))
-        filename = os.path.join(friction_coeffs_root, translation_folder, 'g12_ft.dat')
+
+        if in_lower_halfplane:  # fix symmetry
+            filename = os.path.join(friction_coeffs_root, translation_folder, 'g21_ft.dat')  # should be the same as g12
+            order = order_g12[::-1]  # reverse order
+        else:
+            filename = os.path.join(friction_coeffs_root, translation_folder, 'g12_ft.dat')
+            order = order_g12
 
         # Load friction as a function (Fourier sum); swap order of input when needed
-        g_ij = load_function_from_file(filename, order_max=order_g12, truncate_triangular=False)
-
-        df = load_coeffs_from_file(filename, order_max=order_g12, truncate_triangular=False)
+        df = load_coeffs_from_file(filename, order_max=order, truncate_triangular=False)
         coeffs = sp.array(df['coeff'])
         coeff_ids = [(m, n) for (m, n) in zip(df['n1'], df['n2'])]
 
@@ -191,7 +195,7 @@ def load_self_friction_and_interactions(set_name, connections, e1, e2, a, order_
         translation_folder = get_translation_rotation_folder(translation3D, (0, 0))
 
         if in_lower_halfplane:  # fix symmetry
-            filename = os.path.join(friction_coeffs_root, translation_folder, 'g22_ft.dat')  # TODO: Check
+            filename = os.path.join(friction_coeffs_root, translation_folder, 'g22_ft.dat')
             order = order_g11[::-1]  # reverse order
         else:
             filename = os.path.join(friction_coeffs_root, translation_folder, 'g11_ft.dat')
