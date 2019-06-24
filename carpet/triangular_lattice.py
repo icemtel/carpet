@@ -6,15 +6,18 @@ import scipy as sp
 from scipy.linalg import norm
 import carpet.friction as friction
 
+
 def get_cell_sizes(a):
     cell_length = a
     cell_height = a * 3 ** (1 / 2) / 2
     return cell_length, cell_height
 
+
 def get_basis():
     e1 = sp.array([1, 0])
     e2 = sp.array([0.5, sp.sqrt(3) / 2])
-    return e1,e2
+    return e1, e2
+
 
 def get_domain_sizes(nx, ny, a):
     cell_length, cell_height = get_cell_sizes(a)
@@ -32,7 +35,7 @@ def get_nodes_and_ids(nx, ny, a):
     # unit vectors
     # spatial dimension of simulation domain
 
-    e1 ,e2 = get_basis()
+    e1, e2 = get_basis()
 
     cell_length, cell_height = get_cell_sizes(a)
     L1, L2 = get_domain_sizes(nx, ny, a)
@@ -99,19 +102,21 @@ def get_neighbours_list(coords, nx, ny, a):
                 T1[j].append(- translation)
     return N1, T1
 
+
 ### mtwist solutions ###
 
 def get_dual_basis(a):
     # Reciprocal lattice for rectangular unit cell
-    e1,e2 = get_basis()
+    e1, e2 = get_basis()
     a1 = e1
     a2 = (2 * e2 - e1) / 2
     R = sp.array([[0, 1], [-1, 0]])  # rotation by 90deg
     a1dual = 2 * sp.pi * (R @ a2) / (a1 @ (R @ a2)) / a
     a2dual = 2 * sp.pi * (R @ a1) / (a2 @ (R @ a1)) / a
-    return a1dual, a2dual # [1/L]
+    return a1dual, a2dual  # [1/L]
 
-def define_get_mtwist(coords, nx, ny, a):
+
+def define_get_k(nx, ny, a):
     a1dual, a2dual = get_dual_basis(a)
 
     def get_k(k1, k2):  # get wave vector corresponding to wave numbers
@@ -122,6 +127,12 @@ def define_get_mtwist(coords, nx, ny, a):
         if k[1] >= a2dual[1] / 2:
             k[1] -= a2dual[1]
         return k
+
+    return get_k
+
+
+def define_get_mtwist(coords, nx, ny, a):
+    get_k = define_get_k(nx, ny, a)
 
     def mod(x):
         '''
@@ -140,12 +151,12 @@ def define_get_mtwist(coords, nx, ny, a):
     for k1 in range(nx):
         for k2 in range(ny):
             # wave vector
-            k = get_k(k1, k2) # k1 * a1dual / nx + k2 * a2dual / ny
+            k = get_k(k1, k2)  # k1 * a1dual / nx + k2 * a2dual / ny
             for ix in range(nx * ny):
                 mtwist_phi[k1, k2, ix] = mod(- sp.dot(k, coords[ix, :]))
 
     def get_mtwist(k1, k2):
-        return sp.array(mtwist_phi[k1,k2])
+        return sp.array(mtwist_phi[k1, k2])
 
     return get_mtwist
 
@@ -155,7 +166,8 @@ def _get_connections():
     '''
     :return: Relative positions of neighbouring cilia in lattice coordinates
     '''
-    return [(-1,0),(1,0),(0,-1),(0,1),(-1,1),(1,-1)]
+    return [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, 1), (1, -1)]
+
 
 def define_gmat_glob_and_q_glob(set_name, a, neighbours_indices, neighbours_rel_positions,
                                 order_g11, order_g12, T):
@@ -176,8 +188,8 @@ def define_gmat_glob_and_q_glob(set_name, a, neighbours_indices, neighbours_rel_
                                                  order_g11, order_g12, T)
 
 
-
 import scipy.sparse.linalg as splin
+
 
 def define_right_side_of_ODE(gmat_glob, q_glob):
     def right_side_of_ODE(t, phi):
@@ -214,7 +226,7 @@ if __name__ == '__main__':
 
     a = 18
     nx = 6
-    ny = 4 # must be even
+    ny = 4  # must be even
 
     coords, lattice_ids = get_nodes_and_ids(nx, ny, a)
     N1, T1 = get_neighbours_list(coords, nx, ny, a)
@@ -232,7 +244,7 @@ if __name__ == '__main__':
         for k2 in range(0, ny):
             for m1 in range(0, nx):
                 for m2 in range(0, ny):
-                    if max(abs(get_mtwist_phi(k1,k2) - get_mtwist_phi(m1,m2))) < small_number:
+                    if max(abs(get_mtwist_phi(k1, k2) - get_mtwist_phi(m1, m2))) < small_number:
                         assert (k1 == m1) and (k2 == m2)
     print("OK: m-twists checked")
 
@@ -243,10 +255,10 @@ if __name__ == '__main__':
     k1 = 3  # [] integer
     k2 = 1
     phi = get_mtwist_phi(k1, k2)
-    fig, ax = visualize.plot_nodes(coords, phi=phi,colorbar=False)
+    fig, ax = visualize.plot_nodes(coords, phi=phi, colorbar=False)
 
     # Duplicate
-    L1,L2 = get_domain_sizes(nx,ny ,a)
+    L1, L2 = get_domain_sizes(nx, ny, a)
     visualize.plot_nodes(coords + sp.array([L1, 0])[sp.newaxis, :], phi=phi, colorbar=False)
     visualize.plot_nodes(coords + sp.array([0, L2])[sp.newaxis, :], phi=phi, colorbar=True)
     visualize.plot_node_numbers(coords, a)
@@ -258,8 +270,7 @@ if __name__ == '__main__':
     plt.show()
 
     ## Friction
-    order_g11 = (8,0)
-    order_g12 = (4,4)
+    order_g11 = (8, 0)
+    order_g12 = (4, 4)
     T = 31.25
     gmat, qglob = define_gmat_glob_and_q_glob('machemer_1', a, N1, T1, order_g11, order_g12, T)
-
