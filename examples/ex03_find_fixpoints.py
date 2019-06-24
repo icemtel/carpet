@@ -1,9 +1,13 @@
+'''
+Wasn't checked after copying from a notebook.
+'''
+
 import scipy as sp
 from scipy.linalg import norm
 import scipy.optimize as opt
 
 
-def get_optimization_target(solve_cycle, phi_global_func, tol):
+def get_optimization_target(solve_cycle, tol):
     def get_distance_squared(phi0, info=None):
         '''
         :param info: Dictionary, must have following fields:
@@ -11,7 +15,7 @@ def get_optimization_target(solve_cycle, phi_global_func, tol):
                      info['num_evals'] initialize with 0, then this parameter will change
                      info['initial'] - mtwist or other initial point, prints a distance to that point
         '''
-        sol = solve_cycle(phi0, phi_global_func, tol)
+        sol = solve_cycle(phi0, tol)
         phi1 = sol.y.T[-1]
         distance_squared = sp.sum((phi1 - phi0 - 2 * sp.pi) ** 2)
         if info is not None:
@@ -27,7 +31,6 @@ def get_optimization_target(solve_cycle, phi_global_func, tol):
         return distance_squared
 
     return get_distance_squared
-
 
 if __name__ is "__main__":
     import time
