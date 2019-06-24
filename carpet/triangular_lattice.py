@@ -124,6 +124,11 @@ def define_get_mtwist(coords, nx, ny, a):
         return k
 
     def mod(x):
+        '''
+        fmod(x,y) is not equivalent to (x % y): https://docs.python.org/3/library/math.html and
+        is preferred when working with floats
+        :return: a value in interval from 0 to 2pi
+        '''
         x = math.fmod(x, 2 * sp.pi)
         if x < 0:
             x += 2 * sp.pi
