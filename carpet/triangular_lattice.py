@@ -114,15 +114,14 @@ def get_dual_basis(a):
 def define_get_mtwist(coords, nx, ny, a):
     a1dual, a2dual = get_dual_basis(a)
 
-    def get_k(k1, k2):  # get wave vector corresponding to wave numbers; code piece by Ben
+    def get_k(k1, k2):  # get wave vector corresponding to wave numbers
         k = k1 * a1dual / nx + k2 * a2dual / ny
-        if k[0] > a1dual[0] / 2:
+        if k[0] >= a1dual[0] / 2:
             k[0] -= a1dual[0]
             k[1] -= a2dual[1] / 2  # TODO: think about this line
-        if k[1] > a2dual[1] / 2:
+        if k[1] >= a2dual[1] / 2:
             k[1] -= a2dual[1]
         return k
-
 
     def mod(x):
         x = math.fmod(x, 2 * sp.pi)
