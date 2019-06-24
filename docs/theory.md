@@ -121,3 +121,69 @@ Pros
 
 Cons
 - Must be careful with $2 \pi$-periodicity.
+
+## Poicnare map for a m-twist solution
+**(from Ben's notes)**
+
+TODO: notation: E, $\Delta$?
+
+We consider a Poincare plane $H_0$ defined by
+
+$$
+H_0 =\{ \Phi : \overline{\varphi}(\Phi)=0 \}.
+$$
+
+Here, $\overline{\varphi}_\mathbf{k}$ denotes the global phase.
+This is a $(N-1)$-dimensional in $N$-dimensional phase space.
+We anticipate a limit cycle $C_\mathbf{k}$ for each m-twist solution with wave vector $\mathbf{k}$,
+piercing $H_0$ close to
+$\Phi'_\mathbf{k} = \Phi_\mathbf{k}-\overline{\varphi}_\mathbf{k}$, i.e.
+
+$$
+C_\mathbf{k} \cap H_0 = \Phi'_\mathbf{k} + \mathbf{E}^\ast,
+$$
+
+with a small correction vector $\mathbf{E}^\ast$.
+The reason for the small correction $\mathbf{E}$ is that the calibration of active driving forces causes small phase-dependent variations of the instantaneous phase speed. Therefore, a first aim is to find the exact initial conditions $\Phi'_\mathbf{k}+\mathbf{E}^\ast$. We compute $\mathbf{E}^\ast$ as a fixed point of the Poincare map and will proceed using a Newton method. Let $\mathcal{L}$ be the full Poincare map, i.e., the nonlinear map that maps a point $\Phi\in H_0$ with $\overline{\varphi}_\mathbf{k}(\Phi)=0$ to its image $\mathcal{L}(\Phi)\in H_0$ with $\overline{\varphi}_\mathbf{k}(\mathcal{L}(\Phi))=2\pi$ after a full cycle of the global phase.
+
+Let $\Delta(\Phi)$ be change in state after a full beat cycle
+
+$$
+\Delta(\Phi) = \mathcal{L}(\Phi) - \Phi - 2\pi .
+$$
+
+We are looking for a zero of $\Delta$ close to $\Phi_\mathbf{k}$,
+i.e. $\Delta(\Phi_\mathbf{k} + E^\ast )=0$.
+This is equivalent to a fixed point of $\mathcal{L}$
+$$
+\mathcal{L}\left( \Phi_\mathbf{k} + E^\ast \right) = \Phi_\mathbf{k} + E^\ast .
+$$
+
+Each iteration step of Newton's method involves two numerical integrations
+
+- Step 1. Compute a deviation:
+$$ \Delta_n = \Delta(\Phi_\mathbf{k} + E_n),$$
+where $\Phi_\mathbf{k} + E_n$ is the current estimate for the intersection of the m-twist limit cycle for wave vector $\mathbf{k}$ with the plane $H_0$ defined by $\overline{\varphi}=0$. We start with $E_0 = 0$.
+
+- Step 2. Compute the linearized Poincare map:
+We compute the linearization
+$\mathrm{L}=\nabla \mathcal{L}_{|\Phi_0}$
+of the Poincare map $\mathcal{L}(\Phi_0+\delta_0 D)$
+for a small deviation $\delta_0 D$ of amplitude $\delta_0$ around the center $\Phi_0$, i.e.,
+$$
+\mathcal{L}(\Phi_0 + \delta_0 D) = \mathcal{L}(\Phi_0) + \delta_0 \, \mathrm{L}\cdot D
++ \mathcal{O}(\delta_0^2) .
+$$
+The matrix $\mathrm{L}$ is essentially the matrix *Lmat* computed above.
+Special precaution will be needed to project $\mathrm{L}$ on $H_0$.
+
+- Newton update:
+$$ E_{n+1} = E_n + \left( \mathbb{1} - \mathrm{L} \right)^{-1} \Delta_n . $$
+
+*Note:*
+For a quick computation, we can compute the change in state for the perturbation of a single node
+$$ L_{i:}=\delta_0^{-1}\,\Delta(\Phi_\mathbf{k}+E_n+\delta_0 D_i) . $$
+Here, $D_i$ is the vector that has all its entries equal to $-1/N$,
+except the $i$-th entry, which equals $1-1/N$.
+Then, as above, it suffices to compute the row vector $L_{i:}$ for a single index $i$, and get all other rows of the $N\times N$-matrix $\mathrm{L}$ by applying a lattice transformation.
+Yet, special precaution will be needed since we expect $\mathrm{L}$ to be degenerate. We should substract the arithmetic mean of $\Phi$.
