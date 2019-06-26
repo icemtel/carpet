@@ -136,7 +136,8 @@ def define_gmat_glob_and_q_glob(set_name, a, direction, neighbours_indices, neig
     :return: gmat, q_glob  - functions
     '''
     connections = _get_connections()
-    e1, e2 = direction, 0  # the second vector will not be used
+    e1 = sp.array(direction) / norm(direction)
+    e2 = sp.array([[0,-1],[1, 0]]) @ e1
     return friction.define_gmat_glob_and_q_glob0(set_name, connections, e1, e2, a,
                                                  neighbours_indices, neighbours_rel_positions,
                                                  order_g11, order_g12, T)
