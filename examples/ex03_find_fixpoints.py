@@ -36,7 +36,7 @@ if __name__ is "__main__":
     import time
     import carpet.parallel_with_threads as pwt
     import carpet.dynamics as dynamics
-    import carpet.triangular_lattice as lattice
+    import carpet.lattice_triangular as lattice
 
     a = 18
     nx = 6

@@ -1,6 +1,6 @@
 import scipy as sp
 import carpet
-import carpet.triangular_lattice as lattice
+import carpet.lattice_triangular as lattice
 import matplotlib.pyplot as plt
 
 

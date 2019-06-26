@@ -26,22 +26,24 @@ def get_basis_function1D(j):
 def get_basis_function(j1, j2):
     a = get_basis_function1D(j1)
     b = get_basis_function1D(j2)
-    return lambda x1, x2: a(x1) * b(x2) #basis1D_dict[j1](x1) * basis1D_dict[j2](x2) ! dont make one-liner, it runs slower
+    return lambda x1, x2: a(x1) * b(x2)
+    # basis1D_dict[j1](x1) * basis1D_dict[j2](x2) ! dont make one-liner, it runs slower
+
 
 # Compute value of two-dimensional Fourier series, given its list of coefficients
 def fourier_series2D(coeffs, coeff_ids, swap_axes=False):
     coeffs = sp.array(coeffs)
     # Save copies of basis functions - gains ~20% to speed, including parallel jobs; but not sure due to variation
-    basis_functions = [get_basis_function(j1,j2) for j1, j2 in coeff_ids]
+    basis_functions = [get_basis_function(j1, j2) for j1, j2 in coeff_ids]
 
     if swap_axes:
         def series(x, y):
-            b = [basis_function(y,x) for basis_function in basis_functions]
+            b = [basis_function(y, x) for basis_function in basis_functions]
             summ = coeffs.dot(b)
             return summ
     else:
         def series(x, y):
-            b = [basis_function(x,y) for basis_function in basis_functions]
+            b = [basis_function(x, y) for basis_function in basis_functions]
             summ = coeffs.dot(b)
             return summ
 

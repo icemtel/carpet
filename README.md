@@ -15,7 +15,7 @@ Importing **`carpet`** gives directly access to modules
 `import carpet.triangular_lattice as lattice`
 
 
-- Geometry-specific files, e.g. `triangular_lattice.py` 
+- Geometry-specific files, e.g. `lattice_*.py` 
   - Contains functions to build list of cilia positions and neighbours
   - m-twists
   - Functions to load friction matrix, and compile the right side of ODE.

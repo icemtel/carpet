@@ -1,5 +1,6 @@
 '''
-Generate triangular lattice
+-Generate triangular lattice
+- Define friction matrix, etc.
 '''
 import math
 import scipy as sp
