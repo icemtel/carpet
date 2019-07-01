@@ -75,7 +75,7 @@ def define_get_k(N, a, direction):
     direction = sp.array(direction) / norm(direction)
     L = get_domain_size(N, a)
 
-    def get_k(k1):  # get wave vector corresponding to wave numbers
+    def get_k(k1, k2=0):  # get wave vector corresponding to wave numbers
         if k1 >= N // 2 + 1:
             return (k1 - N) * 2 * sp.pi / L * direction
 
