@@ -5,7 +5,6 @@
 - Map back to cilia
 '''
 import scipy as sp
-import matplotlib.pyplot as plt
 import carpet
 import carpet.lattice_1D_chain as lattice
 import carpet.classes as cc
