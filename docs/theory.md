@@ -186,4 +186,4 @@ Therefore, to find the fixpoint $\Phi^*_{\mathbf{k}}$, we numerically find a min
 $\mathbf{L} = e^\mathbf{\Lambda}; \quad \mathbf{\Lambda} = \log \mathbf{L} $
 
 
-- $\Lambda$ - symmetrical; checked numerically 
+- $\Lambda$ - is not a symmetrical matrix.
