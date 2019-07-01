@@ -16,14 +16,14 @@ def define_solve_cycle(right_side_of_ODE, t_max, phi_global_func):
     - atol and rtol are chosen with an assumption that phases are close to interval [0, 2pi]
     '''
     def solve_cycle(phi_init, tol):
-        finish_phase = 2 * sp.pi + phi_global_func(phi_init)
+        phi_global_init = phi_global_func(phi_init)
 
         def end_cycle_event(t, phi):
             '''
             When equals to zero - solver will terminate the process
             '''
             if t > 0:
-                return sp.sin(phi_global_func(phi) - finish_phase)
+                return sp.sin(phi_global_func(phi) - phi_global_init)
             else:
                 return sp.inf
 
