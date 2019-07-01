@@ -4,13 +4,13 @@
 - Any code changes to the code will be immediately active.
 
 ## Structure
-Import **`carpet`** to get direct access to several modules
+Importing **`carpet`** will give direct access to functions inside several modules
 - `visualize` (name speaks for itself)
 - `dynamics` 
   - Contains functions to solve ODE
   - Define global phase
  
-**Other modules** can be imported separately when needed, for example
+**Other modules** must be imported separately when needed. This is done as following
 
 `import carpet.triangular_lattice as lattice`
 
@@ -22,3 +22,5 @@ Import **`carpet`** to get direct access to several modules
 - `parallel_with_threads.py`  - contains code to compute a function for a list of inputs in parallel manner.
 
 - `classes.py` - implementation of cilia classes
+
+
