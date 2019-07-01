@@ -1,4 +1,3 @@
-###
 import scipy as sp
 from scipy.integrate import  solve_ivp
 
