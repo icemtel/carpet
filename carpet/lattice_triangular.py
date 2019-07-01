@@ -1,5 +1,5 @@
 '''
--Generate triangular lattice
+- Generate triangular lattice
 - Define friction matrix, etc.
 '''
 import math
