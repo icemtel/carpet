@@ -26,9 +26,13 @@ def simple_figure():
     return fig, ax
 
 
-def plot_nodes(coords, phi=None, color=(0.5, 0.5, 0.5), colorbar=True, vmin=0, vmax= 2 * sp.pi, fig=None, ax=None):
+def plot_nodes(coords, phi=None, color=(0.5, 0.5, 0.5), s=100,
+                colorbar=True, vmin=0, vmax=2 * sp.pi, zorder=2,
+                fig=None, ax=None):
     '''
-    TODO: use scatterplot instead of a loop
+    :param color: if no phi is given, use this color to color all nodes
+    :param s: point size - 1 number or a list
+    :param zorder: 2: to plot on top of edges
     '''
     # Get a figure and axis to draw on, unless they were already specified in input
     if ax is None:
@@ -36,13 +40,11 @@ def plot_nodes(coords, phi=None, color=(0.5, 0.5, 0.5), colorbar=True, vmin=0, v
     if fig is None:
         fig = plt.gcf()
 
+    if phi is not None:
+        colors = phi
+    else:
+        colors = color
     # Plot nodes
-    for ix, coord in enumerate(coords):
-        if phi is None:
-            rgb = color
-        else:
-            rgb = colorsys.hsv_to_rgb(phi[ix] / (2 * sp.pi), 1, 1)
-        ax.plot(coord[0], coord[1], '.', color=rgb, markersize=24)
     ax.set_aspect('equal')
     #  plt.gca().get_xaxis().set_visible(False)
     #  plt.gca().get_yaxis().set_visible(False)
@@ -54,6 +56,7 @@ def plot_nodes(coords, phi=None, color=(0.5, 0.5, 0.5), colorbar=True, vmin=0, v
         cmap = 'hsv'
         # if isinstance(cmap, str):
         #     cmap = colors.Colormap(cmap)
+        ax.scatter(coords[:, 0], coords[:, 1], c=colors, norm=norm, cmap=cmap, s=s, zorder=zorder) # , markersize=24
 
         legend = fig.add_axes([0.88, 0.25, 0.07, 0.5])  # [0.85, 0.25, 0.1, 0.5]
         cb = mpl.colorbar.ColorbarBase(legend, cmap=cmap, norm=norm, orientation='vertical')
@@ -63,7 +66,12 @@ def plot_nodes(coords, phi=None, color=(0.5, 0.5, 0.5), colorbar=True, vmin=0, v
     return fig, ax
 
 
-def plot_edges(coords, T1, fig=None, ax=None):
+
+def plot_edges(coords, T1, fig=None, ax=None, zorder=1):
+    """
+    :param zorder: 1 - to plot nodes on top
+    """
+
     # Get a figure and axis to draw on, unless they were already specified in input
     if ax is None:
         ax = plt.gca()
@@ -73,12 +81,17 @@ def plot_edges(coords, T1, fig=None, ax=None):
     for (coord, translations) in zip(coords, T1):
         for translation in translations:
             points_to_plot = sp.array([coord, coord + translation])
-            ax.plot(points_to_plot[:, 0], points_to_plot[:, 1], 'r--')
+            ax.plot(points_to_plot[:, 0], points_to_plot[:, 1], 'r--', zorder=zorder)
 
     return fig, ax
 
 
-def plot_node_numbers(coords, spacing, fig=None, ax=None):
+def plot_node_numbers(coords, spacing, fig=None, ax=None, fontsize=12, shift=(-0.3,-0.1), zorder=3):
+    '''
+    :param shift: how much the numbers should be shifted with respect to the node center;
+                  Will be shifted by shift * spacing
+    :return:
+    '''
     # Get a figure and axis to draw on, unless they were already specified in input
     if ax is None:
         ax = plt.gca()
@@ -86,7 +99,7 @@ def plot_node_numbers(coords, spacing, fig=None, ax=None):
         fig = plt.gcf()
     # Draw text
     for ix, coord in enumerate(coords):
-        ax.text(coord[0] - 0.125 * spacing, coord[1] - 0.1 * spacing, str(ix), fontsize=12)
+        ax.text(coord[0] + shift[0] * spacing, coord[1] + shift[1] * spacing, str(ix), fontsize=fontsize, zorder=zorder)
 
     return fig, ax
 
@@ -208,23 +221,21 @@ def phase_plot(vals, ax=None, colorbar=True,
 if __name__ == '__main__':
     '''
     OK: plot nodes of a triangular lattice
-    +-OK: plot nod numbers
+    +-OK: plot node numbers
     '''
-    import carpet2D
+    import carpet.lattice_triangular as lattice
 
-    e1 = sp.array([1, 0])
-    #    e2 = sp.array([0,1])
-    e2 = sp.array([1 / 2, 3 ** (1 / 2) / 2])
     a = 10
-    l1 = 5
-    l2 = 5
+    nx = 5
+    ny = 4
 
-    coords, lattice_ids = carpet2D.get_nodes_and_ids(e1, e2, l1, l2, a)
-    N1, T1 = carpet2D.get_neighbours_list(coords, e1, e2, l1, l2, a)
+    coords, lattice_ids = lattice.get_nodes_and_ids(nx, ny, a)
+    N1, T1 = lattice.get_neighbours_list(coords, nx, ny, a)
 
-    #   plot_node_numbers(coords, a)
+
     plot_edges(coords, T1)
-    fig, ax = plot_nodes(coords, phi=sp.linspace(0, 2 * sp.pi, len(coords)))
+    fig, ax = plot_nodes(coords, phi=sp.linspace(0, 2 * sp.pi, len(coords)), vmin=0, vmax=2 * sp.pi)
+
     plot_node_numbers(coords, a, fig=fig, ax=ax)
 
     plt.savefig('1.png', bbox_inches='tight')
