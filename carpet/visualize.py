@@ -27,6 +27,7 @@ def simple_figure():
 
 
 def plot_nodes(coords, phi=None, color=(0.5, 0.5, 0.5), s=100,
+                cmap = 'hsv',
                 colorbar=True, vmin=0, vmax=2 * sp.pi, zorder=2,
                 fig=None, ax=None):
     '''
@@ -51,7 +52,6 @@ def plot_nodes(coords, phi=None, color=(0.5, 0.5, 0.5), s=100,
     # plt.gcf().set_size_inches(8,6)
 
     norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
-    cmap = 'hsv'
     # if isinstance(cmap, str):
     #     cmap = colors.Colormap(cmap)
     ax.scatter(coords[:, 0], coords[:, 1], c=colors, norm=norm, cmap=cmap, s=s, zorder=zorder) # , markersize=24
