@@ -1,5 +1,12 @@
 '''
 Functions to load Fourier series of hydrodynamic friction coefficients from a file
+
+Possible optimizations:
+- rewrite define_right_side_of_ODE - s.t. gii is not calculated twice
+  in Gamma_glob and Q_glob - implemented, but the speed remained equal
+- Cubic interpolation of gij
+  Does give speed boost 2-10 times. (slower in parallel jobs, faster in sequential)
+  But using it might give numerical problems: we might need higher order derivatives for Runge-Kutta-4(5) method
 '''
 import os
 import scipy as sp

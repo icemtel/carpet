@@ -210,11 +210,6 @@ def define_right_side_of_ODE(gmat_glob, q_glob):
     return right_side_of_ODE
 
 
-# TODO: Optimize:
-#  - dont calculate gii twice in gmat and qglob
-#  - Cubic interpolation for gamma_ij
-
-
 if __name__ == '__main__':
     # OK: both triangular and rectangular lattice
     # OK: translations lengths (plot)
