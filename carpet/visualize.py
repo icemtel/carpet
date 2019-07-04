@@ -26,7 +26,7 @@ def simple_figure():
     return fig, ax
 
 
-def plot_nodes(coords, phi=None, color=(0.5, 0.5, 0.5), colorbar=True, fig=None, ax=None):
+def plot_nodes(coords, phi=None, color=(0.5, 0.5, 0.5), colorbar=True, vmin=0, vmax= 2 * sp.pi, fig=None, ax=None):
     '''
     TODO: use scatterplot instead of a loop
     '''
@@ -50,7 +50,7 @@ def plot_nodes(coords, phi=None, color=(0.5, 0.5, 0.5), colorbar=True, fig=None,
 
     # Add colorbar
     if phi is not None and colorbar is True:
-        norm = mpl.colors.Normalize(vmin=0, vmax=2 * sp.pi)
+        norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
         cmap = 'hsv'
         # if isinstance(cmap, str):
         #     cmap = colors.Colormap(cmap)
