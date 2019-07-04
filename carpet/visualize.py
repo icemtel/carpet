@@ -50,14 +50,13 @@ def plot_nodes(coords, phi=None, color=(0.5, 0.5, 0.5), s=100,
     #  plt.gca().get_yaxis().set_visible(False)
     # plt.gcf().set_size_inches(8,6)
 
-    # Add colorbar
-    if phi is not None and colorbar is True:
-        norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
-        cmap = 'hsv'
-        # if isinstance(cmap, str):
-        #     cmap = colors.Colormap(cmap)
-        ax.scatter(coords[:, 0], coords[:, 1], c=colors, norm=norm, cmap=cmap, s=s, zorder=zorder) # , markersize=24
+    norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
+    cmap = 'hsv'
+    # if isinstance(cmap, str):
+    #     cmap = colors.Colormap(cmap)
+    ax.scatter(coords[:, 0], coords[:, 1], c=colors, norm=norm, cmap=cmap, s=s, zorder=zorder) # , markersize=24
 
+    if colorbar is True and phi is not None:
         legend = fig.add_axes([0.88, 0.25, 0.07, 0.5])  # [0.85, 0.25, 0.1, 0.5]
         cb = mpl.colorbar.ColorbarBase(legend, cmap=cmap, norm=norm, orientation='vertical')
         cb.set_ticks(ticks=[0, sp.pi / 2, sp.pi, 3 * sp.pi / 2, 2 * sp.pi])
