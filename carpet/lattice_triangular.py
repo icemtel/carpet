@@ -117,14 +117,27 @@ def get_dual_basis(a):
     return a1dual, a2dual  # [1/L]
 
 
+def define_get_k_naive(nx, ny, a):
+    a1dual, a2dual = get_dual_basis(a)
+
+    def get_k(k1, k2):  # get wave vector corresponding to wave numbers
+        k = k1 * a1dual / nx + k2 * a2dual / ny
+        return k
+
+    return get_k
+
+
 def define_get_k(nx, ny, a):
+    '''
+    Checked: get_k is equivalent to get_k_naive
+    '''
     a1dual, a2dual = get_dual_basis(a)
 
     def get_k(k1, k2):  # get wave vector corresponding to wave numbers
         k = k1 * a1dual / nx + k2 * a2dual / ny
         if k[0] >= a1dual[0] / 2:
             k[0] -= a1dual[0]
-            k[1] -= a2dual[1] / 2  # TODO: think about this line
+            k[1] -= a2dual[1] / 2
         if k[1] >= a2dual[1] / 2:
             k[1] -= a2dual[1]
         return k
@@ -221,8 +234,8 @@ if __name__ == '__main__':
     import carpet.visualize as visualize
 
     a = 18
-    nx = 6
-    ny = 4  # must be even
+    nx = 8
+    ny = 8  # must be even
 
     coords, lattice_ids = get_nodes_and_ids(nx, ny, a)
     N1, T1 = get_neighbours_list(coords, nx, ny, a)
@@ -251,22 +264,39 @@ if __name__ == '__main__':
     k1 = 3  # [] integer
     k2 = 1
     phi = get_mtwist_phi(k1, k2)
-    fig, ax = visualize.plot_nodes(coords, phi=phi, colorbar=False)
 
-    # Duplicate
-    L1, L2 = get_domain_sizes(nx, ny, a)
-    visualize.plot_nodes(coords + sp.array([L1, 0])[sp.newaxis, :], phi=phi, colorbar=False)
-    visualize.plot_nodes(coords + sp.array([0, L2])[sp.newaxis, :], phi=phi, colorbar=True)
-    visualize.plot_node_numbers(coords, a)
-
-    ax.set_title('m-twist: (' + str(k1) + ',' + str(k2) + ')')
-    ax.get_xaxis().set_visible(False)
-    ax.get_yaxis().set_visible(False)
-    fig.set_size_inches(6, 8)
-    plt.show()
+    # fig, ax = visualize.plot_nodes(coords, phi=phi, colorbar=False)
+    ## Duplicate
+    # L1, L2 = get_domain_sizes(nx, ny, a)
+    # visualize.plot_nodes(coords + sp.array([L1, 0])[sp.newaxis, :], phi=phi, colorbar=False)
+    # visualize.plot_nodes(coords + sp.array([0, L2])[sp.newaxis, :], phi=phi, colorbar=True)
+    # visualize.plot_node_numbers(coords, a)
+    #
+    # ax.set_title('m-twist: (' + str(k1) + ',' + str(k2) + ')')
+    # ax.get_xaxis().set_visible(False)
+    # ax.get_yaxis().set_visible(False)
+    # fig.set_size_inches(6, 8)
+    # plt.show()
 
     ## Friction
     order_g11 = (8, 0)
     order_g12 = (4, 4)
     T = 31.25
     gmat, qglob = define_gmat_glob_and_q_glob('machemer_1', a, N1, T1, order_g11, order_g12, T)
+
+    ### Check get_k vs get_k_naive:
+    # Result: they are equivalent
+    # get_k = define_get_k(nx,ny,a)
+    # get_k_naive = define_get_k_naive(nx,ny,a)
+    #
+    # for k1 in range(nx):
+    #     for k2 in range(ny):
+    #         print(k1,k2)
+    #
+    #         k = get_k(k1,k2)
+    #         k_naive = get_k_naive(k1,k2)
+    #
+    #         for coord in coords:
+    #             if abs(sp.exp(1j * k @ coord)  - sp.exp(1j * k_naive @ coord)) > 10 ** -8:
+    #                 print('WHOOPS')
+    #                #print("whoops", k, k_naive)
