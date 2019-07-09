@@ -18,7 +18,7 @@ See an example in the end of the file.
 import threading
 import queue
 
-def report_progress_until_finished(q, time_between_reports, time_between_checks, qsize_init=None):
+def report_progress_until_finished(q, num_processes, time_between_reports, time_between_checks, qsize_init=None):
     import logging
     import time
     if qsize_init is None:
@@ -27,7 +27,7 @@ def report_progress_until_finished(q, time_between_reports, time_between_checks,
     while not q.empty():
         time_elapsed = time.time() - last_report_time
         if time_elapsed > time_between_reports:
-            portion_finished = 1 - q.qsize() / qsize_init
+            portion_finished = max(0, 1 - (q.qsize() + num_processes) / qsize_init)
             logging.info("run_parallel: {:.1%} jobs are finished".format(portion_finished))
             last_report_time = time.time()
         time.sleep(time_between_checks)
@@ -77,7 +77,7 @@ def run_parallel(num_processes, function_to_run, list_of_args=None, list_of_kwar
         threads.append(t)
     # Report progress every hour if this option is enabled
     if report_progress:
-        report_progress_until_finished(q, time_between_reports, time_between_checks, qsize_init)
+        report_progress_until_finished(q, num_processes, time_between_reports, time_between_checks, qsize_init)
     # Block until all tasks are done
     q.join()
 
