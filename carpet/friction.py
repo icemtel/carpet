@@ -136,87 +136,105 @@ def load_function_from_file(filename, order_max=None, truncate_triangular=False)
 ###
 # connections = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, 1), (1, -1)]
 
-def load_self_friction_and_interactions(set_name, connections, e1, e2, a, order_g11, order_g12):
-    '''
-    Load as a function of translation?
-    But then I will have troulbe searching for the right entry in the dictionary
-    Load as a function of (n,m)?
-    - Can work, just need to specify e1,e2,a and connection numbers
-    :param set_name: e.g. 'machemer_1'
-    '''
+def get_friction_coeffs_path(set_name):
     if set_name == 'machemer_1':
         friction_coeffs_root = os.path.join(script_path, 'friction_coeffs', 'machemer_1')
+    return  friction_coeffs_root
 
-    small_number = 1e-8
-    interactions_dict = {}
-    for n, m in connections:  # relative cilia positions in lattice space
-        translation = a * e1 * n + a * e2 * m
-        # Determine if translation vector is in lower half-plane - then use coeffs from upper part of the plane
-        # but swap cilia indices
-        if translation[1] < 0 or (abs(translation[1]) < small_number and translation[0] < 0):
-            in_lower_halfplane = True
-            translation = - translation
-        else:
-            in_lower_halfplane = False
+def load_gii(friction_coeffs_root, translation, order_g11, eps=1e-8):
+    """
+    :param translation: means relative position of the second cilium
+    """
+    # Determine if translation vector is in lower half-plane - then use coeffs from upper part of the plane
+    # but change indexes 1 and 2
+    if translation[1] < 0 or (abs(translation[1]) < eps and translation[0] < 0):
+        in_lower_halfplane = True
+        translation = - translation
+    else:
+        in_lower_halfplane = False
 
-        # Replace very small coordinates with zero - to correctly compile the folder name
-        for i, ti in enumerate(translation):
-            if abs(ti) < small_number:
-                translation[i] = 0
+    # Replace very small coordinates with zero - to correctly compile the folder name
+    for i, ti in enumerate(translation):
+        if abs(ti) < eps:
+            translation[i] = 0
 
-        # Get file name and load g_ij as a function
-        translation3D = (*translation, 0.)
-        translation_folder = get_translation_rotation_folder(translation3D, (0, 0))
+    translation3D = (*translation, 0.)
+    translation_folder = get_translation_rotation_folder(translation3D, (0, 0))
 
-        if in_lower_halfplane:  # fix symmetry
-            filename = os.path.join(friction_coeffs_root, translation_folder, 'g21_ft.dat')  # should be the same as g12
-            order = order_g12[::-1]  # reverse order
-        else:
-            filename = os.path.join(friction_coeffs_root, translation_folder, 'g12_ft.dat')
-            order = order_g12
+    if in_lower_halfplane:  # fix symmetry
+        filename = os.path.join(friction_coeffs_root, translation_folder, 'g22_ft.dat')
+        order = order_g11[::-1]  # reverse order
+    else:
+        filename = os.path.join(friction_coeffs_root, translation_folder, 'g11_ft.dat')
+        order = order_g11
 
-        # Load friction as a function (Fourier sum); swap order of input when needed
-        df = load_coeffs_from_file(filename, order_max=order, truncate_triangular=False)
-        coeffs = sp.array(df['coeff'])
-        coeff_ids = [(m, n) for (m, n) in zip(df['n1'], df['n2'])]
+    # Load friction as a function (fourier sum); swap order of input when needed
+    df = load_coeffs_from_file(filename, order_max=order, truncate_triangular=False)
+    coeffs = sp.array(df['coeff'])
+    coeff_ids = [(m, n) for (m, n) in zip(df['n1'], df['n2'])]
 
-        # swap variable in fouerier series if in lower half plane - fix of symmetry
-        interactions_dict[(n, m)] = fourier_series2D(coeffs, coeff_ids, swap_axes=in_lower_halfplane)
+    # swap variable in fouerier series if in lower half plane - fix of symmetry
+    return fourier_series2D(coeffs, coeff_ids, swap_axes=in_lower_halfplane)
+
+def load_gij(friction_coeffs_root, translation, order_g12, eps=1e-8):
+    """
+    translation means relative position of the second cilium
+    """
+    # Determine if translation vector is in lower half-plane - then use coeffs from upper part of the plane
+    # but swap cilia indices
+    if translation[1] < 0 or (abs(translation[1]) < eps and translation[0] < 0):
+        in_lower_halfplane = True
+        translation = - translation
+    else:
+        in_lower_halfplane = False
+
+    # Replace very small coordinates with zero - to correctly compile the folder name
+    for i, ti in enumerate(translation):
+        if abs(ti) < eps:
+            translation[i] = 0
+
+    # Get file name and load g_ij as a function
+    translation3D = (*translation, 0.)
+    translation_folder = get_translation_rotation_folder(translation3D, (0, 0))
+
+    if in_lower_halfplane:  # fix symmetry
+        filename = os.path.join(friction_coeffs_root, translation_folder, 'g21_ft.dat')  # should be the same as g12
+        order = order_g12[::-1]  # reverse order
+    else:
+        filename = os.path.join(friction_coeffs_root, translation_folder, 'g12_ft.dat')
+        order = order_g12
+
+    # Load friction as a function (Fourier sum); swap order of input when needed
+    df = load_coeffs_from_file(filename, order_max=order, truncate_triangular=False)
+    coeffs = sp.array(df['coeff'])
+    coeff_ids = [(m, n) for (m, n) in zip(df['n1'], df['n2'])]
+
+    # swap variable in fouerier series if in lower half plane - fix of symmetry
+    return fourier_series2D(coeffs, coeff_ids, swap_axes=in_lower_halfplane)
+
+
+
+def load_self_friction_and_interactions(set_name, connections, e1, e2, a, order_g11, order_g12, eps=1e-8):
+    '''
+    :param set_name: e.g. 'machemer_1'
+    :param connections: [(n1,m1),(n2,m2),..] - relative positions of the second cilia in lattice coordinates - integer numbers
+    :param e1,e2: directors of the lattice - unit vectors
+    :param a: lattice spacing
+    :return: a tuple of dictionaries. keys: (n,m), values: function gii or gij of two arguments - phases of two cilia
+    '''
+    friction_coeffs_root = get_friction_coeffs_path(set_name)
 
     ##  Load self-friction
     self_friction_dict = {}
     for n, m in connections:
         translation = a * e1 * n + a * e2 * m
-        # Determine if translation vector is in lower half-plane - then use coeffs from upper part of the plane
-        # but change indexes 1 and 2
-        if translation[1] < 0 or (translation[1] == 0 and translation[0] < 0):
-            in_lower_halfplane = True
-            translation = - translation
-        else:
-            in_lower_halfplane = False
+        self_friction_dict[(n, m)] = load_gii(friction_coeffs_root, translation, order_g11, eps)
 
-        # Replace very small coordinates with zero - to correctly compile the folder name
-        for i, ti in enumerate(translation):
-            if abs(ti) < 10 ** -8:
-                translation[i] = 0
-
-        translation3D = (*translation, 0.)
-        translation_folder = get_translation_rotation_folder(translation3D, (0, 0))
-
-        if in_lower_halfplane:  # fix symmetry
-            filename = os.path.join(friction_coeffs_root, translation_folder, 'g22_ft.dat')
-            order = order_g11[::-1]  # reverse order
-        else:
-            filename = os.path.join(friction_coeffs_root, translation_folder, 'g11_ft.dat')
-            order = order_g11
-
-        # Load friction as a function (fourier sum); swap order of input when needed
-        df = load_coeffs_from_file(filename, order_max=order, truncate_triangular=False)
-        coeffs = sp.array(df['coeff'])
-        coeff_ids = [(m, n) for (m, n) in zip(df['n1'], df['n2'])]
-
-        # swap variable in fouerier series if in lower half plane - fix of symmetry
-        self_friction_dict[(n, m)] = fourier_series2D(coeffs, coeff_ids, swap_axes=in_lower_halfplane)
+    # Load interactions
+    interactions_dict = {}
+    for n, m in connections:  # relative cilia positions in lattice space
+        translation = a * e1 * n + a * e2 * m
+        interactions_dict[(n, m)] = load_gij(friction_coeffs_root, translation, order_g12, eps)
 
     return self_friction_dict, interactions_dict
 
@@ -314,7 +332,7 @@ if __name__ == "__main__":
           [sp.array([18, 0]), sp.array([-18, 0])],
           [sp.array([18, 0]), sp.array([-18, 0])]]
 
-    gmat_glob, q_glob = define_gmat_glob_and_q_glob0(set_name, connections, e1, e2, a, order_g11, order_g12, N1, T1, T)
+    gmat_glob, q_glob = define_gmat_glob_and_q_glob0(set_name, connections, e1, e2, a, N1, T1, order_g11, order_g12, T)
 
     phis = sp.array([[0, 0, 0], [0.5, 0.5, 0.5], [sp.pi, sp.pi, sp.pi],
                      [3 / 2 * sp.pi, 3 / 2 * sp.pi, 3 / 2 * sp.pi], [2 * sp.pi, 2 * sp.pi, 2 * sp.pi]])
