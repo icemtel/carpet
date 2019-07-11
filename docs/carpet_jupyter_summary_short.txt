@@ -1,0 +1,56 @@
+## `try04_1D_carpet_N=3.ipynb`
+- 1D chain, N=3
+- Fixpoint stability illustrated by quiver plot. Axes: 1st and 2nd cilium phase. (3rd cilium phase is deduced from Poincare plane equation)
+
+## `try05_1D_carpet_find_fixpoint.ipynb`
+- Develop a procedure to find fixpoints
+
+## `try06_2D_find_fixpoint.ipynb`
+- Find fixpoints for 6x6 triangular lattice.
+- No classes yet.
+
+## `try07_CARPET_optimize_friction.ipynb`
+- Use `carpet` package
+- Optimize & test friction computation
+- Introduce classes procedure
+- Recalculated fixpoints with `tol=10 ** -8`
+
+## `try08b_CARPET_fixpoint_analysis.ipynb`
+- Version b: use fixpoints from `try07` rather than `try06`
+
+- Stability of fixpoints
+
+
+## `try09_1D_carpet_analysis_N=6.ipynb` (and `try09` `a` `b` `c` )
+- Find fixpoints with `tol=10 ** -6`
+- Find eigenvalues and eigenvectors of linearized Poincare map
+- Visualize eigenvalues: points in dual lattice space; color - magnitude of eigenvalue.
+
+### b: N=30
+- Experimental: Consider a different x axis: 1/k
+- extra precision fixpoitns (`tol = 10 **-8`)
+- extra delta0s: compare eigenvalues
+  Result:
+  - error around `10 ** -4` - it's OK, but can't trust small values - big relative error
+  - OK: sanity check - compare `abs` instead of only real part.
+  - NOT OK: eigenvectors?
+- Compare eigenvalues vs eigenvector length in dual lattice space.
+- Eigenvectors decomposition to the basis of complex exponents of m-twists (<=> discrete fourier transform)
+- Neutral perturbation is not the same as `dphidt` (?)
+- Plot gij / gii (phi, phi+ delta) - does not look regular
+### c: N=120
+
+## `try_10_fixpoint_new_procedure.ipynb`
+- Search for a fixpoint in a form of m-twist, shifted in time.
+- Unsuccessful
+
+## `try12_1D_carpet_rotated.ipynb`
+- Rotated chain of cilia
+- `a`, `b` `c` - different rotation angle
+- Biggest eigenvalues plotted in dual lattice space
+- Eigenvectors mapped to m-twists -> plot eigenvalues as a function of $k$
+  - trigonometric dependence
+
+
+## `try11_carpet_analysis_nx=12_ny=12.ipynb`
+- Redo `try08b` for a larger carpet with triangular lattice

@@ -7,6 +7,8 @@ Possible optimizations:
 - Cubic interpolation of gij
   Does give speed boost 2-10 times. (slower in parallel jobs, faster in sequential)
   But using it might give numerical problems: we might need higher order derivatives for Runge-Kutta-4(5) method
+
+TODO: Get samples of g11 and g12 -> g12 / g11 * omega = right side of ODE. Use Fourier transform directly on it
 '''
 import os
 import scipy as sp

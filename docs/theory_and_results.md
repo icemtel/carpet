@@ -187,3 +187,43 @@ $\mathbf{L} = e^\mathbf{\Lambda}; \quad \mathbf{\Lambda} = \log \mathbf{L} $
 
 
 - $\Lambda$ - is not a symmetrical matrix.
+
+---
+# Simulations
+
+### Eigenvectors
+- Stored as **columns** of NxN array `evecs`
+- Normalized
+- Not orthogonal in general, but a lot of them *are* orthogonal
+- There are eigenvectors which are complex conjugates of one another (which is what we expect for complex eigenvalues).
+- Perturbation made of eigenvector and its complex conjugate will develop after a cycle as predicted to linear theory up to precision of `10 ** -4` - `10 ** -5`.
+  - This is not very small, but it remains as small if I increase `delta0` to `10 ** -1`
+  - Imaginary part of eigenvalue gives very small contribution.
+
+- Most of eigenvectors have their components lying on a circle - which is often shifted away from origin.
+
+#### Eigenvector decomposition
+
+Decompose eigenvector into basis of complex exponents of m-twists (discrete Fourier transform):
+$$
+\Delta = \sum_{\mathbf{k}} d_k e^{i \Phi_\mathbf{k}}.
+$$
+Observed (1D carpet,`try09b`, `try12a`) that in fact only two components give major contribution: $\mathbf{k}=\mathbf{0}$ and $\mathbf{k}=\mathbf{k_1} \neq \mathbf{0}$,
+
+$$
+\Delta = d_0 +  d_{\mathbf{k_1}} e^{i \Phi_\mathbf{k_1}}  +\mathbf{R_2},
+$$
+
+where $\mathbf{R_2} = \sum_{\mathbf{\mathbf{k} \neq \mathbf{0}, \mathbf{k_1}}} d_k e^{i \Phi_\mathbf{k}}$ - residual.
+
+- In most of the cases $\lVert \mathbf{R_2} \rVert < 0.02$. In a few cases $ 0.02 < \lVert \mathbf{R_2} \rVert < 0.1$ and taking just one additional term would lower the residual down to $ 0.02$.
+
+- Representation in the form
+$$
+\Delta = d_0 +  d_{\mathbf{k_1}} e^{i \Phi_\mathbf{k_1}}
+$$
+means that eigenvector components are arranged into a circle:
+<img alt="carpet_jupyter_summary-2019-07-03-af1e3af7.png" src="assets/carpet_jupyter_summary-2019-07-03-af1e3af7.png" width="" height="" >
+
+- Circle centers $d_0$ are real or almost real.
+- Eigenvectors which are complex conjugates of each other have their centers complex conjugated as well, therefore centers aare distributed symmetrical around real axis.

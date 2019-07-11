@@ -145,6 +145,8 @@ Therefore
 
 
 ### Eigenvalues magnitude vs eigenvector length in dual lattice space
+`try09b`
+
 Observed a generic behaviour:
 - Imaginary parts grow (almost) linearly toward the medium-length of eigenvectors
 - Real parts grow (in absolute value) towards longer vectors
@@ -176,6 +178,7 @@ Observed a generic behaviour:
   - NOT OK: eigenvectors?
 - Compare eigenvalues vs eigenvector length in dual lattice space.
 - Eigenvectors decomposition to the basis of complex exponents of m-twists (<=> discrete fourier transform)
+- Neutral perturbation is not the same as `dphidt` (?)
 
 ### c: N=120
 
