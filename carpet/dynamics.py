@@ -20,7 +20,8 @@ def define_solve_cycle(right_side_of_ODE, t_max, phi_global_func):
 
         def end_cycle_event(t, phi):
             '''
-            When equals to zero - solver will terminate the process
+            Event triggered when this function returns zero.
+            By definition, it returns zero when global phase gets increment of 2pi.
             '''
             if t > 0:
                 return sp.sin(phi_global_func(phi) - phi_global_init)

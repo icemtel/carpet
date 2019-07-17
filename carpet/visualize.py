@@ -187,6 +187,7 @@ def phase_plot(vals, ax=None, colorbar=True,
                **kwargs):
     '''
     Makes a 2D colormap in the range from 0 to 2pi; add ticks proportional to pi/2;
+    :param vals: 2D array
     :param phase_colored_lines: If True - add colors near the plot, representing each of phases, as defined by the default colormap
     :param num_phases: Used by phase_colored_lines;
     :param filename: If given - will save the plot to the file. If ax is given - it has to be a quick.Plot instance
