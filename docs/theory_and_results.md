@@ -19,7 +19,7 @@ export_on_save:
 - $\mathcal{L}: H \rightarrow H$ - Poincare map
 - $\mathbf{\Phi^*} \in H$ - fix point of the Poincare map
 - $\mathbf{\Phi^{*}_k}$ - fix point close to the m-twist solution
-- $\mathcal{L}(\mathbf{\Phi^{*}} + \mathbf{\Delta_0}) = \mathbf{\Phi^{*}} + \mathbf{\Delta_1}$ - perturbation initial and after one cycle
+- $\mathbf{\Delta_0}$, $\mathbf{\Delta_1}$ - perturbation initial and after one cycle: $\mathcal{L}(\mathbf{\Phi^{*}} + \mathbf{\Delta_0}) = \mathbf{\Phi^{*}} + \mathbf{\Delta_1}$ 
 - $\mathbf{L} = \mathrm{D}\mathcal{L}(\mathbf{\Phi^*})$ - linearized Poincare map at a fixed point (matrix). In code `Lmat`
 - $\mathbf{L} = e^\mathbf{\Lambda}; \quad \mathbf{\Lambda} = \log \mathbf{L} $ - logarithm of the linearized Poincare map. In code `Lmat_log`
 - $\lambda_j$ - eigenvalues of $\Lambda$
@@ -204,7 +204,7 @@ $\mathbf{L} = e^\mathbf{\Lambda}; \quad \mathbf{\Lambda} = \log \mathbf{L} $
 
 #### Eigenvector decomposition
 
-Decompose eigenvector into basis of complex exponents of m-twists (discrete Fourier transform):
+Decompose eigenvector into basis of complex exponents of m-twists (coefficients are essentially multidimensional discrete Fourier transform output):
 $$
 \Delta = \sum_{\mathbf{k}} d_k e^{i \Phi_\mathbf{k}}.
 $$
@@ -227,3 +227,14 @@ means that eigenvector components are arranged into a circle:
 
 - Circle centers $d_0$ are real or almost real.
 - Eigenvectors which are complex conjugates of each other have their centers complex conjugated as well, therefore centers aare distributed symmetrical around real axis.
+
+We can construct real perturbation based on complex eigenvectors:
+$$
+\widetilde \Delta = \frac{1}{2} ( \Delta + \Delta^*) = \operatorname{Re}(\Delta)
+= \operatorname{Re}(d_0) + \operatorname{Re}(d_{\mathbf{k_1}}) \cos(\Phi_{\mathbf{k_1}}) - \operatorname{Im}(d_{\mathbf{k_1}}) \sin(\Phi_{\mathbf{k_1}})
+$$
+
+$$
+\widetilde{\widetilde \Delta} = \frac{1}{2} ( \Delta - \Delta^*) = \operatorname{Im}(\Delta)
+= \operatorname{Im}(d_0) + \operatorname{Im}(d_{\mathbf{k_1}}) \cos(\Phi_{\mathbf{k_1}}) + \operatorname{Re}(d_{\mathbf{k_1}}) \sin(\Phi_{\mathbf{k_1}})
+$$

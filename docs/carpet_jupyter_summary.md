@@ -91,6 +91,21 @@ where $\mathbf{R_2} = \sum_{\mathbf{\mathbf{k} \neq \mathbf{0}, \mathbf{k_1}}} d
 - In most of the cases $\lVert \mathbf{R_2} \rVert < 0.02$. In a few cases $ 0.02 < \lVert \mathbf{R_2} \rVert < 0.1$ and taking one additional term would lower the residual down to $ 0.02$.
 
 
+#### Decomposition of fixpoints
+- Decomposition of a complex exponent of a fixpoint posesses some symmetries, e.g. look at the decomposition of 5-twist:
+```
+i    real          imag
+0    -0.00181      -0.000718
+5    1             2.63e-06
+10    0.00181       -0.000718
+15    0.000344      -3.81e-05
+20    1.19e-06      -0.000345
+25    -0.000342     -3.68e-05
+```
+  Real parts of additional contributions have opposite sign.
+ - 0-twist is paired with 2*k-twist, if we decompose k-twist!
+  - EXPLANATION: complex exponent of a real function => symmetries
+    For more - look into decomposition $\exp(i \Delta^*)$, where $\Phi^{*}_k = \Phi_k + \Delta^*$
 
 ### Eigenvalues
 - Stable region looks seems to stay persistent between N=30 and N=120
@@ -168,6 +183,9 @@ Observed a generic behaviour:
 <img alt="carpet_jupyter_summary-2019-07-08-958eac83.png" src="assets/carpet_jupyter_summary-2019-07-08-958eac83.png" width="" height="" >
 <img alt="carpet_jupyter_summary-2019-07-08-424c9b13.png" src="assets/carpet_jupyter_summary-2019-07-08-424c9b13.png" width="" height="" >
 
+### N=6
+- Found out that the matrix is not correctly compiled: has to be transposed
+
 ### b: N=30
 - Experimental: Consider a different x axis: 1/k
 - extra precision fixpoitns (`tol = 10 **-8`)
@@ -213,7 +231,7 @@ Observed a generic behaviour:
 - Real parts are nicely fitted nicely with 3-parameter linear fit in basis $\{1, \cos(a  k), \cos(2  a  k)\}$
 - Moreover, in all the cases checked it can be reduced to one parameter:
   - $c  (1 - \cos(a k))$
-  - $c  ( \cos(a k) - \cos(2 a k)$
+  - $c  ( \cos(a k) - \cos(2 a k))$
 
 - Imaginary part is fitted by $\sin(a k)$
 
@@ -222,6 +240,14 @@ Observed a generic behaviour:
 
 <img alt="carpet_jupyter_summary-2019-07-11-f7c10dda.png" src="assets/carpet_jupyter_summary-2019-07-11-f7c10dda.png" width="" height="" >
 
+
+## `try09v2_1D_carpet_analysis_N=6.ipynb`
+- Fill `L_log_lin` column by column:
+
+  $$ \Delta_1 = \mathbf{L} \Delta_0 =  (\Lambda + \mathbf{I}) \Delta_0 $$
+
+  If $\Delta_0 = (\delta_0,0,0,..)$, then the first column of $L$ = $\Delta_1 / \delta_0$. But before in code, we fill the matrix row by row?! -
+- Results have not visually changed
 
 ## `try11_carpet_analysis_nx=12_ny=12.ipynb`
 - Redo `try08b` for a larger carpet with triangular lattice
