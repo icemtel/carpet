@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import colorsys
 import matplotlib as mpl
 import matplotlib.colors as colors
+from matplotlib.colors import SymLogNorm # , Normalize, LogNorm
 
 default_colormap = 'viridis'
 default_midpoint_colormap = 'RdBu_r'
@@ -217,6 +218,88 @@ def phase_plot(vals, ax=None, colorbar=True,
 
         ax.set_xlim((-shift * (magic_num), sp.pi * 2))
         ax.set_ylim((-shift * (magic_num), sp.pi * 2))
+
+
+
+## Visualize stability of fixpoints
+## - For each fixpoint, plot in dual lattice space an eigenvalue with the biggest real part (exclude neutral perturbation)
+
+
+def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
+    import matplotlib.colors as colors
+    if type(cmap) is str:
+        cmap = plt.get_cmap(cmap)
+    new_cmap = colors.LinearSegmentedColormap.from_list(
+        'trunc({n},{a:.2f},{b:.2f})'.format(n=cmap.name, a=minval, b=maxval),
+        cmap(sp.linspace(minval, maxval, n)))
+    return new_cmap
+
+
+def _collect_values(ev_dict, get_k, eps=10 ** -8):
+    ks_stable = []  # vectors k
+    vals_stable = []  # colors
+
+    ks_unstable = []
+    vals_unstable = []
+
+    ks_saddle = []
+    for m1 in range(nx):
+        for m2 in range(ny):
+            k = get_k(m1)
+            if abs(ev_dict[m1, m2][-1]) < eps:
+                ev = sp.real(ev_dict[m1, m2][-2])
+            else:
+                ev = sp.real(ev_dict[m1, m2][-1])
+
+            # Stable
+            if ev < 0:
+                ks_stable.append(k)
+                vals_stable.append(ev)
+
+            # Unstable
+            if ev > 0:
+                ks_unstable.append(k)
+                vals_unstable.append(ev)
+
+                # Saddle nodes
+            if ev > 0 and sp.real(ev_dict[m1, m2][0]) < 0:
+                ks_saddle.append(k)
+
+    ks_stable = sp.array(ks_stable)
+    ks_unstable = sp.array(ks_unstable)
+    ks_saddle = sp.array(ks_saddle)
+    return (vals_stable, ks_stable), (vals_unstable, ks_unstable), ks_saddle
+
+
+def plot_stability(ev_dict, get_k, range_stable=None, range_unstable=None):
+    '''
+    Must be followed by plt.show()
+
+    - Eigenvalues to m-twist
+    2019-08-05: include saddle nodes
+    '''
+    (vals_stable, ks_stable), (vals_unstable, ks_unstable), ks_saddle = _collect_values(ev_dict, get_k)
+
+    # Plot Stable
+    cmap = 'Greens_r'
+    if range_stable is not None:
+        cmap_norm = SymLogNorm(vmin=range_stable[0], vmax=range_stable[1], linthresh=10 ** -5)
+    else:
+        cmap_norm = SymLogNorm(vmin=sp.amin(vals_stable), vmax=sp.amax(vals_stable), linthresh=10 ** -5)
+    plt.scatter(ks_stable[:, 0], ks_stable[:, 1], c=vals_stable, cmap=cmap, norm=cmap_norm)
+    plt.colorbar()
+
+    # Plot Unstable
+    cmap = 'Reds'  # truncate_colormap('Reds', 0.6, 0.95)
+    if range_stable is not None:
+        cmap_norm = SymLogNorm(vmin=range_unstable[0], vmax=range_unstable[1], linthresh=10 ** -5)
+    else:
+        cmap_norm = SymLogNorm(vmin=sp.amin(vals_unstable), vmax=sp.amax(vals_unstable), linthresh=10 ** -5)
+    plt.scatter(ks_unstable[:, 0], ks_unstable[:, 1], c=vals_unstable, cmap=cmap, norm=cmap_norm)
+    plt.colorbar()
+
+    # Highlight saddle nodes
+    plt.scatter(ks_saddle[:, 0], ks_saddle[:, 1], facecolors='none', edgecolor='green', linewidths=2)
 
 
 if __name__ == '__main__':
