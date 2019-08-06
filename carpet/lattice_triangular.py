@@ -223,6 +223,75 @@ def define_right_side_of_ODE(gmat_glob, q_glob):
     return right_side_of_ODE
 
 
+## map eigenvectors to mtwists
+def define_get_mtwist_exp(get_mtwist):
+    def get_mtwist_exp(k1, k2=0):  # non-normalized
+        return sp.exp(1j * get_mtwist(k1, k2))
+
+    return get_mtwist_exp
+
+def define_print_decomposition(decompose_to_mtwist_exp_basis):
+    def print_decomposition(phi_exp, eps=10 ** -8, print_abs=True):
+        if print_abs is True:
+            print("i    abs")
+            for i, x in enumerate(decompose_to_mtwist_exp_basis(phi_exp)):
+                if abs(x) > eps:
+                    print("{}    {:<10.3g}".format(i, abs(x)))
+        else:
+            for i, x in enumerate(decompose_to_mtwist_exp_basis(phi_exp)):
+                if abs(x) > eps:
+                    print("{}    {:<10.3g}    {:<10.3g}".format(i, x.real, x.imag))
+
+    return print_decomposition
+
+def define_decompose_to_mtwist_exp_basis(get_mtwist_exp, nx, ny):
+    N = nx * ny
+    # 2D case update: store coeffs as 1D array
+    def decompose_to_mtwist_exp_basis(phi_exp):
+        # divide by N to normalize (both vectors have length of N ** (1/2)
+        return sp.array([phi_exp @ get_mtwist_exp(k1, k2).conj() / N for k1 in range(nx) for k2 in range(ny)])
+
+    return decompose_to_mtwist_exp_basis
+
+def define_get_evec2mtwist(get_mtwist, nx, ny):
+    decompose_to_mtwist_exp_basis = define_decompose_to_mtwist_exp_basis(get_mtwist, nx, ny)
+
+    def get_evec2mtwist4(evecs, warning_threshold=10 ** -2):
+        '''
+        Based on decomposition introduced above
+        2019-07: in 2D lattice
+        '''
+        nevecs = evecs.shape[1]
+        N = evecs.shape[0]  # nevecs must be equal to N if all evecs are in the input
+
+        evec2mtwist = {}
+        ks = [(k1, k2) for k1 in range(nx) for k2 in range(ny)]  # to find later to which mtwist to be mapped
+        for ievec in range(nevecs):
+            evec_renormed = evecs[:, ievec] * N ** (1 / 2)
+            coeffs = decompose_to_mtwist_exp_basis(evec_renormed)
+
+            sorted_ind = sp.argsort(abs(coeffs))  # ascending order
+
+            # 3: Return the biggest component idx
+            idx = -1
+            evec2mtwist[ievec] = ks[sorted_ind[idx]]
+            # Warn if the next (in descending order) component is too big
+            # But skip 0-twist
+            if sorted_ind[idx - 1] == 0:
+                idx -= 1
+            residual = sp.sum(abs(coeffs[sorted_ind[:idx]]) ** 2) ** (1 / 2)
+            if residual > warning_threshold:
+                print("WARNING: ievec={} - Residual is too big: {:.3g}".format(ievec, residual))
+
+        # Warn if the mapping is not unique
+        mtwists_unique = set(evec2mtwist.values())  # Only unique values
+        if len(evec2mtwist.values()) != len(mtwists_unique):
+            print("WARNING: the mapping from evecs to mtwists is not bijective")
+        return evec2mtwist
+
+    return get_evec2mtwist4
+
+
 if __name__ == '__main__':
     # OK: both triangular and rectangular lattice
     # OK: translations lengths (plot)

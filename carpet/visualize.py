@@ -301,6 +301,92 @@ def plot_stability(ev_dict, get_k, range_stable=None, range_unstable=None):
     # Highlight saddle nodes
     plt.scatter(ks_saddle[:, 0], ks_saddle[:, 1], facecolors='none', edgecolor='green', linewidths=2)
 
+def plot_stability2(ev_dict, get_k, range_stable=None, range_unstable=None):
+    '''
+    Must be followed by plt.show()
+
+    - Eigenvalues to m-twist
+    2019-08-05: include saddle nodes
+    '''
+    (vals_stable, ks_stable), (vals_unstable, ks_unstable), ks_saddle = _collect_values(ev_dict, get_k)
+
+    # Plot Stable
+    cmap = 'Greens_r'
+    if range_stable is not None:
+        cmap_norm = SymLogNorm(vmin=range_stable[0], vmax=range_stable[1], linthresh=10 ** -5)
+    else:
+        cmap_norm = SymLogNorm(vmin=sp.amin(vals_stable), vmax=sp.amax(vals_stable), linthresh=10 ** -5)
+    plt.scatter(ks_stable[:, 0], ks_stable[:, 1], c=vals_stable, cmap=cmap, norm=cmap_norm)
+    plt.colorbar()
+
+    # Plot Unstable
+    cmap = 'Reds'  # truncate_colormap('Reds', 0.6, 0.95)
+    if range_stable is not None:
+        cmap_norm = SymLogNorm(vmin=range_unstable[0], vmax=range_unstable[1], linthresh=10 ** -5)
+    else:
+        cmap_norm = SymLogNorm(vmin=sp.amin(vals_unstable), vmax=sp.amax(vals_unstable), linthresh=10 ** -5)
+    plt.scatter(ks_unstable[:, 0], ks_unstable[:, 1], c=vals_unstable, cmap=cmap, norm=cmap_norm)
+    plt.colorbar()
+
+    # Highlight saddle nodes
+    plt.scatter(ks_saddle[:, 0], ks_saddle[:, 1], facecolors='none', edgecolor='green', linewidths=2)
+
+
+
+## Plot eigenvalues vs k
+## - evec2mtwist - in lattice
+## - print decomposition
+
+def plot_evals_k_vec(evals, evec2mtwist, get_k, range_stable=None, range_unstable=None):
+    '''
+    Must be followed by plt.show()
+    Given a mapping from eigenvectors to mtwists, plot REAL parts of eigenvalues in dual lattice space.
+    '''
+    from matplotlib.colors import SymLogNorm
+    ks_stable = []  # vectors k
+    vals_stable = []  # colors
+
+    ks_unstable = []
+    vals_unstable = []
+
+    for ievec, (m1, m2) in evec2mtwist.items():
+        ev = evals[ievec].real  # Only consider real part
+        (m1, m2) = evec2mtwist[ievec]
+        k = get_k(m1, m2)
+        # Stable
+        if ev < 0:
+            ks_stable.append(k)
+            vals_stable.append(ev)
+
+        # Unstable
+        if ev > 0:
+            ks_unstable.append(k)
+            vals_unstable.append(ev)
+
+    ks_stable = sp.array(ks_stable)
+    ks_unstable = sp.array(ks_unstable)
+
+    # Plot Stable
+    if len(vals_stable) > 0:
+        cmap = 'Greens_r'
+        if range_stable is not None:
+            cmap_norm = SymLogNorm(vmin=range_stable[0], vmax=range_stable[1], linthresh=10 ** -5)
+        else:
+            cmap_norm = SymLogNorm(vmin=sp.amin(vals_stable), vmax=sp.amax(vals_stable), linthresh=10 ** -5)
+        plt.scatter(ks_stable[:, 0], ks_stable[:, 1], c=vals_stable, cmap=cmap, norm=cmap_norm)
+        plt.colorbar()
+
+    if len(vals_unstable) > 0:
+        # Plot Unstable
+        cmap = 'Reds'  # truncate_colormap('Reds', 0.6, 0.95)
+        # norm = Normalize(vmin=sp.amin(vals_unstable), vmax=sp.amax(vals_unstable))
+        if range_stable is not None:
+            cmap_norm = SymLogNorm(vmin=range_unstable[0], vmax=range_unstable[1], linthresh=10 ** -5)
+        else:
+            cmap_norm = SymLogNorm(vmin=sp.amin(vals_unstable), vmax=sp.amax(vals_unstable), linthresh=10 ** -5)
+        plt.scatter(ks_unstable[:, 0], ks_unstable[:, 1], c=vals_unstable, cmap=cmap, norm=cmap_norm)
+        plt.colorbar()
+
 
 if __name__ == '__main__':
     '''
