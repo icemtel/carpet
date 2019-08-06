@@ -15,8 +15,13 @@ def define_solve_cycle(right_side_of_ODE, t_max, phi_global_func):
     :return: solve_cycle function
     - atol and rtol are chosen with an assumption that phases are close to interval [0, 2pi]
     '''
-    def solve_cycle(phi_init, tol):
-        phi_global_init = phi_global_func(phi_init)
+    def solve_cycle(phi_init, tol, phi_global_end=None):
+        """
+        :param phi_global_end: if not given, the cycle will finish at the initial phase, otherwise at phase_finish up to 2pi
+        :return:
+        """
+        if phi_global_end is None:
+            phi_global_end = phi_global_func(phi_init) # end at starting phase (up to 2pi)
 
         def end_cycle_event(t, phi):
             '''
@@ -24,7 +29,7 @@ def define_solve_cycle(right_side_of_ODE, t_max, phi_global_func):
             By definition, it returns zero when global phase gets increment of 2pi.
             '''
             if t > 0:
-                return sp.sin(phi_global_func(phi) - phi_global_init)
+                return sp.sin(phi_global_func(phi) - phi_global_end)
             else:
                 return sp.inf
 
@@ -72,3 +77,7 @@ def get_order_parameter(phi, phi0):
 ### Mean phase
 def get_mean_phase(phi):
     return sp.mean(phi)
+
+
+
+
