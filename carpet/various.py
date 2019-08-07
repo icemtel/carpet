@@ -1,9 +1,19 @@
 '''
+- root mean square
 - logging
 '''
 
 import logging
 import sys
+import scipy as sp
+
+
+def rms(vec):
+    '''
+    Root mean square; Quadratic averarge
+    '''
+    return sp.sqrt(sp.mean(vec ** 2))
+
 
 def setup_logging(filename=None, mode='a', print_log_messages=True):
     """
@@ -32,12 +42,16 @@ def setup_logging(filename=None, mode='a', print_log_messages=True):
     return logger
 
 
-
 if __name__ == '__main__':
-    logger = setup_logging('a.log')
-  #  logger = setup_logging()
+    ## Test RMS
+    a = sp.array([1,1])
+    print(rms(a))
 
-    logging.info("THIS IS INFO!!!")
-    logging.warning("THIS IS WARNING!")
-    logging.debug("THIS IS A DEBUG MESSAGE! IT SHOULDN't BE DISPLAYED!!")
-    logger.info("Can also log this")
+    ## Test Logger:
+    #   logger = setup_logging('a.log')
+    # #  logger = setup_logging()
+    #
+    #   logging.info("THIS IS INFO!!!")
+    #   logging.warning("THIS IS WARNING!")
+    #   logging.debug("THIS IS A DEBUG MESSAGE! IT SHOULDN't BE DISPLAYED!!")
+    #   logger.info("Can also log this")

@@ -11,7 +11,8 @@ Importing **`carpet`** will give direct access to functions inside several modul
   - Define global phase
 - `various`: 
   - a function to setup logging
-
+  - root mean square
+ 
 **Other modules** must be imported separately when needed. This is done as following
 
 `import carpet.lattice_triangular as lattice`
