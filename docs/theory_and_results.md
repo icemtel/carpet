@@ -16,16 +16,53 @@ export_on_save:
 - $ \mathbf{Q(\Phi)}$ - vector of active driving forces
 - $ \mathbf{\Gamma}$ - friction coefficients NxN-matrix
 - $\mathbf{\Phi_k}$ - m-twist solution
+- $\phi(\mathbf{\Phi})$ - global phase, according to one of the definitions. *Currently mean phase is the default choice for global phase.*
 - $\mathcal{L}: H \rightarrow H$ - Poincare map
 - $\mathbf{\Phi^*} \in H$ - fix point of the Poincare map
 - $\mathbf{\Phi^{*}_k}$ - fix point close to the m-twist solution
-- $\mathbf{\Delta_0}$, $\mathbf{\Delta_1}$ - perturbation initial and after one cycle: $\mathcal{L}(\mathbf{\Phi^{*}} + \mathbf{\Delta_0}) = \mathbf{\Phi^{*}} + \mathbf{\Delta_1}$ 
+- $\mathbf{\Delta_0}$, $\mathbf{\Delta_1}$ - perturbation initial and after one cycle: $\mathcal{L}(\mathbf{\Phi^{*}} + \mathbf{\Delta_0}) = \mathbf{\Phi^{*}} + \mathbf{\Delta_1}$
 - $\mathbf{L} = \mathrm{D}\mathcal{L}(\mathbf{\Phi^*})$ - linearized Poincare map at a fixed point (matrix). In code `Lmat`
 - $\mathbf{L} = e^\mathbf{\Lambda}; \quad \mathbf{\Lambda} = \log \mathbf{L} $ - logarithm of the linearized Poincare map. In code `Lmat_log`
 - $\lambda_j$ - eigenvalues of $\Lambda$
 
+**Conflicts:**
+- Fixpoint notation and complex conjugation.
+- Once $\delta$ and $\Delta$ are taken - how to denote a difference of some values?
+- global phase and components of $\mathbf{\Phi}$
+- $d(\Phi)$ in procedure to find fixpoint and $d$ - as a distance between cilia. Change $d$ to $a$ - spacing between cilia?
+- TODO: $\mathbf{\Delta_0}$- > $\mathbf{\Delta}_0$ -
 
 
+**Fill the tables to see which letters I can still use?**
+
+|         |   |         |   |
+|---------|---|---------|---|
+| a       |   | A       |   |
+| b       |   | B       |   |
+| c       |   | C       |   |
+| d       |   | D       |   |
+| e       | basis  | E       | Ben's distance from mtwist to fixpoint  |
+| f       |   | F       |   |
+| g       |   | G       |   |
+| h       |   | H       |   |
+| i       | idx  | I       |   |
+| j       | idx  | J       |   |
+| k       | idx, mtwist number, dual space vector  | K       |   |
+| l       | idx | L       |   |
+| m       |   | M       |   |
+| n       | $n_x$, $n_y$ - num cilia in 1 direction  | N       |  num cilia |
+| o       |   | O       |   |
+| p       |   | P       |   |
+| q       |   | Q       |  gen force |
+| r       |   | R       |   |
+| s       |   | S       |   |
+| t       | time, translation vec  | T       | period  |
+| u       |   | U       |   |
+| v       |   | V       |   |
+| w       |   | W       |   |
+| x       | coords  | X       |   |
+| y       | coords  | Y       |   |
+| z</pre> | coords  | Z</pre> |   |
 ## Geometry
 
 *Unit vectors*
@@ -54,7 +91,7 @@ $$
 
 *Wave vector of metachronal wave consistent with periodic boundary condition*
 $$ \mathbf{k} = \frac{a_1}{L_1}\,k_1\,\mathbf{a}_1^* + \frac{a_2}{L_2}\,k_2\,\mathbf{a}_2^*, $$
-where $k_1,k_2\in{Z}$ and $a_1=a$, $a_2 = \sqrt{3}a/2$
+where $k_1,k_2\in{Z}$ and $a_1=a$, $a_2 = \sqrt{3} a/2$
 
 *Meta-chronal wave solutions:*
 
@@ -121,22 +158,25 @@ $$
 Pros
 - Additive: if $\mathbf{\Phi} = \mathbf{\Phi_0}+ \mathbf{\Phi_1} $, then $\varphi = \varphi_0 + \varphi_1$
 - As an implication, it is independent of which initial condition we consider.
+- Poincare surface will be a plane, defined by normal $(1,1,1,1..,1)$.
+  [A language of quotient vector space could be useful; just keep this reference here for now http://mathworld.wolfram.com/QuotientVectorSpace.html]
+  (quotient = частное)
 
 Cons
--$\varphi_j$ can't jump from  $2 \pi$ to $0$, otherwise the global phase will make a jump by $- \frac{2 \pi}{N}$.
+- $\varphi_j$ can't jump from  $2 \pi$ to $0$, otherwise the global phase will make a jump by $- \frac{2 \pi}{N}$.
 
 ## Poicnare map for a m-twist solution
 ### Poincare map and limit cycle
 We consider a Poincare section $H$ defined by
 
 $$
-H =\{ \Phi : \varphi(\Phi)= \varphi(\Phi_0) \mod 2\pi \}.
+H =\{ \Phi : \varphi(\Phi) \equiv \varphi(\Phi_0) \mod 2\pi \}.
 $$
 
 - $\varphi$ denotes the global phase.
 - $\Phi_0$ - phase vector at initial time $t_0$.
 - $H$ is a $(N-1)$-dimensional hypersurface in $N$-dimensional phase space.
-- In case of $\varphi$ - mean phase, $H$ is a hyperplane.
+  - If $\varphi$ - mean phase, $H$ is a hyperplane.
 
 For each of m-twists solutions, we anticipate a corresponding limit cycle $C_\mathbf{k}$, piercing $H$ close to $\Phi_k$ i.e.
 
@@ -155,9 +195,10 @@ where
 - $\Phi_0 = \Phi(t_0)$ - some initial phase. *Note that for any $\Phi_0$ we can define a Poincare section as defined above.*
 - $\Phi_1=\Phi(t_1)$ - where $t_1$ is the next time when our phase trajectory hits the Poincare section.
 
-Then  $\Phi^*_\mathbf{k}$ is a fixpoint of Poincare map (
+Then  $\Phi^*_\mathbf{k}$ is a fixpoint of Poincare map
+
 **TODO:** explain why it cannot be another limit cycle in Poincare plane.
-)
+
 #### Procedure to find the fixpoint $\Phi^*$
 By definition, the fixpoint is such a point that
 $$
@@ -181,15 +222,229 @@ Therefore, to find the fixpoint $\Phi^*_{\mathbf{k}}$, we numerically find a min
 
 
 ### Linearized Poincare map
-- $\mathbf{L} = \mathrm{D}\mathcal{L}(\mathbf{\Phi^*})$ - linearized Poincare map at a fixed point (matrix). In code `Lmat`
+
+We use linear stability analysis to study stability of limit cycles. Consider a fixpoint of Poincare map $\Phi^*$ (corresponds to a limit cycle) and apply a small perturbation $\mathbf{\Delta_0}$.
+
+$$\mathcal{L}(\mathbf{\Phi^{*}} + \mathbf{\Delta_0}) = \mathbf{\Phi^{*}} + \mathbf{\Delta_1}$$
+
+Power expansion in vicinity of the fixpoint yields
+
+$$\mathcal{L}(\mathbf{\Phi^{*}} + \mathbf{\Delta_0}) = \mathbf{\Phi^{*}} +  \mathrm{D}\mathcal{L}(\mathbf{\Phi^*}) \mathbf{\Delta_0} + \mathcal{O}(\lVert\mathbf{\Delta_0}\rVert^2) $$
+
+where $\mathrm{D}\mathcal{L}(\mathbf{\Phi^*})$ is linear contribution (represented by a matrix), also known as linearized Poincare map [reference].
+
+Further let's use short notation $\mathbf{L}$ = $\mathrm{D}\mathcal{L}(\mathbf{\Phi^*})$. In code `Lmat`
+
+TODO:
 
 $\mathbf{L} = e^\mathbf{\Lambda}; \quad \mathbf{\Lambda} = \log \mathbf{L} $
 
 
-- $\Lambda$ - is not a symmetrical matrix.
+- $\mathbf{\Lambda}$ - is not a symmetrical matrix.
+
+## Numerical inaccuracy discussion
+
+### Inaccuracy in fixpoint
+
+#### Fixpoint
+
+We find fixpoint by optimization procedure [defined above] up to a tolerance, specified in code. Two tolerances are involved: (i) solver tolerance and (ii) minimizer tolerance. After minimal tests, those were taken to be equal and further in this section both are referred simply as tolerance.
+
+Suppose we found numerically a fixpoint $\widetilde \Phi^*$, but it is not perfect and $ \mathcal{L}(\widetilde \Phi^*) \neq \widetilde \Phi^* $:
+
+$$ \mathcal{L}(\widetilde \Phi^*) = \widetilde \Phi^* + \Delta_*$$
+
+This means, that real fixpoint is somewhere else:
+
+$$\widetilde \Phi^*= \Phi^* + \widetilde \Delta$$
+
+If we consider linear approximation in vicinity of $\Phi^*$
+
+
+$$ \mathcal{L}(\widetilde \Phi^*) = \Phi^* + \mathbf{L}  \widetilde \Delta$$
+
+$$ \widetilde \Phi^* + \Delta_* = \Phi^* + \mathbf{L}  \widetilde \Delta$$
+
+$$  \Phi^* + \widetilde \Delta + \Delta_* = \Phi^* + \mathbf{L}  \widetilde \Delta$$
+
+Therefore
+
+$$
+\Delta_* = ( \mathbf{L} - \mathbf{I} ) \widetilde \Delta + \mathcal{O}(\lVert \widetilde \Delta \rVert^2)
+$$
+
+---
+Note
+- We don't know real $\mathbf{L}$.
+- We don't know $\widetilde \Delta$ - distance to real fixpoint.
+- We can, however, calculate $\Delta_*$.
+---
+
+Let's denote
+ $\varepsilon_{F}
+ = \lVert \Delta_* \rVert
+ =\lVert \mathcal{L}(\widetilde \Phi^*) - \widetilde \Phi^*  \rVert $
+and $\delta_F = \lVert \widetilde \Delta \rVert $. Then
+
+$$ \lVert \Delta_* \rVert = \lVert ( \mathbf{L} - \mathbf{I} ) \widetilde \Delta \rVert$$
+
+
+$$
+\min|\lambda| \delta_F
+\leq \varepsilon_{F}
+\leq \max|\lambda| \delta_F
+$$
+
+$$
+\varepsilon_{F} \sim |\lambda| \delta_F
+$$
+
+
+
+#### Perturbed state
+Let's consider a perturbed (approximate) fixpoint. Fixpoint error will add up to the perturbation:
+
+$$ \mathcal{L}(\widetilde \Phi^* + \widetilde \Delta_0)
+= \mathcal{L}(\Phi^* + \widetilde  \Delta +  \Delta_0 )
+= \Phi^* +  \mathbf{L}  ( \widetilde \Delta +  \widetilde \Delta_0 )
+$$
+The right side denote as initial state plus deviation
+
+$$
+\mathcal{L}(\widetilde \Phi^*  + \widetilde \Delta_0)
+= \widetilde \Phi^* + \widetilde \Delta_1
+= \Phi^* + \widetilde \Delta  + \widetilde \Delta_1
+$$
+
+And combining these two equalities
+
+$$
+\widetilde \Delta_1
+=  \mathbf{L}   \widetilde \Delta_0  + (\mathbf{L} - \mathbf{I}) \widetilde \Delta
+$$
+
+$$
+\widetilde \Delta_1 - \widetilde \Delta_0
+=  (\mathbf{L} - \mathbf{I})  \widetilde \Delta_0  + (\mathbf{L} - \mathbf{I}) \widetilde \Delta
+$$
+
+$$
+\widetilde \Delta_1 - \widetilde \Delta_0
+=  (\mathbf{L} - \mathbf{I})  \widetilde \Delta_0  + \Delta_*
+$$
+
+Now let's estimate norms
+
+$$
+\lVert \widetilde \Delta_1 - \widetilde \Delta_0 \rVert
+\sim
+|\lambda|(\delta_0 + \delta_F)
+\sim
+|\lambda|\delta_0 + \varepsilon_F
+$$
+
+$$
+\frac{ \lVert \Delta_* \rVert }  {\lVert \widetilde \Delta_1 - \widetilde \Delta_0 \rVert }
+\sim
+\frac{ \varepsilon_F } { |\lambda| \delta_0 + \varepsilon_F}
+$$
+
+If $|\lambda| \delta_0 >>  \varepsilon_{F}:$
+
+$$
+\frac{ \lVert \Delta_* \rVert }  {\lVert \widetilde \Delta_1 - \widetilde \Delta_0 \rVert }
+\sim
+\frac{ \varepsilon_F } { |\lambda| \delta_0}
+\sim
+\frac{ \delta_F } {  \delta_0 }
+$$
+
+
+##### Conclusions
+- We want to make sure that $\frac{ \lVert \Delta_* \rVert }  {\lVert \widetilde \Delta_1 - \widetilde \Delta_0 \rVert } $ is small. Otherwise, $\widetilde \Delta_1 - \widetilde \Delta_0$ is significantly affected by $\Delta_*$ contribution, and we will have big error when we calculate matrix $\mathbf{L}$. TODO: quantify
+
+- $\widetilde \Delta_1 - \widetilde \Delta_0$ has a constant contribution equal to $\Delta_*$.
+- Note that $\widetilde \Delta_0$, $\widetilde \Delta_1$ - simulation input and outputs, so that's something we can directly obtain.
+- $ \Delta_* $ - is something that we can measure, and can control indirectly, by tuning
+  algorithm tolerance.
+- Therefore, we must make sure that
+  - Test at $N=6$ showed that this ratio is around or below $10^{-2}$ if fixpoint tolerance is $10^{-8}$.
+
+- Also, just for fun, let's note
+$$
+ \mathcal{L}(\widetilde \Phi^*  + \widetilde \Delta_0) - \mathcal{L}( \Phi^*  + \widetilde \Delta_0) = D\mathcal{L} \vert_{\widetilde \Phi^*  + \widetilde \Delta_0} \widetilde \Delta + \mathcal{O}(\delta_F^2)
+$$
+
+
+#### Linearized map
+**TODO**: double-check with Ben; is there a better estimation?
+
+Expand Poincare map $\mathcal{L}$in $\Phi^*$
+
+$$ \mathcal{L}(\widetilde \Phi^* + \widetilde \Delta + \widetilde \Delta_0)
+= \Phi^* +  \mathbf{L}  ( \widetilde \Delta +  \widetilde \Delta_0 ) + \mathcal{O}(( \delta_F + \delta_0)^2) = ... + \mathcal{O}(\delta_F^2, \delta_F \delta_0,  \delta_0^2)
+$$
+and in $\widetilde \Phi^*$
+$$
+\mathcal{L}(\widetilde \Phi^* + \widetilde \Delta + \widetilde \Delta_0)
+= \mathcal{L}(\widetilde \Phi^*) +  \widetilde \mathbf{L} \widetilde \Delta_0 + \mathcal{O}(\delta_0^2) =
+$$
+$$
+= \widetilde \Phi^* + \Delta_*   +  \widetilde \mathbf{L} \widetilde \Delta_0 + \mathcal{O}(\delta_0^2)
+= \Phi^* + \widetilde \Delta + \Delta_* +  \widetilde \mathbf{L} \widetilde \Delta_0 + \mathcal{O}(\delta_0^2)
+$$
+
+Combining those two
+$$
+\Phi^* +  \mathbf{L}  ( \widetilde \Delta +  \widetilde \Delta_0 )
+= \Phi^* + \widetilde \Delta + \Delta_* +  \widetilde \mathbf{L} \widetilde \Delta_0 + \mathcal{O}(\delta_F^2, \delta_F \delta_0, \delta_0^2)
+$$
+
+$$
+ \mathbf{L} \widetilde \Delta_0
+=  \widetilde \mathbf{L} \widetilde \Delta_0  + \Delta^* - (\mathbf{L} - I)\widetilde \Delta + \mathcal{O}(\delta_F^2, \delta_F \delta_0, \delta_F \delta_0, \delta_0^2)
+$$
+Since $ \Delta^* - (\mathbf{L} - I)\widetilde \Delta = \mathcal{O}(\delta_F^2)$,
+
+$$
+ \mathbf{L} \widetilde \Delta_0
+=  \widetilde \mathbf{L} \widetilde \Delta_0  + \mathcal{O}(\delta_F^2, \delta_F \delta_0, \delta_0^2)
+$$
+
+$$
+( \mathbf{L} -  \widetilde \mathbf{L} ) \widetilde \Delta_0  = \mathcal{O}(\delta_F^2, \delta_F \delta_0, \delta_0^2)
+$$
+
+
+$$
+ \mathbf{L} -  \widetilde \mathbf{L}
+ = \mathcal{O}(\delta_F^2, \delta_F \delta_0, \delta_0^2)  = \mathcal{O}(\delta_F)
+$$
+#### Numerical estimations
+If $N = 6$, fixpoint with `tol = 10 ** -8`:
+
+$|\lambda| = 10 ^ {-2}$ - $10 ^ {-3}$
+
+$\varepsilon_F = 10 ^ {-6}$ - $10^{-7}$
+
+Therefore $\delta_F \sim 10 ^{ -4}$
+
+If $\delta_0 = 10 ^{-3}$, $\frac{ \delta_F } {  \delta_0 } = 10^{-1}$, and indeed,
+$ \frac{ \lVert \Delta_* \rVert }  {\lVert \widetilde \Delta_1 - \widetilde \Delta_0 \rVert }$ lie in range $2 * 10^{-2} - 10 ^{-3} $
+
+Goals/questions:
+- What can we do with the accuracy that we have? Which parameters matter?
+- Estimate distance to the real fixpoint: YES
+- What order of errors we get in $\widetilde \mathbf{L}$ compared to $\mathbf{L}$
+  - Done: due to error in fixpoint
+  - finite perturbation length
 
 ---
 # Simulations
+
+
+
+
 
 ### Eigenvectors
 - Stored as **columns** of NxN array `evecs`
@@ -223,7 +478,11 @@ $$
 \Delta = d_0 +  d_{\mathbf{k_1}} e^{i \Phi_\mathbf{k_1}}
 $$
 means that eigenvector components are arranged into a circle:
-<img alt="carpet_jupyter_summary-2019-07-03-af1e3af7.png" src="assets/carpet_jupyter_summary-2019-07-03-af1e3af7.png" width="" height="" >
+
+
+[todo why  there are values on a line?]
+
+
 
 - Circle centers $d_0$ are real or almost real.
 - Eigenvectors which are complex conjugates of each other have their centers complex conjugated as well, therefore centers aare distributed symmetrical around real axis.

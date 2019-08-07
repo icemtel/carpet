@@ -22,11 +22,19 @@
 
 
 ## `try09_1D_carpet_analysis_N=6.ipynb` (and `try09` `a` `b` `c` )
+FIXME: have to tranpose L_log_lin !
 - Find fixpoints with `tol=10 ** -6`
 - Find eigenvalues and eigenvectors of linearized Poincare map
 - Visualize eigenvalues: points in dual lattice space; color - magnitude of eigenvalue.
 
+- v2: fix L_log_lin: had to be transposed
+  - Reuse fixpoints calculated before; recalculate eigenvector. Results have not visually changed
+  - New way to calculate linear map (continued in `try13`): introduce a different set of perturbations with zero mean phase
+  - Test non-linearity of Poincare map in vicinity of a fixpoint (continued in `try13`)
+
+
 ### b: N=30
+FIXME: have to tranpose L_log_lin !
 - Experimental: Consider a different x axis: 1/k
 - extra precision fixpoitns (`tol = 10 **-8`)
 - extra delta0s: compare eigenvalues
@@ -41,16 +49,23 @@
 ### c: N=120
 
 ## `try_10_fixpoint_new_procedure.ipynb`
+FIXME: have to tranpose L_log_lin !
 - Search for a fixpoint in a form of m-twist, shifted in time.
 - Unsuccessful
 
 ## `try12_1D_carpet_rotated.ipynb`
+FIXME: have to tranpose L_log_lin !
 - Rotated chain of cilia
 - `a`, `b` `c` - different rotation angle
 - Biggest eigenvalues plotted in dual lattice space
 - Eigenvectors mapped to m-twists -> plot eigenvalues as a function of $k$
   - trigonometric dependence
 
+## `try12v2_carpet_rotated_*.ipynb`
+- FIXED: have to tranpose L_log_lin !
 
 ## `try11_carpet_analysis_nx=12_ny=12.ipynb`
 - Redo `try08b` for a larger carpet with triangular lattice
+
+
+## `try13`

@@ -1,6 +1,10 @@
 '''
 - Generate triangular lattice
 - Define friction matrix, etc.
+
+It would be more natural to use instead of `define_some_function()` a class `Lattice` and define corresponding methods.
+But this way I can stay more flexible, and change parts if needed easily.
+
 '''
 import math
 import scipy as sp
