@@ -29,7 +29,8 @@ doc/*.fmt
 doc/*.fot
 doc/*.cb
 doc/*.cb2
-doc/.*.lb
+doc/*.lb
+doc/*.tex.bak
 
 ## Intermediate documents:
 doc/*.dvi
