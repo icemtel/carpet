@@ -68,4 +68,25 @@ FIXME: have to tranpose L_log_lin !
 - Redo `try08b` for a larger carpet with triangular lattice
 
 
-## `try13`
+## `try13_1D_chain_test_linearized_map.ipynb`
+- Distance between fixpoint and its Poincare map image (1)
+- Distance between fixpoints at different tolerance
+- Ratio between (1) and ||Delta_1 - Delta_0||
+- Compare trajectory tangent to neutral perturbation
+- Change perturbation strength; find the best fit for the linear term; check inhomogenity.
+- Check non-additivity
+- Introduce new linearized Poincare map (single-node, mtwist perutrbations)
+- Linearized map by fitting
+- `L_log_lin` vs `L - I` eigenvalues
+- Analyse noise in egenvectors vs eigenvalues magnitude
+- Updated procedure to find fixpoints (mean phase = 0); not very good
+
+### `try13b` N=30
+- Debug new Poincare map
+- Eigenvectors on circles
+- Eigenvalues vs k
+- Eigenvalues magnitude vs eigenvector decomposition residual
+  (Analyse noise in egenvectors vs eigenvalues magnitude)
+- MAXIMUM vs MEAN or MIN abs eigenvalue correlation
+
+TODO: Update this file

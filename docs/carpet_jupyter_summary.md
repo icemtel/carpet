@@ -350,8 +350,10 @@ Observed a generic behaviour:
 
 #### L_log_lin vs L - I: how much do eigenvalues differ?
 - Calculate eigenvalues of L and take log; vs eigenvalues of L - I
-- Differs up to 10% in real part
+- Differs up to 20% in real part (2% in abs value)
+  - This happens when real part ~ `5 * 10 ** -3`, imag ~`4 * 10 ** -2`
 - in abs values - differs by just a few percent - still we would prefer to avoid it
+
 
 
 #### Are eigenvectors more noisy if eigenvalues are small?
@@ -383,16 +385,27 @@ Zoom in: no correlation (but there are a couple of outliers)
 - Preserve mean phase
 - Slower: 2 times if truncate, 10% if end only at mean_phase=0.
 
+### `try13b`
+
+#### Test: When calculating L matrix; subtract Poincare image of a fixpoint, instead of the fixpoint itself.
+- k1=5:
+   - the same plot ev vs k.
+   - Many eigenvalues the same up to machine precision; some up to 10 ** -6, one (real e.v.) up to 10**-5
+- k1=19:
+   - The same eigenvalues up to 10 ** -5
+   - Plot ev vs k looks less noisy (yet not a perfect 1 - cos)
+   - Seemed like imaginary parts of eigenvalues differed much, but it was due to unordered imaginary parts of eigenvalues.
+- CONCLUSION: can use old version; perhaps the new one can give advantage when eigenvalues are very small; but do we need it?
 
 ## `try12v2_1D_carpet_rotated_psi=*_N=*.ipynb`
-### Goals
+#### Goals
 - Redo analysis from `try12` after a fix in old eigenvalues.
 - Introduce a new eigenvalue computational procedure (m-twist-like perturbations)
 - Largest eigenvalues plotted in dual lattice space
 - Eigenvectors mapped to mtwists -> eigenvalues plot in dual lattice space
 - Compare with old results
 
-### Largest eigenvalues plotted in dual lattice space
+#### Largest eigenvalues plotted in dual lattice space
 
 - Just small differences compared to old eigenvalues at `delta0=10 ** -3`
 
@@ -425,7 +438,31 @@ Zoom in: no correlation (but there are a couple of outliers)
 ### Eigenvalues visualization: new version
 <img alt="carpet_jupyter_summary-2019-08-06-180902205c7c.png" src="assets/carpet_jupyter_summary-2019-08-06-180902205c7c.png" width="" height="" >
 
+### `12v2a` `psi=30`
+- Perturbation strength vs inhomogeneity;  too big
+  (single-node)
+
+<img alt="carpet_jupyter_summary-2019-08-05-180330826748.png" src="assets/carpet_jupyter_summary-2019-08-05-180330826748.png" width="" height="" >
+  (mtwist)
+
+<img alt="carpet_jupyter_summary-2019-08-05-180401428a52.png" src="assets/carpet_jupyter_summary-2019-08-05-180401428a52.png" width="" height="" >
+
+- Quite big, but better in case of mtwist perturbation
+
+
+#### Propagate fixpoints to the same Poincare plane: mean phase = 0
+- Eigenvalues are very close! Difference up to `10 ** -6`
+
+
 ## `try11_carpet_analysis_nx=12_ny=12.ipynb`
+
+### Questions
+- Stability regions
+- Map eigenvectors to m-twists
+ - Is it possible? How big are residuals?
+ - Eigenvalues vs k
+
+
 - Redo `try08b` for a larger carpet with triangular lattice
 
 - Distance between fixpoints found with 2 different tolerance is relatively high.
@@ -439,16 +476,6 @@ Zoom in: no correlation (but there are a couple of outliers)
 
   <img alt="carpet_jupyter_summary-2019-08-05-41067b1b.png" src="assets/carpet_jupyter_summary-2019-08-05-41067b1b.png" width="" height="" >
 
-### `12v2a` `psi=30`
-- Perturbation strength vs inhomogeneity;  too big
-  (single-node)
-
-<img alt="carpet_jupyter_summary-2019-08-05-180330826748.png" src="assets/carpet_jupyter_summary-2019-08-05-180330826748.png" width="" height="" >
-  (mtwist)
-
-<img alt="carpet_jupyter_summary-2019-08-05-180401428a52.png" src="assets/carpet_jupyter_summary-2019-08-05-180401428a52.png" width="" height="" >
-
-- Quite big, but better in case of mtwist perturbation
 
 
 ### Stability regions
@@ -457,14 +484,48 @@ Zoom in: no correlation (but there are a couple of outliers)
 
 <img alt="carpet_jupyter_summary-2019-07-31-2880d07e.png" src="assets/carpet_jupyter_summary-2019-07-31-2880d07e.png" width="" height="" >
 
-- TODO: new eigenvalues
+- UPDATED
+  - mtwist (left) old (right)
 
-  - Eigenvalues vs k
+  <img alt="carpet_jupyter_summary-2019-08-09-12170862137.png" src="assets/carpet_jupyter_summary-2019-08-09-12170862137.png" width="" height="" >
+  <img alt="carpet_jupyter_summary-2019-08-09-121712535ebc.png" src="assets/carpet_jupyter_summary-2019-08-09-121712535ebc.png" width="" height="" >
 
-<img alt="carpet_jupyter_summary-2019-07-31-ae46b9de.png" src="assets/carpet_jupyter_summary-2019-07-31-ae46b9de.png" width="" height="" >
 
-### Questions
-- Stability regions
-- Map eigenvectors to m-twists
-  - Is it possible? How big are residuals?
-  - Eigenvalues vs k
+### Eigenvalues vs k: 2D
+- Pick a fixpoint; map eigenvectors to k (mtwists; visualize eigenvalues vs k
+
+<img alt="carpet_jupyter_summary-2019-08-09-1216537064f4.png" src="assets/carpet_jupyter_summary-2019-08-09-1216537064f4.png" width="" height="" >
+<img alt="carpet_jupyter_summary-2019-08-09-121659476415.png" src="assets/carpet_jupyter_summary-2019-08-09-121659476415.png" width="" height="" >
+
+<img alt="carpet_jupyter_summary-2019-08-09-121556377bcd.png" src="assets/carpet_jupyter_summary-2019-08-09-121556377bcd.png" width="" height="" >
+<img alt="carpet_jupyter_summary-2019-08-09-1216029174db.png" src="assets/carpet_jupyter_summary-2019-08-09-1216029174db.png" width="" height="" >
+
+
+<img alt="carpet_jupyter_summary-2019-08-09-1215376838d8.png" src="assets/carpet_jupyter_summary-2019-08-09-1215376838d8.png" width="" height="" >
+<img alt="carpet_jupyter_summary-2019-08-09-12182596364d.png" src="assets/carpet_jupyter_summary-2019-08-09-12182596364d.png" width="" height="" >
+
+ Look at an unstable fixpoint: negative eigenvalues in the direction of stable fixpoints
+
+
+### Eigenvalues vs k
+- new - mtwist (old is the same)
+
+  Cosine-like pattern in real part; Sine-like pattern in imaginary part (but with higher harmonics!)
+
+ Plot: (7,3)-twist
+
+<img alt="carpet_jupyter_summary-2019-08-09-11085529131b.png" src="assets/carpet_jupyter_summary-2019-08-09-11085529131b.png" width="" height="" >
+
+ Plot: (5,0)-twist
+
+ <img alt="carpet_jupyter_summary-2019-08-09-113647107526.png" src="assets/carpet_jupyter_summary-2019-08-09-113647107526.png" width="" height="" >
+
+ Plot: (0,0)-twist
+
+ <img alt="carpet_jupyter_summary-2019-08-09-113816866ab1.png" src="assets/carpet_jupyter_summary-2019-08-09-113816866ab1.png" width="" height="" >
+
+
+## `try14_1D_chain_simple_coupling`
+- 1D chain
+- Coupling with combination of sine and cosine
+- ev vs k plot: 1 parameter fit for cosine (choose the best fit amongst two)

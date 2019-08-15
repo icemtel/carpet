@@ -133,7 +133,7 @@ def define_get_k_naive(nx, ny, a):
 
 def define_get_k(nx, ny, a):
     '''
-    Checked: get_k is equivalent to get_k_naive
+    Checked: get_k is equivalent to get_k_naive: gives the same mtwists mod 2pi
     '''
     a1dual, a2dual = get_dual_basis(a)
 

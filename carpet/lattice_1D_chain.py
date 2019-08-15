@@ -142,7 +142,6 @@ def define_gmat_glob_and_q_glob(set_name, a, direction, neighbours_indices, neig
                                                  neighbours_indices, neighbours_rel_positions,
                                                  order_g11, order_g12, T)
 
-
 import scipy.sparse.linalg as splin
 
 
