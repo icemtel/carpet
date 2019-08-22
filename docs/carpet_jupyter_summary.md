@@ -34,6 +34,7 @@ export_on_save:
 - Optimize & test friction computation
 - Classes
 - Recalculated fixpoints with `tol=10 ** -8`
+
 ### Classes procedure
 - Tested in `try09`: N=6 k1=1, perturbing one node is exactly equivalent to N=30, k1=5, perturbing the whole symmetry class.
 
