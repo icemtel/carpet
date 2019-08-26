@@ -56,9 +56,13 @@
 
 %% Math
 \newcommand{\wt}{\widetilde} % tilde shortcut
+\newcommand{\eps}{\varepsilon}
+\newcommand{\bigO}{\mathcal{O}}
 
+\newcommand{\vf}{\varphi}
 \newcommand{\F}{\Phi} %{\mathbf{\Phi}}
 \newcommand{\FP}{\Phi^*}%{\mathbf{\Phi^*}} % fixpoint 
+
 
 \newcommand{\D}{\Delta}%{\mathbf{\Delta}} % Delta0
 \newcommand{\Lmap}{\mathcal{L}} % Poincare map
@@ -628,14 +632,139 @@ $$
 \approx  \operatorname{Im}(d_{\mathbf{k_0}}) \cos(\Phi_{\mathbf{k_0}}) + \operatorname{Re}(d_{\mathbf{k_0}}) \sin(\Phi_{\mathbf{k_0}})
 $$
 
+\emph{TODO: can I force coefficient d to be always real?
+}
+
+After one cycle:
+$$
+\D_0 = \frac{1}{2} (\D + \D^*) 
+$$
+If $d_{\mathbf{k}_0}$ is real:
+$$
+\D_0 =  d_{\mathbf{k_0}} \cos(\Phi_{\mathbf{k_0}})
+$$
+
+$$
+\D_1 - \D_0 = \lambda \D + \lambda^* \D^* = \operatorname{Re}(\lambda)d_{\mathbf{k_0}} \cos(\Phi_{\mathbf{k_0}}) - \operatorname{Im}(\lambda)  d_{\mathbf{k_0}} \sin(\Phi_{\mathbf{k_0}})
+$$
+
+
 \section*{Cilia carpet simulation}
 [\textit{try11}]
 
 
-\section*{Toy model: chain of oscillators with trigonometrical coupling}
 
+
+\section*{Toy model: chain of oscillators with trigonometrical coupling}
+% Command for this section
+\newcommand{\fr}[2]{\frac{2 \pi #1} {N} #2 } %shortcut for 2pi k / N * j
+\newcommand{\si}[2]{\sin \left( \fr{#1}{#2} \right)} %shortcut for sin, cos, exp
+\newcommand{\co}[2]{\sin \left( \fr{#1}{#2} \right)} 
+\newcommand{\ex}[2]{e ^{i \fr{#1}{#2}}}
 
 
 \subsection*{Sine coupling}
+
+
+Consider a chain of $N$ oscillators with equal beating frequency $\omega_0$, simple sinusoidal coupling and periodic boundary conditions (below we assume index $j$ modulo $N$).
+
+\begin{equation}
+\dot \varphi_j = \omega_0 ( 1 + \lambda_s \sin(\varphi_j - \varphi_{j-1})
++ \lambda_s \sin(\varphi_j - \varphi_{j-1})
+\label{eqn:dphidt-sine}
+\end{equation}
+
+Limit cycles are perfect m-twists [substitute to prove derivative = const] [call it k-twist??]
+
+$$
+\varphi_j(t) = \omega_0 t - \fr{k}{j}, \quad j=1..N
+$$
+
+From our simulations we guess that eigenvectors will be a sine or cosine of an m-twist.
+
+To prove it, let's perturb the limit cycle and find how this perturbation will develop in time
+$$
+\varphi_j \big\rvert_{t=0} = - \fr{k}{j} -  \eps \si{m}{j}, \quad j=1..N
+$$
+\textit{Note that we perturb with a sine of m-twist $\fr{m}{j}$ and move the minus outside sign.
+}
+
+Substitute that into \eqref{eqn:dphidt-sine}
+
+\begin{equation}
+\dot \varphi_j = .. \text{  See scanned pdf notes}
+\end{equation}
+
+\begin{equation}
+\dot \varphi_j = 
+\omega_0 \left( 1 +  2 \lambda_s  \co{k}{} \left(1 - \co{m}{} \right) \left( - \eps \si{m}{j} \right) \right)  
++ \bigO(\lambda_s \eps ^2 \omega_0)
+\end{equation}
+
+The perturbation grows or decays with rate (Lyapunov exponent)
+$$
+A = 2 \lambda_s  \co{k}{} \left(1 - \co{m}{} \right)
+$$
+
+Group frequency is the same as frequency of a single oscillator. Period $T = \frac{2 \pi}{\omega_0}$.
+
+Poincare map eigenvalue
+$$
+\lambda = e^{A T} - 1 
+= \exp \left( 4 \pi \lambda_s  \co{k}{} \left(1 - \co{m}{} \right) \right) - 1 
+$$
+
+In case of sufficiently weak coupling \textit{[but to be safe it's better to stay with a general formula, it doesn't give an advantage to move to a simplified formula]}
+$$
+\lambda 
+= 4 \pi \lambda_s  \co{k}{} \left(1 - \co{m}{} \right)  + \bigO(\lambda_s^2)
+$$
+
+[TODO: EIGENSPECTRUM PLOTS AND CONCLUSIONS]
+
+\subsection*{Sine plus cosine coupling}
+\begin{equation}
+\dot \varphi_j = \omega_0 \left( 1 + \lambda_s \sin(\varphi_j - \varphi_{j-1})
++ \lambda_s \sin(\varphi_j - \varphi_{j-1})
++ \lambda_c \cos(\varphi_j - \varphi_{j-1})
++ \lambda_c \cos(\varphi_j - \varphi_{j-1}) \right)
+\label{eqn:dphidt-sin-cos}
+\end{equation}
+
+Now consider a complex perturbation
+
+$$
+\varphi_j \big\rvert_{t=0} = - \fr{k}{j} + \eps \exp( - \fr{m}{j})
+$$
+
+Again substitute into derivative [see pdf notes 2019-08] and end up with
+
+$$
+\dot \varphi_j = \omega + A \eps \exp( - \fr{m}{j}) + \bigO(\lambda_0 \eps ^ 2 \omega_0),
+$$
+where $\lambda_0 = \max(|\lambda_s|, |\lambda_c|)$ - measure of coupling strength,
+
+$\omega$ - effective frequency
+$$
+ \omega = \omega_0 (1 + \lambda_c \co{k}{}),
+$$
+
+$A$ - perturbation change rate; Lyapunov exponent
+
+$$ 
+A = 
+ 2 \lambda_s \omega_0 \co{k}{} \left(1 - \co{m}{} \right)
+- 2 i \lambda_c \omega_0 \si{k}{} \si{m}{}
+$$
+
+Poincare map eigenvalue ($L - I$)
+
+$$ 
+\lambda = e^{A T} - 1,
+$$
+where $T = \frac{2 \pi}{\omega}$
+
+TODO: add plots and analysis
+
 \end{document}
 

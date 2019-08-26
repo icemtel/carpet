@@ -17,8 +17,8 @@
 
 ## `try08b_CARPET_fixpoint_analysis.ipynb`
 - Version b: use fixpoints from `try07` rather than `try06`
-
 - Stability of fixpoints
+- Solve cycle after a perturbation equal to real part of an eigenvector
 
 
 ## `try09_1D_carpet_analysis_N=6.ipynb` (and `try09` `a` `b` `c` )

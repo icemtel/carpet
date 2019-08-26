@@ -54,6 +54,7 @@ Slightly different result for different delta0.
 - Look closely at eigenvectors and eigenvalues:
   - at slowest and fastest decaying modes
 
+- Plot 
 ## `try09_1D_carpet_analysis_N=6.ipynb` (and `try09` `a` `b` `c` ) and also `try08b`
 - Found fixpoints with `tol=10 ** -6`
 ### Eigenvectors
@@ -281,7 +282,7 @@ Observed a generic behaviour:
      (e.g. `tol=10**-8` distance `= 10 ** -5` => in mean squared sense, each coordinate deviates by `4 * 10 ** -6`)
 
 
-- (Normalizer) All deviation except very big one (`delta0=1`) showed the same ratio between   $||\Delta_1 - \Delta_0||$ and $||\Delta_0||$. Perturb by a simple in-secion perturbation
+- (Normalizer) All deviation except very big one (`delta0=1`) showed the same ratio between   $||\Delta_1 - \Delta_0||$ and $||\Delta_0||$. Perturb by a simple in-section perturbation
   - depending on `k1`: `4 * 10 ** -3` - `10 ** -2`
 - Estimate how much inaccuracy in fixpoint will affect linear approximation: OK
 
@@ -526,7 +527,27 @@ Zoom in: no correlation (but there are a couple of outliers)
  <img alt="carpet_jupyter_summary-2019-08-09-113816866ab1.png" src="assets/carpet_jupyter_summary-2019-08-09-113816866ab1.png" width="" height="" >
 
 
-## `try14_1D_chain_simple_coupling`
+## `try14a_1D_chain_toy_coupling.ipynb`
 - 1D chain
 - Coupling with combination of sine and cosine
 - ev vs k plot: 1 parameter fit for cosine (choose the best fit amongst two)
+
+### `try14b_1D_chain_pure_sine_coupling.ipynb`
+- Only sine coupling
+- Compare eigenvalues and time derivative with analytical approximation
+
+Eigenvalues coincide with the ones predicted; up to `eps ** 2` term:
+
+<img alt="carpet_jupyter_summary-2019-08-23-163918375-a58.png" src="assets/carpet_jupyter_summary-2019-08-23-163918375-a58.png" width="" height="" >
+
+<img alt="carpet_jupyter_summary-2019-08-23-163905568-374.png" src="assets/carpet_jupyter_summary-2019-08-23-163905568-374.png" width="" height="" >
+
+Perturb by eigenvector: compare theory vs simulation
+- holds well
+- Scaling: without normalizing  at 0-twist deviation scales as`eps ** 3`, at other fixpoints scales as `eps ** 2`
+
+0-twist:
+<img alt="carpet_jupyter_summary-2019-08-23-164052470-ec4.png" src="assets/carpet_jupyter_summary-2019-08-23-164052470-ec4.png" width="" height="" >
+
+1-twist:
+<img alt="carpet_jupyter_summary-2019-08-23-164432534-220.png" src="assets/carpet_jupyter_summary-2019-08-23-164432534-220.png" width="" height="" >
