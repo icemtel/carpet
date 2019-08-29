@@ -12,7 +12,7 @@ def rms(vec):
     '''
     Root mean square; Quadratic averarge
     '''
-    return sp.sqrt(sp.mean(vec * sp.conj(vec)))
+    return sp.sqrt(abs(sp.mean(vec * sp.conj(vec))))
 
 
 def setup_logging(filename=None, mode='a', print_log_messages=True):

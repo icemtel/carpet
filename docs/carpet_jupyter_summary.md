@@ -54,7 +54,7 @@ Slightly different result for different delta0.
 - Look closely at eigenvectors and eigenvalues:
   - at slowest and fastest decaying modes
 
-- Plot 
+- Plot
 ## `try09_1D_carpet_analysis_N=6.ipynb` (and `try09` `a` `b` `c` ) and also `try08b`
 - Found fixpoints with `tol=10 ** -6`
 ### Eigenvectors
@@ -480,7 +480,7 @@ Zoom in: no correlation (but there are a couple of outliers)
 
 
 
-### Stability regions
+### Stability regions (Outdated: see update below)
 
 - Even when stable - eigenvalues are quite small (old eigenvalues, `delta0=0.001`)
 
@@ -493,7 +493,7 @@ Zoom in: no correlation (but there are a couple of outliers)
   <img alt="carpet_jupyter_summary-2019-08-09-121712535ebc.png" src="assets/carpet_jupyter_summary-2019-08-09-121712535ebc.png" width="" height="" >
 
 
-### Eigenvalues vs k: 2D
+### Eigenvalues vs k: 2D (Outdated: see update below)
 - Pick a fixpoint; map eigenvectors to k (mtwists; visualize eigenvalues vs k
 
 <img alt="carpet_jupyter_summary-2019-08-09-1216537064f4.png" src="assets/carpet_jupyter_summary-2019-08-09-1216537064f4.png" width="" height="" >
@@ -509,7 +509,7 @@ Zoom in: no correlation (but there are a couple of outliers)
  Look at an unstable fixpoint: negative eigenvalues in the direction of stable fixpoints
 
 
-### Eigenvalues vs k
+### Eigenvalues vs k (Outdated: see update below)
 - new - mtwist (old is the same)
 
   Cosine-like pattern in real part; Sine-like pattern in imaginary part (but with higher harmonics!)
@@ -525,6 +525,35 @@ Zoom in: no correlation (but there are a couple of outliers)
  Plot: (0,0)-twist
 
  <img alt="carpet_jupyter_summary-2019-08-09-113816866ab1.png" src="assets/carpet_jupyter_summary-2019-08-09-113816866ab1.png" width="" height="" >
+
+### UPD: plotting eigenvalues of log(L) instead of eigenvalues of (L-I) (first introduce in `try14b`
+
+#### Stability regions
+After/before update (left/right):
+
+  <img alt="carpet_jupyter_summary-2019-08-28-103535616-10a.png" src="assets/carpet_jupyter_summary-2019-08-28-103535616-10a.png" width="" height="" >
+  <img alt="carpet_jupyter_summary-2019-08-09-12170862137.png" src="assets/carpet_jupyter_summary-2019-08-09-12170862137.png" width="" height="" >
+
+#### Eigenvalues vs k: 2D  - perturbation vec in the dual lattice space
+<img alt="carpet_jupyter_summary-2019-08-28-104102375-3e2.png" src="assets/carpet_jupyter_summary-2019-08-28-104102375-3e2.png" width="" height="" >
+<img alt="carpet_jupyter_summary-2019-08-28-104106868-a9d.png" src="assets/carpet_jupyter_summary-2019-08-28-104106868-a9d.png" width="" height="" >
+
+<img alt="carpet_jupyter_summary-2019-08-28-104324816-493.png" src="assets/carpet_jupyter_summary-2019-08-28-104324816-493.png" width="" height="" >
+<img alt="carpet_jupyter_summary-2019-08-28-104329403-16e.png" src="assets/carpet_jupyter_summary-2019-08-28-104329403-16e.png" width="" height="" >
+
+<img alt="carpet_jupyter_summary-2019-08-28-104007202-fd5.png" src="assets/carpet_jupyter_summary-2019-08-28-104007202-fd5.png" width="" height="" >
+<img alt="carpet_jupyter_summary-2019-08-28-104013616-a33.png" src="assets/carpet_jupyter_summary-2019-08-28-104013616-a33.png" width="" height="" >
+
+#### Eigenvalues vs k
+- The ones which I plotted before didn't change visually
+- Plot the same oens, as plotted on 2D plots above:
+
+<img alt="carpet_jupyter_summary-2019-08-28-104927971-057.png" src="assets/carpet_jupyter_summary-2019-08-28-104927971-057.png" width="" height="" >
+<img alt="carpet_jupyter_summary-2019-08-28-104936419-85a.png" src="assets/carpet_jupyter_summary-2019-08-28-104936419-85a.png" width="" height="" >
+
+<img alt="carpet_jupyter_summary-2019-08-28-104955375-9a7.png" src="assets/carpet_jupyter_summary-2019-08-28-104955375-9a7.png" width="" height="" >
+
+
 
 
 ## `try14a_1D_chain_toy_coupling.ipynb`

@@ -2,13 +2,15 @@
 %\documentclass[a4paper,10pt]{extarticle}
 %\documentclass[a4paper,14pt]{extarticle} 
 
+
 \usepackage{cmap}  % PDF search & text copy
 %% Fonts
 \usepackage[utf8x]{inputenc}
 
 %% Language
-	\usepackage[english, russian]{babel} 
-	
+%	\usepackage[english, russian]{babel} % also for cyrillic, but then captions are changed to RU
+\usepackage[T2A]{fontenc} % for cyrillic
+
 %% Lines and margins
 %% Double spacing
 %\usepackage[nodisplayskipstretch]{setspace}
@@ -18,7 +20,8 @@
 %\usepackage[paper=a4paper,left=30mm, top=20mm, right=15mm, bottom=20mm]{geometry} 
 \usepackage{fullpage} 
 
-\setlength{\parindent}{0pt} % no indent at the new line
+\usepackage{parskip} % quick setup of space between paragraphs
+%\setlength{\parindent}{0pt} % no indent at the new line
 
 %% Math
 \usepackage{amsmath,amssymb,empheq}
@@ -33,6 +36,7 @@
 \usepackage{caption} % graphics caption
 \usepackage{subcaption}
 %\usepackage{epstopdf} % include eps graphics
+\usepackage{pdfpages}  % include another pdf %Usage: \includepdf[pages=-]{myfile.pdf} % \includepdf[pages={1}]{myfile.pdf}
 
 % itemize options https://tex.stackexchange.com/a/2372
 \usepackage{enumitem}
@@ -45,16 +49,22 @@
 % use as \beging \end{markdown} - use markdown in between
 % still exits with an error (because my build files are in a subfolder?)
 
-%% Finally, give us PDF bookmarks
-%\usepackage{color,hyperref}
-%\definecolor{darkblue}{rgb}{0.0,0.0,0.3}
-%\hypersetup{colorlinks,breaklinks,
-%            linkcolor=darkblue,urlcolor=darkblue,
-%            anchorcolor=darkblue,citecolor=darkblue}
+%% PDF bookmarks
+\usepackage{color,hyperref}
+\definecolor{darkblue}{rgb}{0.0,0.0,0.3}
+\hypersetup{colorlinks,breaklinks,
+            linkcolor=darkblue,urlcolor=darkblue,
+            anchorcolor=darkblue,citecolor=darkblue}
+
+% Appendix
+\usepackage[toc]{appendix}
 
 %%% COMMANDS %%%
 
 %% Math
+\renewcommand{\Re}{\operatorname{Re}}
+\renewcommand{\Im}{\operatorname{Im}}
+
 \newcommand{\wt}{\widetilde} % tilde shortcut
 \newcommand{\eps}{\varepsilon}
 \newcommand{\bigO}{\mathcal{O}}
@@ -70,7 +80,20 @@
 
 \begin{document}
 
-\section*{Notation}
+\setcounter{secnumdepth}{0} % sections dont get numbered
+%\setcounter{tocdepth}{1} % Show sections
+\setcounter{tocdepth}{2} % + subsections
+%\setcounter{tocdepth}{3} % + subsubsections
+%\setcounter{tocdepth}{4} % + paragraphs
+%\setcounter{tocdepth}{5} % + subparagraphs
+
+\tableofcontents
+
+\clearpage
+
+
+
+\section{Notation}
 
 \begin{itemize}
 \item $\mathbf{k}$ - wave vector
@@ -84,8 +107,9 @@
 \item $\mathbf{\Phi^{*}_k}$ - fix point close to the m-twist solution
 \item $\mathbf{\Delta_0}$, $\mathbf{\Delta_1}$ - perturbation initial and after one cycle: $\mathcal{L}(\mathbf{\Phi^{*}} + \mathbf{\Delta_0}) = \mathbf{\Phi^{*}} + \mathbf{\Delta_1}$
 \item $\mathbf{L} = \mathrm{D}\mathcal{L}(\mathbf{\Phi^*})$ linearized Poincare map at a fixed point (matrix). In code `Lmat`
-\item $\mathbf{L} = e^\mathbf{\Lambda}; \quad \mathbf{\Lambda} = \log \mathbf{L} $  logarithm of the linearized Poincare map. In code `Lmat\_log`
-\item $\lambda_j$ - eigenvalues of $\Lambda$
+\item $\Lambda_j$ - eigenvalues of $\Lmat$, Floquet multipliers
+\item $? = \ln \Lmat $  logarithm of the linearized Poincare map. In code `Lmat\_log`
+\item $\lambda_j$ - eigenvalues of $\ln \mathbf{L}$, dimensionless Lyapunov exponents
 \end{itemize}
 
 **Conflicts:**
@@ -95,44 +119,10 @@
 \item Fixpoint notation and complex conjugation.
 \item Once $\delta$ and $\D$ are taken - how to denote a difference of some values?
 \item global phase and components of $\mathbf{\Phi}$
-\item $d(\Phi)$ in procedure to find fixpoint and $d$ - as a distance between cilia. Change $d$ to $a$ - spacing between cilia?
-\item TODO: $\mathbf{\Delta_0}$ -> $\mathbf{\Delta}_0$ 
-
 \end{itemize}
 
 
-%**Fill the tables to see which letters I can still use?**
-
-%|         |   |         |   |
-%|---------|---|---------|---|
-%| a       |   | A       |   |
-%| b       |   | B       |   |
-%| c       |   | C       |   |
-%| d       |   | D       |   |
-%| e       | basis  | E       | Ben's distance from mtwist to fixpoint  |
-%| f       |   | F       |   |
-%| g       |   | G       |   |
-%| h       |   | H       |   |
-%| i       | idx  | I       |   |
-%| j       | idx  | J       |   |
-%| k       | idx, mtwist number, dual space vector  | K       |   |
-%| l       | idx | L       |   |
-%| m       |   | M       |   |
-%| n       | $n_x$, $n_y$ - num cilia in 1 direction  | N       |  num cilia |
-%| o       |   | O       |   |
-%| p       |   | P       |   |
-%| q       |   | Q       |  gen force |
-%| r       |   | R       |   |
-%| s       |   | S       |   |
-%| t       | time, translation vec  | T       | period  |
-%| u       |   | U       |   |
-%| v       |   | V       |   |
-%| w       |   | W       |   |
-%| x       | coords  | X       |   |
-%| y       | coords  | Y       |   |
-%| z</pre> | coords  | Z</pre> |   |
-
-\section*{Geometry}
+\section{Geometry}
 
 *Unit vectors*
 $$
@@ -140,70 +130,67 @@ $$
 \mathbf{e}_2 =\left( \begin{array}{c} \frac{1}{2} \\  \frac{\sqrt{3}}{2} \end{array} \right).
 $$
 
-*Position vectors*
+Position vectors
 $$
 \mathbf{x}_{n,m} = n\,a\,\mathbf{e}_1 +  m\,a\,\mathbf{e}_2
 $$
 
-*Honeycomb lattice*
+Honeycomb lattice
 $$
 \mathcal{H} = \{ \mathbf{x}_{n,m} | 2n+m \equiv 0 \text{ or } 2 \text{ mod } 3\}
 $$
 
-*Triangular lattice*
+Triangular lattice
 $$
 \mathcal{T} = \{ \mathbf{x}_{n,m} | n,m \in \mathrm{Z} \}
 $$
 
-\section*{m-twist solutions}
+\section{m-twist solutions}
 
-*Wave vector of metachronal wave consistent with periodic boundary condition*
+Wave vector of metachronal wave consistent with periodic boundary condition
 $$ \mathbf{k} = \frac{a_1}{L_1}\,k_1\,\mathbf{a}_1^* + \frac{a_2}{L_2}\,k_2\,\mathbf{a}_2^*, $$
 where $k_1,k_2\in{Z}$ and $a_1=a$, $a_2 = \sqrt{3} a/2$
 
-*Meta-chronal wave solutions:*
+Meta-chronal wave solutions:
 
 Phase-space vector
 $ \Phi (t) = (\varphi_1, \varphi_2, .., \varphi_{N})^T $
 with components
 $$
-\varphi_i(t) = \varphi(t) - \mathbf{k} \cdot \mathbf{x}_i,
+\varphi_j(t) = \varphi(t) - \mathbf{k} \cdot \mathbf{x}_j,
 $$
 for some global phase $\varphi(t)$.
 We expect $\dot{\varphi}\approx\omega_0$, but only approximately, since the calibration of active driving forces does not take into account the (weak) hydrodynamic interactions.
 
-\subsection*{Dynamic equation from force-balance equation}
-
+\subsection{Dynamic equation from force-balance equation}
+We start with
+$$  \mathbf{\Gamma}(\Phi) \dot{\Phi} =Q(\Phi),$$
+or
 $$ \dot{\Phi} = \mathbf{\Gamma}^{-1}(\Phi)Q(\Phi)  $$
 This linear system can be solved directly in Python.
 
-
-\subsection*{from hydrodynamic simulations}
-
-*Pair-wise coupling functions:*
+We calibrate dynamical simulations with pair-wise coupling functions from hydrodynamical simulations
 $$ \Gamma_{ij}(\Phi) = 0 \quad \text{if not neighbours} $$
-$$ \Gamma_{ij}(\Phi) = \Gamma_{12}^{\mathrm{(loc)}}(\varphi_i,\varphi_j; d, \psi) \quad \text{if neighbours} $$
+$$ \Gamma_{ij}(\Phi) = \Gamma_{12}^{\mathrm{(loc)}}(\varphi_i,\varphi_j; a, \psi) \quad \text{if neighbours} $$
 where the translation vector pointing from cilium $i$ to cilium $j$ reads
-$$[n(j)-n(i)]\,\mathbf{e}_1 + [m(j)-m(i)]\,\mathbf{e}_2 = d \left( \begin{array}{c} \sin\psi \\ \cos\psi \end{array} \right).$$
-*Self-friction:*
+$$[n(j)-n(i)]\,\mathbf{e}_1 + [m(j)-m(i)]\,\mathbf{e}_2 = a \left( \begin{array}{c} \sin\psi \\ \cos\psi \end{array} \right).$$
 
-$$ \Gamma_{ii}(\Phi) = \Gamma_{11}^{\mathrm{(loc)}}(\varphi_i, \varphi_j; d, \psi) $$
+Self-friction:
+$$ \Gamma_{ii}(\Phi) = \Gamma_{11}^{\mathrm{(loc)}}(\varphi_i, \varphi_j; a, \psi) $$
 
-Note, self-friction $\Gamma_{11}^{\mathrm{(loc)}}(\varphi_i, \varphi_j; d, \psi) $ dependence on $\varphi_j$, $d$, $\psi$ is so weak, that we can take
-$\Gamma_{11}^{\mathrm{(loc)}}(\varphi_i, \varphi_j; d, \psi)= \Gamma_{11}^{\mathrm{(loc)}}(\varphi_i)$
+Note, self-friction $\Gamma_{11}^{\mathrm{(loc)}}(\varphi_i, \varphi_j; a, \psi) $ dependence on $\varphi_j$, $a$, $\psi$ is so weak\footnote{assuming $a$ is big enough}, that we can take
+$\Gamma_{11}^{\mathrm{(loc)}}(\varphi_i, \varphi_j; a, \psi)= \Gamma_{11}^{\mathrm{(loc)}}(\varphi_i)$
 
-
-
-*Active driving forces (simplest case: calibration for isolated cilium):*
+We therefore calibrate active driving forces as following
 $$ Q_{i}(\Phi) = \Gamma_{11}^{\mathrm{(loc)}}(\varphi_i) \omega_0 $$
 
 
-\subsection*{Global Phase}
+\subsection{Global Phase}
 
-\subsubsection*{Naive phase}
+\subsubsection{Naive phase}
 For some index $j$, $\varphi = \mathbf{\varphi}_j$
 
-\subsubsection*{Circular average phase}
+\subsubsection{Circular average phase}
 
 We define order parameters
 %[[Kuramoto, 1984]](https://link.springer.com/chapter/10.1007/978-3-642-69689-3_7)  [[Strogatz, 2000]](https://www.sciencedirect.com/science/article/pii/S0167278900000944)
@@ -220,7 +207,7 @@ $$\varphi(t; \mathbf{k}) = \arg \left( \frac{1}{N}\sum_j \exp\left[ i ( \varphi_
 
 - Only has meaning when $S_\mathbf{k}$ is close to 1.
 
-\subsubsection*{Mean phase}
+\subsubsection{Mean phase}
 
 Define the global phase as algebraic mean of all phases
 $$
@@ -237,18 +224,16 @@ Pros
 Cons
 - $\varphi_j$ can't jump from  $2 \pi$ to $0$, otherwise the global phase will make a jump by $- \frac{2 \pi}{N}$.
 
-\section*{Poicnare map for a m-twist solution}
-\subsection*{Poincare map and limit cycle}
+\section{Poicnare map for an m-twist solution}
+\subsection{Poincare map and limit cycle}
 We consider a Poincare section $H$ defined by
 
 $$
 H =\{ \Phi : \varphi(\Phi) \equiv \varphi(\Phi_0) \mod 2\pi \}.
 $$
+where $\varphi$ denotes the global phase, $\Phi_0$ is the phase vector at initial time $t_0$. 
 
-- $\varphi$ denotes the global phase.
-- $\Phi_0$ - phase vector at initial time $t_0$.
-- $H$ is a $(N-1)$-dimensional hypersurface in $N$-dimensional phase space.
-  - If $\varphi$ - mean phase, $H$ is a hyperplane.
+ $H$ is a $(N-1)$-dimensional hyper-surface in $N$-dimensional phase space. If $\varphi$ is the mean phase, $H$ is a hyperplane.
 
 For each of m-twists solutions, we anticipate a corresponding limit cycle $C_\mathbf{k}$, piercing $H$ close to $\Phi_k$ i.e.
 
@@ -257,27 +242,29 @@ C_\mathbf{k} \cap H_0 = \Phi_\mathbf{k} + \mathbf{E}^*,
 $$
 
 with a small correction vector $\mathbf{E}^*$.
-The reason for the small correction $\mathbf{E}^*$ is that the calibration of active driving forces causes small phase-dependent variations of the instantaneous phase speed *(a cilium will speed up at one part of the beat cycle, and slow down at another; but then the phase difference will vary during the cycle, therefore we don't get a perfect m-twist, which has constant phase difference)*.
+The reason for the small correction $\mathbf{E}^*$ is that the calibration of active driving forces causes small phase-dependent variations of the instantaneous phase speed \textit{(a cilium will speed up at one part of the beat cycle, and slow down at another; but then the phase difference will vary during the cycle, therefore we don't get a perfect m-twist, which has constant phase difference?)}.
 
 Therefore, the first step is to find $\Phi^*_\mathbf{k}=\Phi_\mathbf{k} + \mathbf{E}^*$.
 
-We define **Poincare map** $\mathcal{L}: H \rightarrow H$ as
+We define the \textbf{Poincare map} $\mathcal{L}: H \rightarrow H$ as
  $$\mathcal{L}(\Phi_0) = \Phi_1,$$
 where
-- $\Phi_0 = \Phi(t_0)$ - some initial phase. *Note that for any $\Phi_0$ we can define a Poincare section as defined above.*
-- $\Phi_1=\Phi(t_1)$ - where $t_1$ is the next time when our phase trajectory hits the Poincare section.
+$\Phi_0 = \Phi(t_0)$ - some initial phase\footnote{Note that for any $\Phi_0$ we can define a Poincare section as defined above.},
+$\Phi_1=\Phi(t_1)$ - where $t_1$ is the next time when our phase trajectory intersects with the Poincare section.
 
-Then  $\Phi^*_\mathbf{k}$ is a fixpoint of Poincare map
+With this definition  $\Phi^*_\mathbf{k}$ is a fixed point of Poincare map.
 
-**TODO:** explain why it cannot be another limit cycle in Poincare plane.
+\textit{TODO: explain why it cannot be another limit cycle in Poincare plane. }
 
-\subsubsection*{Procedure to find the fixpoint $\Phi^*$}
+\textit{TODO: do we expect no extra fixed points/ limit cycles?}
+
+\subsubsection{Procedure to find the fixpoint $\Phi^*$}
 
 By definition, the fixpoint is such a point that
 $$
 \mathcal{L}(\Phi^*) = \Phi^*
 $$
-We define (**TODO:** this function can be useful in other places - keep this notation?)
+We define
 $$
 D(\Phi) = \mathcal{L}(\Phi) - \Phi
 $$
@@ -288,15 +275,17 @@ $$
 Function $d(\Phi)$ is the squared distance between a phase vector and its Poincare map image.
 
 Properties of norm imply that
-- $d(\Phi) \geq 0$
-- $d(\Phi)=0 \iff \Phi = \Phi^*$ - a fixed point
+\begin{itemize}
+\item $d(\Phi) \geq 0$
+\item $d(\Phi)=0 \iff \Phi = \Phi^*$ --- a fixed point
 
-Therefore, to find the fixpoint $\Phi^*_{\mathbf{k}}$, we numerically find a minimum of function $d$ with initial condition in $\Phi_{\mathbf{k}}$. Used library function `scipy.optimize.minimize` with method `BFGS`.
+\end{itemize}
+Therefore, to find the fixpoint $\Phi^*_{\mathbf{k}}$, we numerically find a minimum of function $d$ with initial guess at $\Phi_{\mathbf{k}}$.\footnote{Used library function `scipy.optimize.minimize` with method `BFGS`.}
 
 
-\subsection*{ Linearized Poincare map}
+\subsection{ Linearized Poincare map}
 
-We use linear stability analysis to study stability of limit cycles. Consider a fixpoint of Poincare map $\Phi^*$ (corresponds to a limit cycle) and apply a small perturbation $\_0$.
+We use linear stability analysis to study stability of limit cycles. Consider a fixpoint of Poincare map $\Phi^*$ (corresponds to a limit cycle) and apply a small perturbation $\D_0$.
 
 $$\mathcal{L}(\mathbf{\Phi^{*}} + \D_0) = \mathbf{\Phi^{*}} + \D_1$$
 
@@ -304,7 +293,7 @@ Power expansion in vicinity of the fixpoint yields
 
 $$\mathcal{L}(\mathbf{\Phi^{*}} + \D_0) = \mathbf{\Phi^{*}} +  \mathrm{D}\mathcal{L}(\mathbf{\Phi^*}) \D_0 + \mathcal{O}(\lVert\ \D_0 \rVert^2) $$
 
-where $\mathrm{D}\mathcal{L}(\mathbf{\Phi^*})$ is linear contribution (represented by a matrix), also known as linearized Poincare map [reference].
+where $\mathrm{D}\mathcal{L}(\mathbf{\Phi^*})$ represents the linear contribution (Jacobian matrix), also known as linearized Poincare map [reference].
 
 Further let's use short notation $\mathbf{L}$ = $\mathrm{D}\mathcal{L}(\mathbf{\Phi^*})$. In code `Lmat`
 
@@ -312,13 +301,14 @@ TODO: procedure to find L
 
 TODO:
 
-$\mathbf{L} = e^\mathbf{\Lambda}; \quad \mathbf{\Lambda} = \log \mathbf{L} $
+$.. = \ln \mathbf{L} $
 
 
-- $\mathbf{\Lambda}$ - is not a symmetrical matrix.
-- $ \log \mathbf{L}$ is close to $\mathbf{L} - \mathbf{I}$, but numerically I found that real part of eigenvalue can differ up to 20% (although abs value differs only by 2%)
+- $\ln \mathbf{L}$ - is not a symmetrical matrix.
+- $ \ln \mathbf{L}$ is close to $\mathbf{L} - \mathbf{I}$, but numerically I found that real part of eigenvalue can differ up to 20% (although abs value differs only by 2%)
 
-\subsection*{Linearized Poincare map: another vision}
+\subsection{Linearized Poincare map: another vision}
+
 - Since Poincare section is N-1 dimensional hypersurface, the linearized map is represented by N-1 to N-1 matrix.
 - We construct it by perturbing the fixpoint with N-1 perturbations.
   - Those are such perturbations, that the perturbed state still lies in Poincare section.
@@ -327,11 +317,11 @@ $\mathbf{L} = e^\mathbf{\Lambda}; \quad \mathbf{\Lambda} = \log \mathbf{L} $
    That will add another eigenvalue $\lambda=1$ and other eigenvalues and eigenvectors will remain unchanged.
 
 
-\section*{Numerical inaccuracy discussion}
+\section{Numerical inaccuracy discussion}
 
-\subsection*{Inaccuracy in fixpoint}
+\subsection{Inaccuracy in fixpoint}
 
-\subsubsection*{Fixpoint}
+\subsubsection{Fixpoint}
 
 
 \begin{itshape}
@@ -413,7 +403,7 @@ $$
 
 
 
-\subsubsection*{Perturbed state}
+\subsubsection{Perturbed state}
 Let's consider a perturbed (approximate) fixpoint. Fixpoint error will add up to the perturbation:
 
 $$
@@ -490,7 +480,7 @@ $$
 $$
 
 
-\subsubsection*{Linearized map}
+\subsubsection{Linearized map}
 Expand Poincare map $\mathcal{L}$ in vicinity of $\FP$
 
 $$
@@ -522,40 +512,39 @@ $$
 $$
 \mathbf{L} \wt \D 
 =
- \wt{\mathbf{L}} \D_0 + \mathcal{O}(\delta_0^2) + \mathcal{O}(\delta_F^2) + \mathcal{O}(( \delta_F + \delta_0)^2)
+ \wt{\mathbf{L}} \D_0 + \mathcal{O}(( \delta_F + \delta_0)^2)
 $$
 
 $$
 (\mathbf{L} -  \wt{\mathbf{L}}) \D_0 
 =
-\mathcal{O}(\delta_0^2) + \mathcal{O}(\delta_F^2) + \mathcal{O}(\delta_F \delta_0)
+a_{10} \delta_0 + a_{01} \delta_F + a_{20}  \delta_0^2 + a_{02} \delta_F^2 + a_{11} \delta_0 \delta_F + ...
 $$
 
-Some of $\mathcal{O}$ must annihilate. Which ones?
+The left side scales linearly with $\delta_0$, since it must hold for any $\delta_0$ (sufficiently small), only terms which scale linearly with $\delta_0$ can exist.
 
-Let's take a new perturbation: $2 \D_0$, then 
-
-\textbf{TODO:} represent big Os as powerseries? Claim that terms which scale differently that the left side must annihilate. 
-
-Expected result:
+$$
+(\mathbf{L} -  \wt{\mathbf{L}}) \D_0 
+=
+\delta_0 \bigO(\delta_F)
+$$
+And finally
 $$
 \mathbf{L} -  \wt{\mathbf{L}}
 =
  \mathcal{O}(\delta_F)
 $$
 
-\subsubsection*{Approximate $\Lmap(\wt \FP)$ as $\wt \FP$}
+\textit{$\Lmap(\wt \FP)$ and $\wt \FP$ are asymptotically at the same distance from $\FP$.}
 
 \begin{equation}
 \Lmap(\wt \FP) = \FP + \Lmat \wt \D + \mathcal{O}(\delta_F ^2)
 \end{equation}
 Or
 \begin{equation}
-\Lmap(\wt \FP) - \FP = \mathcal{O}(|\lambda| \delta_F)
+\Lmap(\wt \FP) - \FP = \bigO((1 + |\lambda|) \delta_F) = \bigO(|\lambda|)
 \end{equation}
-
-
-\subsubsection*{Numerical estimations}
+\subsubsection{Numerical estimations}
 
 If $N = 6$, fixpoint with $ tol  =10 ^{-8}$:
 
@@ -571,11 +560,11 @@ $ \frac{ \lVert \D_* \rVert }  {\lVert \D_1 - \D_0 \rVert }$ lie in range $2 * 1
 
 
 
-\newpage
+\clearpage
 \part*{Simulations}
 
 
-\subsection*{Eigenvectors}
+\subsection{Eigenvectors}
 
 \begin{itemize}
 
@@ -592,7 +581,7 @@ $ \frac{ \lVert \D_* \rVert }  {\lVert \D_1 - \D_0 \rVert }$ lie in range $2 * 1
 
 \end{itemize}
 
-\subsubsection*{ Eigenvector decomposition}
+\subsubsection{ Eigenvector decomposition}
 Let's consider an eigenvector $\D$. We can decompose it into basis of complex exponents of m-twists (coefficients are essentially multidimensional discrete Fourier transform output):
 $$
 \D = \sum_{\mathbf{k}} d_k e^{i \Phi_\mathbf{k}}.
@@ -613,23 +602,23 @@ $$
 $$
 means that eigenvector components all lie on a circle in the complex plane.
 
-\subsubsection*{Purely real eigenvalues}
+\subsubsection{Purely real eigenvalues}
 
 If eigenvalue is real, then eigenvector components lie on the real axis line instead of a circle. It can probably decomposed into cos/sin of m-twists. [Under investigation: pure sine coupling `try14`]
 
-\subsubsection*{Real perturbation out of complex eigenvectors}
+\subsubsection{Real perturbation out of complex eigenvectors}
 
 We can construct real perturbation based on complex eigenvectors:
 $$
-\operatorname{Re}(\D)
+\Re(\D)
 = \frac{1}{2} ( \D + \D^*) 
-\approx  \operatorname{Re}(d_{\mathbf{k_0}}) \cos(\Phi_{\mathbf{k_0}}) - \operatorname{Im}(d_{\mathbf{k_0}}) \sin(\Phi_{\mathbf{k_0}})
+\approx  \Re(d_{\mathbf{k_0}}) \cos(\Phi_{\mathbf{k_0}}) - \Im(d_{\mathbf{k_0}}) \sin(\Phi_{\mathbf{k_0}})
 $$
 
 $$
-\operatorname{Im}(\D)
+\Im(\D)
 = \frac{1}{2} ( \D - \D^*)
-\approx  \operatorname{Im}(d_{\mathbf{k_0}}) \cos(\Phi_{\mathbf{k_0}}) + \operatorname{Re}(d_{\mathbf{k_0}}) \sin(\Phi_{\mathbf{k_0}})
+\approx  \Im(d_{\mathbf{k_0}}) \cos(\Phi_{\mathbf{k_0}}) + \Re(d_{\mathbf{k_0}}) \sin(\Phi_{\mathbf{k_0}})
 $$
 
 \emph{TODO: can I force coefficient d to be always real?
@@ -645,84 +634,222 @@ $$
 $$
 
 $$
-\D_1 - \D_0 = \lambda \D + \lambda^* \D^* = \operatorname{Re}(\lambda)d_{\mathbf{k_0}} \cos(\Phi_{\mathbf{k_0}}) - \operatorname{Im}(\lambda)  d_{\mathbf{k_0}} \sin(\Phi_{\mathbf{k_0}})
+\D_1 - \D_0 = \lambda \D + \lambda^* \D^* = \Re(\lambda)d_{\mathbf{k_0}} \cos(\Phi_{\mathbf{k_0}}) - \Im(\lambda)  d_{\mathbf{k_0}} \sin(\Phi_{\mathbf{k_0}})
 $$
 
 
-\section*{Cilia carpet simulation}
+\section{Cilia carpet simulation}
 [\textit{try11}]
 
 
 
 
-\section*{Toy model: chain of oscillators with trigonometrical coupling}
+\section{Toy model: chain of oscillators with trigonometrical coupling}
 % Command for this section
 \newcommand{\fr}[2]{\frac{2 \pi #1} {N} #2 } %shortcut for 2pi k / N * j
-\newcommand{\si}[2]{\sin \left( \fr{#1}{#2} \right)} %shortcut for sin, cos, exp
-\newcommand{\co}[2]{\sin \left( \fr{#1}{#2} \right)} 
+\newcommand{\si}[2]{\sin  \fr{#1}{#2} } %shortcut for sin, cos, exp
+\newcommand{\co}[2]{\cos \fr{#1}{#2} } 
 \newcommand{\ex}[2]{e ^{i \fr{#1}{#2}}}
 
 
-\subsection*{Sine coupling}
+
+\begin{align*}
+\dot \varphi_j = \omega_0 + \sum_{n,m} ( & s_{nm}\sin(m\phi_j - n \phi_{j-1}) + s_{nm}\sin(m\phi_j - n \phi_{j+1}) +\\
++ & c_{nm} \cos(m\phi_j - n \phi_{j-1}) + c_{nm} \cos(m\phi_j - n \phi_{j+1}) ), \quad j=1..N
+\end{align*}
+
+\begin{itemize}
+\item If there no non-zero terms with $n \neq m$, pure m-twists will be limit cycles. Frequency will be modified by cosine terms.
+\end{itemize}
 
 
-Consider a chain of $N$ oscillators with equal beating frequency $\omega_0$, simple sinusoidal coupling and periodic boundary conditions (below we assume index $j$ modulo $N$).
+
+\subsection{Sine coupling }
+\textit{Jupyter notebook try14b
+}
+\subsubsection{Formulation}
+
+Consider a chain of $N$ oscillators with equal beating frequency $\omega_0$, simple sinusoidal coupling and periodic boundary conditions (below we consider index $j$ modulo $N$).
 
 \begin{equation}
 \dot \varphi_j = \omega_0 ( 1 + \lambda_s \sin(\varphi_j - \varphi_{j-1})
-+ \lambda_s \sin(\varphi_j - \varphi_{j-1})
++ \lambda_s \sin(\varphi_j - \varphi_{j-1})), \quad j=1..N
 \label{eqn:dphidt-sine}
 \end{equation}
 
-Limit cycles are perfect m-twists [substitute to prove derivative = const] [call it k-twist??]
+Limit cycles are perfect m-twists with some wave number $k$
 
 $$
 \varphi_j(t) = \omega_0 t - \fr{k}{j}, \quad j=1..N
 $$
+Indeed, if we substitute that into \eqref{eqn:dphidt-sine} we find that for  $\forall j$ $\dot \varphi_j = \omega_0$.
 
-From our simulations we guess that eigenvectors will be a sine or cosine of an m-twist.
+From our simulations we guess that eigenvectors will be a sine or cosine of an m-twist with some wave number $m$.
 
 To prove it, let's perturb the limit cycle and find how this perturbation will develop in time
 $$
-\varphi_j \big\rvert_{t=0} = - \fr{k}{j} -  \eps \si{m}{j}, \quad j=1..N
+\varphi_j \big\rvert_{t=0} = - \fr{k}{j} + \eps \exp( - i \fr{m}{j}), \quad j=1..N
 $$
-\textit{Note that we perturb with a sine of m-twist $\fr{m}{j}$ and move the minus outside sign.
+\textit{
+Note that calculations don't change if we perturb with only $\cos$ or $\sin$ of an m-twist. General form is necessary when we add cosine coupling terms.
 }
 
-Substitute that into \eqref{eqn:dphidt-sine}
+\subsubsection{Derivation}
+
+Substitute that into \eqref{eqn:dphidt-sine} - see scanned pdf notes \textit{[and see appendix; references via latex gives only an empty link]}
 
 \begin{equation}
-\dot \varphi_j = .. \text{  See scanned pdf notes}
-\end{equation}
-
-\begin{equation}
-\dot \varphi_j = 
-\omega_0 \left( 1 +  2 \lambda_s  \co{k}{} \left(1 - \co{m}{} \right) \left( - \eps \si{m}{j} \right) \right)  
+\dot \varphi_j \big\rvert_{t=0} = 
+\omega_0 \left( 1 +  2 \lambda_s  \co{k}{} \left(1 - \co{m}{} \right) \eps \exp( - i \fr{m}{j}) \right)  
 + \bigO(\lambda_s \eps ^2 \omega_0)
 \end{equation}
 
-The perturbation grows or decays with rate (Lyapunov exponent)
+Let's rewrite it in an abstract form
+
+\begin{equation}
+ \varphi_j = -  \fr{k}{j}  + \eps  v_j \implies 
+\dot \varphi_j =  \omega_0 + A \eps  v_j + \bigO(\lambda_s \eps ^2 \omega_0)
+\label{eqn:dphidt-sin-abstract}
+\end{equation}
+
+where $v_j =\exp( - i \fr{m}{j})$, $A$ - a constant. Note that this relation doesn't change if we add any constant (independent of $j$) to $\varphi_j$. The relation holds for any small $\eps$, so let's modify $\eps$ by time-dependent factor $\alpha(t)$, assuming $\alpha(t) = \bigO(1)$
+
+\begin{equation}
+\varphi_j(t) = -  \fr{k}{j} + \omega_0 t + \alpha(t) \eps v_j, \quad \alpha(0) = 1
+\label{eqn:phi-sin-ansatz2}
+\end{equation}
+
+Then the derivative relation \eqref{eqn:dphidt-sin-abstract} becomes
+
+\begin{equation}
+\dot \varphi_j  = \omega_0 + A \eps \alpha(t)  v_j + \bigO(\lambda_s \eps ^2  \omega_0)
+\end{equation}
+
+Substituting \eqref{eqn:phi-sin-ansatz2} to the left-side and omitting higher order terms on the right side, we obtain an ODE for $\alpha(t)$
+
+\begin{equation}
+\omega_0 + \dot \alpha \eps v_j  = \omega_0  + A \eps \alpha(t)  v_j 
+\end{equation}
+
+\begin{equation}
+\dot \alpha  = A \alpha(t), \quad \alpha(0) = 1
+\end{equation}
+
+The solution is an exponential function
+\begin{equation}
+\alpha(t) = e^{A t}
+\end{equation}
+and 
+\begin{equation}
+\varphi_j(t)  =  -  \fr{k}{j} + \omega_0 t +  e^{A t}  \eps v_j.
+\quad t = \bigO(\Re(A)^{-1})
+\end{equation}
+
+Therefore we found how phases evolve in time after a perturbation in a vicinity of a limit cycle, and showed that $v_j$ are indeed components of an eigenvector. 
+In case of $\Re(A) > 0$ this solution is valid only on time scales of $\bigO(\Re(A)^{-1})$, otherwise $\alpha = \bigO(1)$ is not satisfied.
+
+After one oscillation cycle at time $T$ perturbation strength changes by factor $e^{AT}$, therefore
+\begin{equation}
+\varphi_j(T) - \varphi_j(0) = (e^{AT} - 1) v_j
+\end{equation}
+This mean that linearized Poincare map eigenvalue \textit{(Floquet multiplier)}
 $$
-A = 2 \lambda_s  \co{k}{} \left(1 - \co{m}{} \right)
+\Lambda = e^{A T}
+$$
+Eigenvalue of the logarithm of linearized Poincare map \textit{(dimensionless form of Lyapunov eigenvalue)}
+$$
+\lambda = \ln \Lambda = A T
+$$
+This relation with A is expected, as the coupling strength doesn't depend on phase (only on phase difference).
+
+\subsubsection{Results}
+
+The perturbation grows or decays with exponential rate $A$ (Lyapunov exponent)
+$$
+A = 2 \lambda_s \omega_0 \co{k}{} \left(1 - \co{m}{} \right)
 $$
 
-Group frequency is the same as frequency of a single oscillator. Period $T = \frac{2 \pi}{\omega_0}$.
+Since eigenvalues are real, we can construct purely real eigenvectors. These are $\eps \si{m}{j}$ and  $\eps \co{m}{j}$: N linear-independent eigenvectors.
+
+Oscillation frequency is unmodified in the presence of coupling. Period $T = \frac{2 \pi}{\omega_0}$.
+
 
 Poincare map eigenvalue
 $$
-\lambda = e^{A T} - 1 
-= \exp \left( 4 \pi \lambda_s  \co{k}{} \left(1 - \co{m}{} \right) \right) - 1 
+\lambda = 4 \pi \lambda_s  \co{k}{} \left(1 - \co{m}{} \right)
+$$
+Floquet multiplier 
+\footnote{
+In case of sufficiently weak coupling we can write
+$$
+\Lambda 
+= 4 \pi \lambda_s  \co{k}{} \left(1 - \co{m}{} \right) - 1  + \bigO(\lambda_s^2),
+$$
+but in practice to be safe we should stick to a general formula, as the difference is notable already at $\lambda_s = 0.01$.
+}
+$$
+\Lambda = \exp \left( 4  \pi \lambda_s  \co{k}{} \left(1 - \co{m}{} \right) \right)
 $$
 
-In case of sufficiently weak coupling \textit{[but to be safe it's better to stay with a general formula, it doesn't give an advantage to move to a simplified formula]}
-$$
-\lambda 
-= 4 \pi \lambda_s  \co{k}{} \left(1 - \co{m}{} \right)  + \bigO(\lambda_s^2)
-$$
 
-[TODO: EIGENSPECTRUM PLOTS AND CONCLUSIONS]
 
-\subsection*{Sine plus cosine coupling}
+\subsubsection{Conclusions. Visualizations}
+\begin{itemize}
+\item Fixed points (limit cycles) are pure m-twists.
+\item All eigenvalues (and eigenvectors) are real.
+\item Frequency is unchanged
+\item All eigenvalues are degenerate with degeneracy = 2, except for $m=0$, $m=N / 2$ (if N is even).
+\item At any fixed point, all eigenvalues are either non-negative, or non-positive.
+\item Eigenvalues at $k=\pm\frac{N}{4}$  are all zero.
+\item Checked the difference between simulation and analytical calculations: only higher order terms remain, as predicted by analysis.
+
+\end{itemize}
+
+The perturbation decays if $\Re(A)$ is negative. The limit cycle is stable if for any perturbation $A$, or equivalently $\lambda$ are negative (more precisely - non-positive, since we always have a neutral perturbation).
+
+
+Visualize eigenvalues at $N=12$, $\lambda_s = - 0.01$. 
+
+%\begin{figure}[h]
+%\begin{subfigure}[h]{.55\textwidth}
+%  \centering
+% \includegraphics[width=.9\textwidth]{assets/theory-2019-08-26-160946838-d74.png}
+%  \caption{A}
+%  \label{fig:label:3224}
+%\end{subfigure}
+%\begin{subfigure}[h]{.55\textwidth}
+%  \centering
+%  \includegraphics[width=.9\textwidth]{assets/theory-2019-08-26-160946838-d74.png}
+%  \caption{A}
+%  \label{fig:label:323}
+%\end{subfigure}
+%\caption{AB}
+% \label{fig:ss_shape}
+%\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=.6\textwidth]{assets/theory-2019-08-27-181128169-abc.png}
+    % \caption{}
+    %\label{fig:crack}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=.6\textwidth]{assets/theory-2019-08-27-181132121-3da.png}
+    % \caption{}
+    %\label{fig:crack}
+\end{figure}
+
+
+\clearpage
+
+\subsection{Sine plus cosine coupling}
+\textit{[try14c]}
+
+\subsubsection{Formulation}
+
+
 \begin{equation}
 \dot \varphi_j = \omega_0 \left( 1 + \lambda_s \sin(\varphi_j - \varphi_{j-1})
 + \lambda_s \sin(\varphi_j - \varphi_{j-1})
@@ -731,40 +858,104 @@ $$
 \label{eqn:dphidt-sin-cos}
 \end{equation}
 
-Now consider a complex perturbation
+Let's consider a complex perturbation
 
 $$
-\varphi_j \big\rvert_{t=0} = - \fr{k}{j} + \eps \exp( - \fr{m}{j})
+\varphi_j \big\rvert_{t=0} = - \fr{k}{j} + \eps \exp( - i \fr{m}{j})
 $$
+
+\subsubsection{Derivation}
 
 Again substitute into derivative [see pdf notes 2019-08] and end up with
 
 $$
-\dot \varphi_j = \omega + A \eps \exp( - \fr{m}{j}) + \bigO(\lambda_0 \eps ^ 2 \omega_0),
+\dot \varphi_j = \omega + A \eps \exp(- i \fr{m}{j}) + \bigO(\lambda_0 \eps ^ 2 \omega_0),
 $$
-where $\lambda_0 = \max(|\lambda_s|, |\lambda_c|)$ - measure of coupling strength,
+where 
 
-$\omega$ - effective frequency
+$\lambda_0 = \bigO(\lambda_s, \lambda_c)$, e.g. $\lambda_0 = \left( \lambda_s^2 + \lambda_c^2 \right)^{\frac{1}{2}}$ - measure of coupling strength,
+
+
+\subsubsection{Results}
+
+$\omega$ - effective frequency\footnote{Higher order terms scaling as $\eps ^2$ confirmed in simulation}
 $$
- \omega = \omega_0 (1 + \lambda_c \co{k}{}),
+ \omega = \omega_0 (1 + \lambda_c \co{k}{}) + \bigO(\lambda_0 \eps^2 \omega_0 ),
 $$
 
-$A$ - perturbation change rate; Lyapunov exponent
+$A$ - perturbation change rate --- Lyapunov exponent
 
 $$ 
 A = 
  2 \lambda_s \omega_0 \co{k}{} \left(1 - \co{m}{} \right)
-- 2 i \lambda_c \omega_0 \si{k}{} \si{m}{}
+- 2 i \lambda_c \omega_0 \si{k}{} \si{m}{},
 $$
 
-Poincare map eigenvalue ($L - I$)
-
+Eigenvalue of logarithm of linearized Poincare map \textit{(dimensionless Lyapunov exponent)} $\lambda = A T$, where $T = \frac{2 \pi}{\omega}$
+$$
+\lambda
+=\frac{4 \pi} {1 + \lambda_c \co{k}{}} \left(  \lambda_s \co{k}{} \left(1 - \co{m}{} \right)
+-  i \lambda_c \si{k}{} \si{m}{} \right) 
+$$
+Floquet multiplier
 $$ 
-\lambda = e^{A T} - 1,
+\Lambda = e^{\lambda}
 $$
-where $T = \frac{2 \pi}{\omega}$
 
-TODO: add plots and analysis
+\subsubsection{Conclusions. Visualizations}
 
+\begin{itemize}
+\item Fixed points (limit cycles) are pure m-twists.
+\item Frequency depends on cosine coupling strength, and phase difference at the limit cycle.
+\item Now eigenvalues and eigenvectors are in general complex, degeneracy is broken (but not always: $k=\pm \frac{N}{4}$).
+\item Lyapunov exponent at $k=\pm\frac{N}{4}$  is purely imaginary, degeneracy = 2.
+\item At any fixed point, all Lyapunov exponents have either all non-negative, or all non-positive real parts.
+\item Contributions from sine and cosine coupling terms are additive in Lyapunov exponent, but not in dimensionless one, and especially not in Poincare map eigenvalue, unless $\lambda_0$ is sufficiently small. 
+\item Checked the difference between simulation and analytical calculations: only higher order terms remain, as predicted by analysis.
+
+
+\textbf{Visualize eigenvalues} at 
+$\lambda_s = - 0.01$, $\lambda_c = 0.01$, $N=12$.
+
+Lyapunov/Poincare exponents $\lambda$ and Floquet multipliers $\Lambda$ change similarly with $m$, but not exactly in the same way. Lyapunov exponents which have the same imaginary part, but different real time evolve in time differently, and therefore Poincare map eigenvalues have slightly different imaginary parts.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=.95\textwidth]{assets/theory-2019-08-27-181715342-e4b.png}
+    % \caption{}
+    %\label{fig:crack}
+\end{figure}
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=.95\textwidth]{assets/theory-2019-08-27-181719526-a8d.png}
+    % \caption{}
+    %\label{fig:crack}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=.95\textwidth]{assets/theory-2019-08-27-181703429-803.png}
+    % \caption{}
+    %\label{fig:crack}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=.55\textwidth]{assets/theory-2019-08-27-182315374-a22.png}
+    % \caption{}
+    %\label{fig:crack}
+\end{figure}
+
+\clearpage
+
+\begin{appendices}
+
+\section{Analytical derivation of eigenvalues for a chain of oscillators with sinusoidal and cosinusoidal coupling} 
+\includepdf[pages=-]{2019-08-28-sin-cos-eigenspectrum.pdf} 
+
+\end{appendices}
+\end{itemize}
 \end{document}
 
