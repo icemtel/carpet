@@ -20,7 +20,7 @@ def get_cell_sizes(a):
 
 def get_basis():
     e1 = sp.array([1, 0])
-    e2 = sp.array([0.5, sp.sqrt(3) / 2])
+    e2 = sp.array([0.5, 3 ** (1 / 2) / 2])
     return e1, e2
 
 
@@ -50,8 +50,8 @@ def get_nodes_and_ids(nx, ny, a):
     coords = []  # list of position vectors for honeycomb lattice
     lattice_ids = []  # list of corresponding lattice indices (n,m)
 
-    for n in range(-4 * nx, 4 * nx):
-        for m in range(0, 4 * ny):
+    for n in range(-2 * nx, 2 * nx):
+        for m in range(0, 2 * ny):
             x = n * a * e1 + m * a * e2  # position vector
             # position vector within bounds?
             if (x[0] >= 0 - eps) and (x[1] >= 0 - eps) and (x[0] < L1 - eps) and (x[1] < L2 - cell_height + eps):
@@ -314,9 +314,9 @@ if __name__ == '__main__':
     N1, T1 = get_neighbours_list(coords, nx, ny, a)
 
     ## Visualize
-    # visualize.plot_edges(coords, T1)
-    # visualize.plot_nodes(coords)
-    # visualize.plt.show()
+    visualize.plot_edges(coords, T1)
+    visualize.plot_nodes(coords)
+    visualize.plt.show()
 
     ### Check mtwists
     get_mtwist_phi = define_get_mtwist(coords, nx, ny, a)
