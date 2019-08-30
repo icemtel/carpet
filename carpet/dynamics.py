@@ -2,7 +2,7 @@ import scipy as sp
 from scipy.integrate import  solve_ivp
 
 
-def define_solve_cycle(right_side_of_ODE, t_max, phi_global_func):
+def define_solve_cycle(right_side_of_ODE, t_max, phi_global_func, backwards=False):
     '''
     Create a function which would solve
         phi' = f(t,phi)
@@ -12,16 +12,19 @@ def define_solve_cycle(right_side_of_ODE, t_max, phi_global_func):
     :param right_side_of_ODE: f(t,y)
     :param t_max: another termination criterium: t=t_max;  also used to determine maximum time-step size;
                   for safety one can choose t_max equal to double beat period
+    :param backwards: if True: solve backwards in time; assuming now that global phase will decay in time;
+                      In output time is still > 0; but the solution behaves as if times has the opposite sign
     :return: solve_cycle function
     - atol and rtol are chosen with an assumption that phases are close to interval [0, 2pi]
     '''
+
     def solve_cycle(phi_init, tol, phi_global_end=None, max_step=t_max / 20):
         """
         :param phi_global_end: if not given, the cycle will finish at the initial phase, otherwise at phase_finish up to 2pi
         :return:
         """
         if phi_global_end is None:
-            phi_global_end = phi_global_func(phi_init) # end at starting phase (up to 2pi)
+            phi_global_end = phi_global_func(phi_init)  # end at starting phase (up to 2pi)
 
         def end_cycle_event(t, phi):
             '''
@@ -29,11 +32,17 @@ def define_solve_cycle(right_side_of_ODE, t_max, phi_global_func):
             By definition, it returns zero when global phase gets increment of 2pi.
             '''
             if t > 0:
-                return 2 * sp.sin((phi_global_func(phi) - phi_global_end) / 2)
+                return sp.sin((phi_global_func(phi) - phi_global_end) / 2)
             else:
                 return sp.inf
 
-       # end_cycle_event.direction = +1  # event only triggered if return variable passes through zero from negative to positive values
+        if backwards:
+            right_side = lambda t, phi: - right_side_of_ODE(t, phi)
+            end_cycle_event.direction = +1
+        else:
+            right_side = right_side_of_ODE
+            end_cycle_event.direction = -1  # event only triggered if return variable passes through zero from positive to negative values
+
         end_cycle_event.terminal = True  # tell solver to terminate the process in case of the event
 
         # Local error estimates are kept less than `atol + rtol * abs(y)`
@@ -42,9 +51,8 @@ def define_solve_cycle(right_side_of_ODE, t_max, phi_global_func):
 
         t_span = (0, t_max)
 
-        return solve_ivp(right_side_of_ODE, t_span, phi_init, rtol=rtol, atol=atol, max_step=max_step,
+        return solve_ivp(right_side, t_span, phi_init, rtol=rtol, atol=atol, max_step=max_step,
                          events=end_cycle_event)  # returns a solution class
-
 
     return solve_cycle
 
