@@ -553,8 +553,9 @@ After/before update (left/right):
 
 <img alt="carpet_jupyter_summary-2019-08-28-104955375-9a7.png" src="assets/carpet_jupyter_summary-2019-08-28-104955375-9a7.png" width="" height="" >
 
-
-
+### `try11b`: rotated lattice
+- `T` -> `period`
+- Eigenvalues of `L - I` -> eigenvalues of `log(L)`
 
 ## `try14a_1D_chain_toy_coupling.ipynb`
 - 1D chain

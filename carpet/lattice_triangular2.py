@@ -300,6 +300,7 @@ if __name__ == '__main__':
     # OK: nodes plot
     # OK: cell sizes: the same as in lattice_triangular, but inversed components
     # OK: dual basis: the same as in lattice_triangular, but inversed components
+    # OK: mtwists
 
     import matplotlib.pyplot as plt
     import carpet.visualize as visualize
