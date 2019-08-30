@@ -29,11 +29,11 @@ def define_solve_cycle(right_side_of_ODE, t_max, phi_global_func):
             By definition, it returns zero when global phase gets increment of 2pi.
             '''
             if t > 0:
-                return sp.sin(phi_global_func(phi) - phi_global_end)
+                return 2 * sp.sin((phi_global_func(phi) - phi_global_end) / 2)
             else:
                 return sp.inf
 
-        end_cycle_event.direction = +1  # event only triggered if return variable passes through zero from negative to positive values
+       # end_cycle_event.direction = +1  # event only triggered if return variable passes through zero from negative to positive values
         end_cycle_event.terminal = True  # tell solver to terminate the process in case of the event
 
         # Local error estimates are kept less than `atol + rtol * abs(y)`
