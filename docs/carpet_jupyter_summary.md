@@ -553,9 +553,15 @@ After/before update (left/right):
 
 <img alt="carpet_jupyter_summary-2019-08-28-104955375-9a7.png" src="assets/carpet_jupyter_summary-2019-08-28-104955375-9a7.png" width="" height="" >
 
+#### Change of period
+
+<img alt="carpet_jupyter_summary-2019-08-30-143828287-8f4.png" src="assets/carpet_jupyter_summary-2019-08-30-143828287-8f4.png" width="" height="" >
+<img alt="carpet_jupyter_summary-2019-08-30-143838596-384.png" src="assets/carpet_jupyter_summary-2019-08-30-143838596-384.png" width="" height="" >
+
 ### `try11b`: rotated lattice
 - `T` -> `period`
 - Eigenvalues of `L - I` -> eigenvalues of `log(L)`
+- Fixpoints with zero mean phase
 
 ## `try14a_1D_chain_toy_coupling.ipynb`
 - 1D chain
@@ -564,6 +570,13 @@ After/before update (left/right):
 
 ### `try14b_1D_chain_pure_sine_coupling.ipynb`
 - Only sine coupling
+
+- Analyse inhomogenity (how strong are non-linear terms if we increase `eps`?).
+
+  Scales correctly (linear in alpha [second term is divided by alpha, if instead we would multiply the first term by alpha, the expression would scale quadratically])
+
+  <img alt="carpet_jupyter_summary-2019-09-02-120405715-1d3.png" src="assets/carpet_jupyter_summary-2019-09-02-120405715-1d3.png" width="" height="" >
+
 - Compare eigenvalues and time derivative with analytical approximation
 
 Eigenvalues coincide with the ones predicted; up to `eps ** 2` term:
@@ -581,3 +594,22 @@ Perturb by eigenvector: compare theory vs simulation
 
 1-twist:
 <img alt="carpet_jupyter_summary-2019-08-23-164432534-220.png" src="assets/carpet_jupyter_summary-2019-08-23-164432534-220.png" width="" height="" >
+
+
+
+### `14c` cosine + sine coupling
+- Confirms analytical calculations for eigenvalues, and frequency change.
+
+
+### Basins of attractions (`14b, 14b2 14c`)
+
+- Sine coupling vs sine+cosine coupling (left/right):
+sine
+<img alt="carpet_jupyter_summary-2019-08-30-14540308-6f2.png" src="assets/carpet_jupyter_summary-2019-08-30-14540308-6f2.png" width="" height="" >
+
+sine+cosine
+<img alt="carpet_jupyter_summary-2019-08-30-145409798-f93.png" src="assets/carpet_jupyter_summary-2019-08-30-145409798-f93.png" width="" height="" >
+
+Imaginary part give oscillations to dphi (||L(Phi) - Phi||)
+
+- Pertrub near-neutral state: perturbations don't move anywhere
