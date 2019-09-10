@@ -563,6 +563,16 @@ After/before update (left/right):
 - Eigenvalues of `L - I` -> eigenvalues of `log(L)`
 - Fixpoints with zero mean phase
 
+### Stability plot
+- Check for different `delta0`? Or better fixed points
+
+  <img alt="carpet_jupyter_summary-2019-09-06-111008968-e68.png" src="assets/carpet_jupyter_summary-2019-09-06-111008968-e68.png" width="" height="" >
+
+#### Period plot
+- Change on the same order as in `try11`
+
+  <img alt="carpet_jupyter_summary-2019-09-06-110911244-53c.png" src="assets/carpet_jupyter_summary-2019-09-06-110911244-53c.png" width="" height="" >
+
 ## `try14a_1D_chain_toy_coupling.ipynb`
 - 1D chain
 - Coupling with combination of sine and cosine
@@ -600,6 +610,36 @@ Perturb by eigenvector: compare theory vs simulation
 ### `14c` cosine + sine coupling
 - Confirms analytical calculations for eigenvalues, and frequency change.
 
+### `14d_analyze_distance_measures`
+
+Compare different distance measures: root mean square, sine/cosine/exp, circular standard deviation
+- RMS:
+  - bad: doesn't respect 2pi shifts
+- RMS of `1 - cos(dphi`:
+  -`1 - cos(dphi)` listed in the book
+  - the same as `sin(1/2 * dphi) ** 2`
+- RMS of `2 *  sp.sin(0.5 * dphi)` <-> rms of `sp.exp(1j * (phi1-phi2)) -1`
+  - The same scaling as RMS
+  - Distance between two fixpoints = `sqrt(2)`
+
+- circstd vs rms:
+  - Single (or several) node perturbation -> up to 30% difference; rms is bigger
+
+    The difference is constant when normalized by rms.
+  - cos(mtwist) perturbation: very good correspondence between two; diff scales as `eps ** 2`
+
+    `eps=10**-1` => difference is around `10 ** -4`
+
+  - Random perturbations with zero norm; difference is around `10 ** -3` at `eps=0.1`
+
+**Therefore,**
+- `circstd` gives almost the same measure as `rms` for small `dphi` **when the mean phase of dphi is zero`.
+- If it's not zero, `circstd` gives a smaller distance.
+- For the purposes of finding distance to a fixed point, it's safe to use `circstd`
+- `circstd` also has the advantage of being a standard measure
+- When phase shift is imporant, e.g. `[0, 0,1]` is different from `[-1, -1, 0]`, I can keep using RMS of `2 *  sp.sin(0.5 * dphi)` as the measure
+
+
 
 ### Basins of attractions (`14b, 14b2 14c`)
 
@@ -613,3 +653,41 @@ sine+cosine
 Imaginary part give oscillations to dphi (||L(Phi) - Phi||)
 
 - Pertrub near-neutral state: perturbations don't move anywhere
+
+### `14e`, `14f`: 2D carpet; sine or sine + cosine
+
+- Bigger eigenvalues magnitude (3x more neighbours)
+  `sin_str = -0.01` => stable (0,0)-twist
+
+   <img alt="carpet_jupyter_summary-2019-09-06-101809243-fed.png" src="assets/carpet_jupyter_summary-2019-09-06-101809243-fed.png" width="" height="" >
+
+   Sine + cosine: `sin_str = - 0.01` `cos_str = 0.01`
+   Stability plot is unchanged;
+   <img alt="carpet_jupyter_summary-2019-09-06-101854104-8c1.png" src="assets/carpet_jupyter_summary-2019-09-06-101854104-8c1.png" width="" height="" >
+
+### `14g` - sine: 12x12 carpet basins of attractions study
+- Reconfirm result from `14e`: convergence to (0,0)-twist dominates
+  <img alt="carpet_jupyter_summary-2019-09-10-160147232-726.png" src="assets/carpet_jupyter_summary-2019-09-10-160147232-726.png" width="" height="" >
+<img alt="carpet_jupyter_summary-2019-09-10-160345789-b87.png" src="assets/carpet_jupyter_summary-2019-09-10-160345789-b87.png" width="" height="" >
+
+### `try15_compare_speed_toy_vs_cilia.ipynb`
+#### Time to compute 1 cycle
+-Run 100 cycles.
+-Mean time spent per cycle: cilia 2.185e+00 sec, toy 1.478e-02 sec
+-Cilia/toy ratio: mean 1.478e+02, std/mean 6%
+
+### Distance in 1 cycle
+-Run 100 cycles.
+-Cilia circstd(L(phi0) - phi0): mean: 9.612e-02   std/mean: 1.178e-02
+-Toy circstd(L(phi0) - phi0): mean: 1.098e-01   std/mean: 1.290e-02
+-Cilia/toy dphi ratio mean: 8.751e-01
+
+
+Therefore, almost the same distance travelled (but would also depend on coupling strength and whether we add a cosine term). Cilia nonlinear coupling is 150 times slower than sinusoidal.
+
+Cilia:
+
+- 1 cycle -> 1 sec
+- 300 cycles -> 5 min
+- 1000 trajectories -> 5000 min ~ 3.5 days
+- Parallelize: 1 day on 4 cores; 2000 trajectories over weekend, assuming that 300 cycles is enough.
