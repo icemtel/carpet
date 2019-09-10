@@ -40,7 +40,7 @@ def get_colorcycler():  # first cycle colors, then line styles
 
 
 def get_linecycler():  # first cycle line styles, then colors
-    cyc = cycler('color', _colors) * cycler.cycler('linestyle', _lines)
+    cyc = cycler('color', _colors) * cycler('linestyle', _lines)
     return cyc()
 
 
