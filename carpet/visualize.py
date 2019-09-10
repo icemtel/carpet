@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import matplotlib.colors as colors
 from matplotlib.colors import SymLogNorm # , Normalize, LogNorm
-import cycler
+from cycler import cycler
 
 default_colormap = 'viridis'
 default_midpoint_colormap = 'RdBu_r'
@@ -29,22 +29,23 @@ def get_colors(num, cmap=default_colormap):
     return cm(sp.linspace(0, 1, num))
 
 
+# See usage below
 _lines = ["-", "--", "-.", ":"]
 _cmap = plt.get_cmap("tab10")
 _colors = [_cmap(i) for i in range(10)]
 
 def get_colorcycler():  # first cycle colors, then line styles
-    cyc = cycler.cycler('linestyle', _lines) * cycler.cycler('color', _colors)
+    cyc = cycler('linestyle', _lines) * cycler('color', _colors)
     return cyc()
 
 
 def get_linecycler():  # first cycle line styles, then colors
-    cyc = cycler.cycler('color', colors) * cycler.cycler('linestyle', _lines)
+    cyc = cycler('color', _colors) * cycler.cycler('linestyle', _lines)
     return cyc()
 
 
 def get_stylecycler():  # Only cycle linestyle; color will be changed by matplotlib automatically
-    cyc = cycler.cycler('linestyle', _lines)
+    cyc = cycler('linestyle', _lines)
     return cyc()
 
 
