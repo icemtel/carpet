@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import matplotlib.colors as colors
 from matplotlib.colors import SymLogNorm # , Normalize, LogNorm
+import cycler
 
 default_colormap = 'viridis'
 default_midpoint_colormap = 'RdBu_r'
@@ -23,8 +24,8 @@ def get_colors(num, cmap=default_colormap):
     :param cmap: e.g. 'jet' 'viridis' 'RdBu_r' 'hsv'
     :return:
     '''
-    import matplotlib.cm as ccmm
-    cm = getattr(ccmm, cmap)
+    import matplotlib.cm as mcm
+    cm = getattr(mcm, cmap)
     return cm(sp.linspace(0, 1, num))
 
 
@@ -33,26 +34,23 @@ _cmap = plt.get_cmap("tab10")
 _colors = [_cmap(i) for i in range(10)]
 
 def get_colorcycler():  # first cycle colors, then line styles
-    from cycler import cycler
-    cyc = cycler('linestyle', _lines) * cycler('color', _colors)
+    cyc = cycler.cycler('linestyle', _lines) * cycler.cycler('color', _colors)
     return cyc()
 
 
 def get_linecycler():  # first cycle line styles, then colors
-    from cycler import cycler
-    cyc = cycler('color', colors) * cycler('linestyle', _lines)
+    cyc = cycler.cycler('color', colors) * cycler.cycler('linestyle', _lines)
     return cyc()
 
 
 def get_stylecycler():  # Only cycle linestyle; color will be changed by matplotlib automatically
-    from cycler import cycler
-    cyc = cycler('linestyle', _lines)
+    cyc = cycler.cycler('linestyle', _lines)
     return cyc()
 
 
 ## HOW TO USE STYLECYCLERS:
 # (1)
-# styles = get_linecycler()
+# styles = vis.get_linecycler()
 # for i in range(12):
 #     plt.plot(sp.linspace(0, 2), sp.linspace(0, 2) ** 2 + i,**next(styles))
 # plt.show()
