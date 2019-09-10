@@ -1,5 +1,6 @@
 '''
 Wasn't checked after copying from a notebook.
+Find updated script in scripts
 '''
 
 import scipy as sp
@@ -50,6 +51,7 @@ if __name__ is "__main__":
 
     coords, lattice_ids = lattice.get_nodes_and_ids(nx, ny, a)
     N1, T1 = lattice.get_neighbours_list(coords, nx, ny, a)
+    get_mtwist = lattice.define_get_mtwist(coords, nx, ny, a)
 
     gmat_glob, q_glob = lattice.define_gmat_glob_and_q_glob(set_name, a, N1, T1, order_g11, order_g12, T)
     right_side_of_ODE = lattice.define_right_side_of_ODE(gmat_glob, q_glob)
@@ -66,7 +68,7 @@ if __name__ is "__main__":
 
     def function_to_run(k1, k2):  # job for parallel computing
         start = time.time()
-        phi0 = lattice.get_mtwist_phi(k1, k2)
+        phi0 = get_mtwist(k1, k2)
 
         res = opt.minimize(distance_squared, phi0, tol=mini_tol)
         time_spent = time.time() - start

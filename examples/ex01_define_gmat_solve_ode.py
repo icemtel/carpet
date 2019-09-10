@@ -1,6 +1,7 @@
 import time
 import scipy as sp
 import carpet
+import carpet.visualize as vis
 import carpet.lattice_triangular as lattice
 
 a = 18  # [um]
@@ -35,5 +36,5 @@ print("Time spent", time_spent)
 phi1 = solution.y.T[-1]
 print("Change in phase after one cycle:", phi1 - phi0 - 2 * sp.pi)
 # Visualize
-carpet.plot_nodes(coords, phi=(phi1 - phi0 - 2 * sp.pi) % (2 * sp.pi))  # can't see phase difference on this scale
-carpet.plt.show()
+vis.plot_nodes(coords, phi=(phi1 - phi0 - 2 * sp.pi) % (2 * sp.pi))  # can't see phase difference on this scale
+vis.plt.show()

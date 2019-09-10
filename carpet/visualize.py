@@ -1,6 +1,5 @@
 import scipy as sp
 import matplotlib.pyplot as plt
-import colorsys
 import matplotlib as mpl
 import matplotlib.colors as colors
 from matplotlib.colors import SymLogNorm # , Normalize, LogNorm
@@ -9,7 +8,7 @@ default_colormap = 'viridis'
 default_midpoint_colormap = 'RdBu_r'
 default_cyclic_colormap = 'hsv'
 
-
+### Colors, linestyles, figures
 def get_colors(num, cmap=default_colormap):
     '''
     :param num: How many colors to return
@@ -21,11 +20,57 @@ def get_colors(num, cmap=default_colormap):
     return cm(sp.linspace(0, 1, num))
 
 
+_lines = ["-", "--", "-.", ":"]
+_cmap = plt.get_cmap("tab10")
+_colors = [_cmap(i) for i in range(10)]
+
+def get_colorcycler():  # first cycle colors, then line styles
+    from cycler import cycler
+    cyc = cycler('linestyle', _lines) * cycler('color', _colors)
+    return cyc()
+
+
+def get_linecycler():  # first cycle line styles, then colors
+    from cycler import cycler
+    cyc = cycler('color', colors) * cycler('linestyle', _lines)
+    return cyc()
+
+
+def get_stylecycler():  # Only cycle linestyle; color will be changed by matplotlib automatically
+    from cycler import cycler
+    cyc = cycler('linestyle', _lines)
+    return cyc()
+
+
+## USE
+# (1)
+# styles = get_linecycler()
+# for imeasure in range(12):
+#     plt.plot(sp.linspace(0, 2), sp.linspace(0, 2) ** 2 + imeasure,**next(styles))
+# plt.show()
+# (2) OR Change globally
+# rc('axes', prop_cycle = get_linecycler())
+
+## More lines options
+# lines = [(0,()), # solid
+#          (0, (5, 5)), # dashed
+#          (0, (3, 5, 1, 5)), # dashdotted
+#          (0, (3, 5, 1, 5, 1, 5)), # dashdotdotted
+#          (0, (1, 5)), # dotted
+#          (0, (5, 1)), # densely dashed
+#          (0, (3, 1, 1, 1)), # densely dashdotted
+#          (0, (1, 1)), # densely dotted
+#          (0, (5, 10)), # loosely dashed
+#          (0, (3, 1, 1, 1, 1, 1))] # densely dashdotdotted?
+
+
 def simple_figure():
     fig = plt.figure(figsize=(1.618 * 3, 3))
     ax = plt.subplot(111)
     return fig, ax
 
+
+### Plotting routines
 
 def plot_nodes(coords, phi=None, color=(0.5, 0.5, 0.5), s=100,
                 cmap = 'hsv',

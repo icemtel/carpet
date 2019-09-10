@@ -1,5 +1,6 @@
 '''
-2019-09-02: force zero mean phase - previous tests showed that it might be slower, but then we get the fixpoint with exatly zero mean phase
+2019-09-02: tried to force zero mean phase; run -> non-zero mean phase (even bigger than previously)
+            despite big values of penalty function
 '''
 
 import sys
@@ -52,7 +53,7 @@ def get_optimization_target(solve_cycle, tol):
                      info['num_evals'] initialize with 0, then this parameter will change
                      info['initial'] - mtwist or other initial point, prints a distance to that point
         '''
-        sol = solve_cycle(phi0, tol, phi_global_end=0)
+        sol = solve_cycle(phi0, tol) # , phi_global_end=0
         phi1 = sol.y.T[-1]
         distance_squared = sp.sum((phi1 - phi0 - 2 * sp.pi) ** 2)
         if info is not None:
