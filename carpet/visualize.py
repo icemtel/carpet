@@ -1,3 +1,11 @@
+"""
+Fucntions for visualization
+- Line styles: for better plots
+- Create a figure
+- Plot nodes (oscillators, possibly with phases), edges, nodes numbers
+- phase_plot: plot a function of phi1,phi2, e.g. friction function
+- Stability plots
+"""
 import scipy as sp
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -42,11 +50,11 @@ def get_stylecycler():  # Only cycle linestyle; color will be changed by matplot
     return cyc()
 
 
-## USE
+## HOW TO USE STYLECYCLERS:
 # (1)
 # styles = get_linecycler()
-# for imeasure in range(12):
-#     plt.plot(sp.linspace(0, 2), sp.linspace(0, 2) ** 2 + imeasure,**next(styles))
+# for i in range(12):
+#     plt.plot(sp.linspace(0, 2), sp.linspace(0, 2) ** 2 + i,**next(styles))
 # plt.show()
 # (2) OR Change globally
 # rc('axes', prop_cycle = get_linecycler())
@@ -64,8 +72,8 @@ def get_stylecycler():  # Only cycle linestyle; color will be changed by matplot
 #          (0, (3, 1, 1, 1, 1, 1))] # densely dashdotdotted?
 
 
-def simple_figure():
-    fig = plt.figure(figsize=(1.618 * 3, 3))
+def landscape_figure(height):
+    fig = plt.figure(figsize=(1.618 * height, height))
     ax = plt.subplot(111)
     return fig, ax
 
