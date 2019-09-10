@@ -59,25 +59,26 @@ def define_solve_cycle(right_side_of_ODE, t_max, phi_global_func, backwards=Fals
 
 ## Global phase
 ### Circular Average
-def get_circular_average(phi, phi0):
+from scipy.stats import circmean, circstd, circvar
+
+def complex_exp_mean(phi, phi0):
+    '''
+    Mean of complex exponents of array of phases phi, relative to phi0
+    '''
     return sp.mean(sp.exp(1j * (phi - phi0)))
 
 
-def define_circular_average_phase(phi0):
+def define_circular_mean_phase(phi0):
     '''
-    k1,k2 - m-twist parameters;
-    Global phase;
-    :return: a function which gives global phase
+    :return: function which computes circular mean phase of phi, relative to phi0.
     '''
-
-    def get_phi_global(phi):
-        return sp.angle(get_circular_average(phi, phi0))
-
+    def get_phi_global(phi):        # equivalent up to mod 2pi to sp.angle(sp.mean(sp.exp(1j * (phi - phi0))))
+        return circmean(phi - phi0)
     return get_phi_global
 
 
 def get_order_parameter(phi, phi0):
-    return abs(get_circular_average(phi, phi0))
+    return abs(complex_exp_mean(phi, phi0))
 
 
 ### Mean phase
