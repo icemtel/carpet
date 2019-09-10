@@ -1,5 +1,6 @@
 import scipy as sp
 from scipy.integrate import  solve_ivp
+import scipy.stats as stats
 
 
 def define_solve_cycle(right_side_of_ODE, t_max, phi_global_func, backwards=False):
@@ -59,7 +60,25 @@ def define_solve_cycle(right_side_of_ODE, t_max, phi_global_func, backwards=Fals
 
 ## Global phase
 ### Circular Average
-from scipy.stats import circmean, circstd, circvar
+
+def circmean(phi, phi0=0, high=2*sp.pi, low=0, axis=None):
+    '''
+    If two phase vectors age given, calculate for dphi=phi-phi0
+    '''
+    return stats.circmean(phi - phi0, high=high, low=low, axis=axis)
+
+def circstd(phi, phi0=0, high=2*sp.pi, low=0, axis=None):
+    '''
+    If two phase vectors age given, calculate for dphi=phi-phi0
+    '''
+    return stats.circstd(phi - phi0, high=high, low=low, axis=axis)
+
+def circvar(phi, phi0=0, high=2*sp.pi, low=0, axis=None):
+    '''
+    If two phase vectors age given, calculate for dphi=phi-phi0
+    '''
+    return stats.circvar(phi - phi0, high=high, low=low, axis=axis)
+
 
 def complex_exp_mean(phi, phi0):
     '''
