@@ -529,12 +529,17 @@ Zoom in: no correlation (but there are a couple of outliers)
 ### UPD: plotting eigenvalues of log(L) instead of eigenvalues of (L-I) (first introduce in `try14b`
 
 #### Stability regions
+Modenumbers map
+
+<img alt="carpet_jupyter_summary-2019-09-13-105231336-589.png" src="assets/carpet_jupyter_summary-2019-09-13-105231336-589.png" width="" height="" >
+
 After/before update (left/right):
 
   <img alt="carpet_jupyter_summary-2019-08-28-103535616-10a.png" src="assets/carpet_jupyter_summary-2019-08-28-103535616-10a.png" width="" height="" >
   <img alt="carpet_jupyter_summary-2019-08-09-12170862137.png" src="assets/carpet_jupyter_summary-2019-08-09-12170862137.png" width="" height="" >
 
 #### Eigenvalues vs k: 2D  - perturbation vec in the dual lattice space
+
 <img alt="carpet_jupyter_summary-2019-08-28-104102375-3e2.png" src="assets/carpet_jupyter_summary-2019-08-28-104102375-3e2.png" width="" height="" >
 <img alt="carpet_jupyter_summary-2019-08-28-104106868-a9d.png" src="assets/carpet_jupyter_summary-2019-08-28-104106868-a9d.png" width="" height="" >
 
@@ -559,15 +564,25 @@ After/before update (left/right):
 <img alt="carpet_jupyter_summary-2019-08-30-143838596-384.png" src="assets/carpet_jupyter_summary-2019-08-30-143838596-384.png" width="" height="" >
 
 ### `try11b`: rotated lattice
+- Rotated lattice: lattice2
+- Stability domains have changed
+- distance from a fixpoint to m-twist: circstd vs rms - equivalent, distance up to 0.03
+
 - `T` -> `period`
 - Eigenvalues of `L - I` -> eigenvalues of `log(L)`
 - Fixpoints with zero mean phase
+
 
 ### Stability plot
 - Check for different `delta0`? Or better fixed points
 
   <img alt="carpet_jupyter_summary-2019-09-06-111008968-e68.png" src="assets/carpet_jupyter_summary-2019-09-06-111008968-e68.png" width="" height="" >
 
+- `delta0=0.01`
+
+  <img alt="carpet_jupyter_summary-2019-09-13-100057130-867.png" src="assets/carpet_jupyter_summary-2019-09-13-100057130-867.png" width="" height="" >
+
+    Visually the same plot, eigenvalues are the same, up to `10 ** -4` (relative difference)
 #### Period plot
 - Change on the same order as in `try11`
 
@@ -691,3 +706,10 @@ Cilia:
 - 300 cycles -> 5 min
 - 1000 trajectories -> 5000 min ~ 3.5 days
 - Parallelize: 1 day on 4 cores; 2000 trajectories over weekend, assuming that 300 cycles is enough.
+
+
+### `try16_2D_carpet_attraction_basins.ipynb`
+- 6x6 carpet, find basins of attractions
+- Dominant convergence to (3,1), then (2,1)
+- If we take random phase vector; then distance to any fixed point is most likely to be more than 1
+ <img alt="carpet_jupyter_summary-2019-09-17-112419575-5ea.png" src="assets/carpet_jupyter_summary-2019-09-17-112419575-5ea.png" width="" height="" >
