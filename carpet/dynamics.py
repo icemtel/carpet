@@ -3,8 +3,11 @@ from scipy.integrate import solve_ivp
 import scipy.stats as stats
 
 
-def define_solve_cycle(right_side_of_ODE, t_max, phi_global_func, backwards=False):
+def define_solve_cycle2(right_side_of_ODE, t_max, phi_global_func, backwards=False):
     '''
+    2019-09-19: only absolute tolerance
+                parameter ncycle - solve n cycles
+                raise an error if end_event wasn't triggered
     Create a function which would solve
         phi' = f(t,phi)
     given phi(0)=phi0 and solver tolerance with a termination criterium:
@@ -19,9 +22,12 @@ def define_solve_cycle(right_side_of_ODE, t_max, phi_global_func, backwards=Fals
     - atol and rtol are chosen with an assumption that phases are close to interval [0, 2pi]
     '''
 
-    def solve_cycle(phi_init, tol, phi_global_end=None, max_step=t_max / 20):
+    def solve_cycle(phi_init, tol, phi_global_end=None, max_step=t_max / 20, ncycle=1):
         """
         :param phi_global_end: if not given, the cycle will finish at the initial phase, otherwise at phase_finish up to 2pi
+        :param ncycle: solve several cycles; default: 1 cycle
+               Works only if global phase increases over 2pi rather than  resetting to zero
+               ex: mean phase works; circular mean phase - doesn't
         :return:
         """
         if phi_global_end is None:
@@ -30,10 +36,11 @@ def define_solve_cycle(right_side_of_ODE, t_max, phi_global_func, backwards=Fals
         def end_cycle_event(t, phi):
             '''
             Event triggered when this function returns zero.
-            By definition, it returns zero when global phase gets increment of 2pi.
+            Defined in such a way that it returns zero when global phase increment = 2 * sp.pi * ncycle
             '''
-            if t > 0:
-                return sp.sin((phi_global_func(phi) - phi_global_end) / 2)
+            glob_phase_increment = (phi_global_func(phi) - phi_global_end)
+            if glob_phase_increment > 2 * sp.pi * (ncycle - 0.5):
+                return sp.sin(glob_phase_increment / 2)
             else:
                 return sp.inf
 
@@ -47,15 +54,24 @@ def define_solve_cycle(right_side_of_ODE, t_max, phi_global_func, backwards=Fals
         end_cycle_event.terminal = True  # tell solver to terminate the process in case of the event
 
         # Local error estimates are kept less than `atol + rtol * abs(y)`
-        atol = tol / 2  # absolute tolerance
-        rtol = atol / 2 / sp.pi  # corresponding relative tolerance (since phi is bounded by 2 pi)
+        atol = tol  # absolute tolerance
+        rtol = 3 * 10 ** -14  # = 0, but scipy doesn't like zero relative tolerance
 
-        t_span = (0, t_max)
+        t_span = (0, ncycle * t_max)
 
-        return solve_ivp(right_side, t_span, phi_init, rtol=rtol, atol=atol, max_step=max_step,
-                         events=end_cycle_event)  # returns a solution class
+        sol = solve_ivp(right_side, t_span, phi_init, rtol=rtol, atol=atol, max_step=max_step,
+                        events=end_cycle_event)  # returns a solution class
+
+        # Check that we ended cycle;
+        # if not - the list of times when event was triggered will be empty and we raise an error
+        if sol.t_events[0].size == 0:
+            raise RuntimeError("solve_cycle: end of cycle event was not triggered")
+
+        return sol
 
     return solve_cycle
+
+
 
 
 ## Global phase
