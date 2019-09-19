@@ -1,5 +1,5 @@
 import scipy as sp
-from scipy.integrate import  solve_ivp
+from scipy.integrate import solve_ivp
 import scipy.stats as stats
 
 
@@ -61,19 +61,21 @@ def define_solve_cycle(right_side_of_ODE, t_max, phi_global_func, backwards=Fals
 ## Global phase
 ### Circular Average
 
-def circmean(phi, phi0=0, high=2*sp.pi, low=0, axis=None):
+def circmean(phi, phi0=0, high=2 * sp.pi, low=0, axis=None):
     '''
     If two phase vectors age given, calculate for dphi=phi-phi0
     '''
     return stats.circmean(phi - phi0, high=high, low=low, axis=axis)
 
-def circstd(phi, phi0=0, high=2*sp.pi, low=0, axis=None):
+
+def circstd(phi, phi0=0, high=2 * sp.pi, low=0, axis=None):
     '''
     If two phase vectors age given, calculate for dphi=phi-phi0
     '''
     return stats.circstd(phi - phi0, high=high, low=low, axis=axis)
 
-def circvar(phi, phi0=0, high=2*sp.pi, low=0, axis=None):
+
+def circvar(phi, phi0=0, high=2 * sp.pi, low=0, axis=None):
     '''
     If two phase vectors age given, calculate for dphi=phi-phi0
     '''
@@ -91,8 +93,10 @@ def define_circular_mean_phase(phi0):
     '''
     :return: function which computes circular mean phase of phi, relative to phi0.
     '''
-    def get_phi_global(phi):        # equivalent up to mod 2pi to sp.angle(sp.mean(sp.exp(1j * (phi - phi0))))
+
+    def get_phi_global(phi):  # equivalent up to mod 2pi to sp.angle(sp.mean(sp.exp(1j * (phi - phi0))))
         return circmean(phi - phi0)
+
     return get_phi_global
 
 
@@ -103,7 +107,3 @@ def get_order_parameter(phi, phi0):
 ### Mean phase
 def get_mean_phase(phi):
     return sp.mean(phi)
-
-
-
-

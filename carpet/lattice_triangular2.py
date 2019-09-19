@@ -58,7 +58,6 @@ def get_nodes_and_ids(nx, ny, a):
                 coords.append(x)
                 lattice_ids.append((n, m))
 
-    # discard entries not used
     coords = sp.array(coords)
     lattice_ids = sp.array(lattice_ids)
 
