@@ -63,6 +63,13 @@ def define_solve_cycle(right_side_of_ODE, t_max, phi_global_func, backwards=Fals
 from scipy.stats import circmean, circstd, circvar
 
 
+def circ_dist(phi, phi0, axis=None):
+    '''
+    If two phase vectors age given, calculate for dphi=phi-phi0
+    '''
+    return stats.circstd(phi - phi0, axis=axis)
+
+
 def complex_exp_mean(phi, phi0):
     '''
     Mean of complex exponents of array of phases phi, relative to phi0
