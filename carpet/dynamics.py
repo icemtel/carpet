@@ -3,7 +3,7 @@ from scipy.integrate import solve_ivp
 import scipy.stats as stats
 
 
-def define_solve_cycle2(right_side_of_ODE, t_max, phi_global_func, backwards=False):
+def define_solve_cycle(right_side_of_ODE, t_max, phi_global_func, backwards=False):
     '''
     2019-09-19: only absolute tolerance
                 parameter ncycle - solve n cycles
