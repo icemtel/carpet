@@ -104,10 +104,13 @@ def define_circular_mean_phase(phi0):
     return get_phi_global
 
 
-def get_order_parameter(phi, phi0):
+def order_parameter(phi, phi0):
     return abs(complex_exp_mean(phi, phi0))
 
 
 ### Mean phase
-def get_mean_phase(phi):
+def get_mean_phase(phi): # keep for compatibility
+    return sp.mean(phi)
+
+def mean_phase(phi):
     return sp.mean(phi)
