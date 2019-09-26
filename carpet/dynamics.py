@@ -86,7 +86,7 @@ def circ_dist(phi, phi0, axis=None):
     return stats.circstd(phi - phi0, axis=axis)
 
 
-def complex_exp_mean(phi, phi0):
+def complex_exp_mean(phi, phi0=0):
     '''
     Mean of complex exponents of array of phases phi, relative to phi0
     '''
@@ -104,7 +104,7 @@ def define_circular_mean_phase(phi0):
     return get_phi_global
 
 
-def order_parameter(phi, phi0):
+def order_parameter(phi, phi0=0):
     return abs(complex_exp_mean(phi, phi0))
 
 
