@@ -10,7 +10,7 @@ import scipy as sp
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import matplotlib.colors as colors
-from matplotlib.colors import SymLogNorm # , Normalize, LogNorm
+from matplotlib.colors import SymLogNorm, Normalize, LogNorm
 from cycler import cycler
 
 default_colormap = 'viridis'
