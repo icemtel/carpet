@@ -1,5 +1,5 @@
----
 html:
+  ---
   embed_local_images: true
   embed_svg: true
   offline: true
@@ -457,20 +457,10 @@ Zoom in: no correlation (but there are a couple of outliers)
 
 
 ## `try11_carpet_analysis_nx=12_ny=12.ipynb`
-
-### Questions
-- Stability regions
-- Map eigenvectors to m-twists
- - Is it possible? How big are residuals?
- - Eigenvalues vs k
-
-
-- Redo `try08b` for a larger carpet with triangular lattice
-
-- Distance between fixpoints found with 2 different tolerance is relatively high.
-  **UPD:** fixpoints don't always have zero mean phase! And it's not just 2pi jumps.
-
-  TODO: restrict to zero mean phase => 1 less degree of freedom for the optimisation procedure.
+- compare mtwist vs "old" procedure (N single-node perturbations)
+- plots for export
+- eigenvalue vs k
+- period plots
 
   <img alt="carpet_jupyter_summary-2019-07-24-2cdc6b60.png" src="assets/carpet_jupyter_summary-2019-07-24-2cdc6b60.png" width="" height="" >
 
@@ -647,17 +637,22 @@ Compare different distance measures: root mean square, sine/cosine/exp, circular
 
   - Random perturbations with zero norm; difference is around `10 ** -3` at `eps=0.1`
 
-**Therefore,**
-- `circstd` gives almost the same measure as `rms` for small `dphi` **when the mean phase of dphi is zero`.
-- If it's not zero, `circstd` gives a smaller distance.
-- For the purposes of finding distance to a fixed point, it's safe to use `circstd`
-- `circstd` also has the advantage of being a standard measure
-- When phase shift is imporant, e.g. `[0, 0,1]` is different from `[-1, -1, 0]`, I can keep using RMS of `2 *  sp.sin(0.5 * dphi)` as the measure
+  **Therefore,**
+  - `circstd` gives almost the same measure as `rms` for small `dphi` **when the mean phase of dphi is zero`.
+  - If it's not zero, `circstd` gives a smaller distance.
+  - For the purposes of finding distance to a fixed point, it's safe to use `circstd`
+  - `circstd` also has the advantage of being a standard measure
+  - When phase shift is imporant, e.g. `[0, 0,1]` is different from `[-1, -1, 0]`, I can keep using RMS of `2 *  sp.sin(0.5 * dphi)` as the measure
+  - Random phase vector:
+   - circ_dist (circ_std) is statistically unlikely to fall below 1
+   - order_parameter is statistically unlikely to be greater than 0.55
+
+  - Which values of order parameters can a state have simultaneously?
 
 
 
 ### Basins of attractions (`14b, 14b2 14c`)
-
+- First attempts (better in `16` and clean notebook `03`)
 - Sine coupling vs sine+cosine coupling (left/right):
 sine
 <img alt="carpet_jupyter_summary-2019-08-30-14540308-6f2.png" src="assets/carpet_jupyter_summary-2019-08-30-14540308-6f2.png" width="" height="" >
@@ -681,21 +676,26 @@ Imaginary part give oscillations to dphi (||L(Phi) - Phi||)
    <img alt="carpet_jupyter_summary-2019-09-06-101854104-8c1.png" src="assets/carpet_jupyter_summary-2019-09-06-101854104-8c1.png" width="" height="" >
 
 ### `14g` - sine: 12x12 carpet basins of attractions study
+- Eigenvalues for 2D carpet with sinusoidal coupling
+
+  <img alt="carpet_jupyter_summary-2019-09-17-114525730-f6f.png" src="assets/carpet_jupyter_summary-2019-09-17-114525730-f6f.png" width="" height="" >
+
 - Reconfirm result from `14e`: convergence to (0,0)-twist dominates
   <img alt="carpet_jupyter_summary-2019-09-10-160147232-726.png" src="assets/carpet_jupyter_summary-2019-09-10-160147232-726.png" width="" height="" >
 <img alt="carpet_jupyter_summary-2019-09-10-160345789-b87.png" src="assets/carpet_jupyter_summary-2019-09-10-160345789-b87.png" width="" height="" >
 
 ### `try15_compare_speed_toy_vs_cilia.ipynb`
 #### Time to compute 1 cycle
--Run 100 cycles.
--Mean time spent per cycle: cilia 2.185e+00 sec, toy 1.478e-02 sec
--Cilia/toy ratio: mean 1.478e+02, std/mean 6%
+
+- Run 100 cycles.
+- Mean time spent per cycle: cilia 2.185e+00 sec, toy 1.478e-02 sec
+- Cilia/toy ratio: mean 1.478e+02, std/mean 6%
 
 ### Distance in 1 cycle
--Run 100 cycles.
--Cilia circstd(L(phi0) - phi0): mean: 9.612e-02   std/mean: 1.178e-02
--Toy circstd(L(phi0) - phi0): mean: 1.098e-01   std/mean: 1.290e-02
--Cilia/toy dphi ratio mean: 8.751e-01
+- Run 100 cycles.
+- Cilia circstd(L(phi0) - phi0): mean: 9.612e-02   std/mean: 1.178e-02
+- Toy circstd(L(phi0) - phi0): mean: 1.098e-01   std/mean: 1.290e-02
+- Cilia/toy dphi ratio mean: 8.751e-01
 
 
 Therefore, almost the same distance travelled (but would also depend on coupling strength and whether we add a cosine term). Cilia nonlinear coupling is 150 times slower than sinusoidal.
@@ -707,9 +707,124 @@ Cilia:
 - 1000 trajectories -> 5000 min ~ 3.5 days
 - Parallelize: 1 day on 4 cores; 2000 trajectories over weekend, assuming that 300 cycles is enough.
 
+#### Compare different tolerances
+- `10 ** -8` is 2.5 times slower than `10**-6`!
+- Starting from the same initial conditions, they converge to different fixed points sometimes (might need iterations to see where it converges for sure, but one thing is clear: points of two trajectories are quite far from each other)
+
+<img alt="carpet_jupyter_summary-2019-09-20-101022580-e3f.png" src="assets/carpet_jupyter_summary-2019-09-20-101022580-e3f.png" width="" height="" >
+
 
 ### `try16_2D_carpet_attraction_basins.ipynb`
 - 6x6 carpet, find basins of attractions
 - Dominant convergence to (3,1), then (2,1)
 - If we take random phase vector; then distance to any fixed point is most likely to be more than 1
- <img alt="carpet_jupyter_summary-2019-09-17-112419575-5ea.png" src="assets/carpet_jupyter_summary-2019-09-17-112419575-5ea.png" width="" height="" >
+ <img alt="carpet_jupyter_summary-2019-09-17-112553401-505.png" src="assets/carpet_jupyter_summary-2019-09-17-112553401-505.png" width="" height="" >
+- The maximum order parameter will be below `0.56`
+
+  <img alt="carpet_jupyter_summary-2019-10-07-110714354-d0d.png" src="assets/carpet_jupyter_summary-2019-10-07-110714354-d0d.png" width="" height="" >
+
+### Approximation of basin of attractions volume
+- Some trajectories were prolonged to see where they converge
+
+<img alt="carpet_jupyter_summary-2019-09-18-103511869-159.png" src="assets/carpet_jupyter_summary-2019-09-18-103511869-159.png" width="" height="" >
+
+
+- Most of the trajectories converged to dphi prescribed, but some are still very far from convergence
+- 6 trajectories (out of 900) have converged to dphi=termination_eps, but distance is slightly too big
+- 31 trajectories (out of 900) are too far from fixed points: dist in [0.3, 0.5].
+
+  !! This island of trajectories looks the same as on the plot before prolonging the trajectories.
+
+  <img alt="carpet_jupyter_summary-2019-09-18-103745558-3f0.png" src="assets/carpet_jupyter_summary-2019-09-18-103745558-3f0.png" width="" height="" >
+
+- All these 6 trajectories are close to (3,2) and other 31 are close to (2,1)
+- Make another plot where NaNs are replaced by the closest fixed point, even if the distance is above the threshold.
+
+<img alt="carpet_jupyter_summary-2019-09-18-10370587-348.png" src="assets/carpet_jupyter_summary-2019-09-18-10370587-348.png" width="" height="" >
+
+
+- Add some statistics
+
+  <img alt="carpet_jupyter_summary-2019-09-19-123552973-646.png" src="assets/carpet_jupyter_summary-2019-09-19-123552973-646.png" width="" height="" >
+
+- See pptx presentation
+
+- Investigate a limit cycle in vicinity of (2,1)-twist: most likely it IS a limit cycle
+  - Typical order parameter: from 0.9 to 0.92
+
+### `try16c_2D_carpet_attraction_basins_rotated_lattice.ipynb`
+
+- Rotated lattice (the same as in `11b`, but 6x6)
+- 360 trajectories; 1000 cycles - No trajectories converged!
+
+<img alt="carpet_jupyter_summary-2019-09-23-11272477-e02.png" src="assets/carpet_jupyter_summary-2019-09-23-11272477-e02.png" width="" height="" >
+
+## `try17_solve_with_noise`
+
+
+
+### `try17b_solve_with_noise_N=6`
+- Check which dt to choose
+  - `0.04` of period: `diff` around `10 ** -3`
+  - `0.02`: around `3 * 10 ** -4`
+  - `0.01`: around `10 ** -4`
+  - If $N$ is bigger - maybe need to do it again?
+
+
+### `try17c_solve_with_noise_nx=6_ny=6.ipynb`
+Tests for 6x6 carpet
+- Dependence on time step size `dt`
+
+  <img alt="carpet_jupyter_summary-2019-10-07-113754106-3fb.png" src="assets/carpet_jupyter_summary-2019-10-07-113754106-3fb.png" width="" height="" >
+
+  `dt = 0.01 * period` => in 10 cycles accumulates difference of `10 **-3` from solution integrated with the finest time step.
+
+- Time to integrate 1 cycle:  ~7 secs
+- Test different diffusion constants D
+  - Time to integrate over `2000 * T0`: 56 minutes
+  - Space required: 2000 phase vectors = 628KB; initial random number generator state =3K
+
+  - `D = 10 ** -5` - no trajectories have transitioned to a different fixed point
+  - Order parameter vs distance?
+
+  - `D = 10 ** -3` - trajectories are far from initial (2,1)-twist, but they didn't converge anywhere
+
+
+### `try18_solve_with_noise_many_nx=6_ny=6.ipynb`
+- Solve with Euler scheme + noise
+- Different noise strengths
+- Start at (2,1)-twist -> escape rate; transition to (3,1)-twist rate
+- Some simulations computed on Rebecca with the same parallel job script
+
+### `try18b_analyze_results_try18.ipynb`
+- Analyze trajectories from `try18` and Rebecca
+- Use order parameter instead of distance: order parameter stays bounded - this is very convinient.
+- Order parameter as a function of time. `D = D0 = 10 ** -4`
+
+  <img alt="carpet_jupyter_summary-2019-10-15-161248548-f99.png" src="assets/carpet_jupyter_summary-2019-10-15-161248548-f99.png" width="" height="" >
+
+- Projection of trajectory on 2 order parameters:
+
+  <img alt="carpet_jupyter_summary-2019-10-15-161328646-b9d.png" src="assets/carpet_jupyter_summary-2019-10-15-161328646-b9d.png" width="" height="" >
+
+- Probability distribution, based on trajectories. Represented by a heat map.
+  TODO: start with random initial conditions -> what distribution will be observed?
+
+  <img alt="carpet_jupyter_summary-2019-10-15-161359912-31c.png" src="assets/carpet_jupyter_summary-2019-10-15-161359912-31c.png" width="" height="" >
+
+- Histograms
+
+<img alt="carpet_jupyter_summary-2019-10-15-161606197-204.png" src="assets/carpet_jupyter_summary-2019-10-15-161606197-204.png" width="" height="" >
+
+<img alt="carpet_jupyter_summary-2019-10-15-161721479-4f8.png" src="assets/carpet_jupyter_summary-2019-10-15-161721479-4f8.png" width="" height="" >
+
+- Determine escape / probability rate
+
+- Statistics:
+  - Independent events (escape or transition) -> exponential distribution.
+    (If we count for more than 1 event we should use Poisson distribution)
+  - For binary outcomes - binomial distribution
+  - Errorbars - bootstrapping
+  - Standard error <-> standard deviation of bootstrapped data
+  - Standard error of the mean != standard error
+  - Estimate optimal parameter of the exponential distribution (event rate) by the maximal likelihood method.

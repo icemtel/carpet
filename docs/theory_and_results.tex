@@ -1,4 +1,4 @@
-\documentclass[a4paper,12pt]{article}
+\documentclass[a4paper,10pt]{article}
 %\documentclass[aps,prl,reprint]{revtex4-1}
 %\documentclass[a4paper,10pt]{extarticle}
 %\documentclass[a4paper,14pt]{extarticle} 
@@ -92,7 +92,7 @@
 
 \begin{document}
 
-\setcounter{secnumdepth}{0} % sections dont get numbered
+\setcounter{secnumdepth}{2} % 0: sections dont get numbered
 %\setcounter{tocdepth}{1} % Show sections
 \setcounter{tocdepth}{2} % + subsections
 %\setcounter{tocdepth}{3} % + subsubsections
@@ -288,9 +288,10 @@ With this definition  $\Phi^*_\vec{k}$ is a fixed point of Poincare map.
 
 \textit{TODO: do we expect no extra fixed points/ limit cycles?}
 
-\subsubsection{Procedure to find the fixpoint $\Phi^*$}
+\subsection{Procedure to find fixed points}
+\label{sec:fixpoint}
 
-By definition, the fixpoint is such a point that
+By definition, the fixed points is such a point in phase space that
 $$
 \mathcal{L}(\Phi^*) = \Phi^*
 $$
@@ -351,8 +352,10 @@ $.. = \ln \mathbf{L} $
 \clearpage
 \part*{Simulations}
 
+\subsection{Eigenvector decomposition}
+\label{sec:evec}
 
-\subsection{Eigenvectors}
+\subsubsection{Notes on eigenvectors}
 
 \begin{itemize}
 
@@ -369,7 +372,6 @@ $.. = \ln \mathbf{L} $
 
 \end{itemize}
 
-\subsubsection{ Eigenvector decomposition}
 Let's consider an eigenvector $\D$. We can decompose it into basis of complex exponents of m-twists (coefficients are essentially multidimensional discrete Fourier transform output):
 $$
 \D = \sum_{\vec{k}} d_k e^{i \Phi_\vec{k}}.
@@ -482,9 +484,8 @@ We consider a triangular lattice of $N = n_x * n_y$ cilia with $n_x=n_y=12$ (Fig
  \label{fig:12-geom}
 \end{figure}
 
-First, we find fixed points of Poincare map $\FP_{\vec{k}}$. 
+First, we find fixed points of Poincare map $\FP_{\vec{k}}$, as described in section \ref{sec:fixpoint}.
 
-Second, we study linear stability of the fixed points. We perturb fixed points by $N-1$ perturbations of the form $\Delta_0 = \delta_0 \sin(\varphi_{\vec{m},j})$ and find $\Lmat$.
 
 TODO: Connect to the section with L and eigenvalues
 
@@ -492,13 +493,16 @@ TODO: explain mapping to dual lattice space; minimum and maximum of eigenvalue i
 
 TODO: continuous eigenspectrum
 
-\subsection{Stability domains}
+\subsection{Linear stability analysis. Stability domains}
+We study linear stability of the fixed points. We perturb fixed points by $N-1$ perturbations of the form $\Delta_0 = \delta_0 \sin(\varphi_{\vec{m},j})$ and find $\Lmat$, (we assume $N$-th perturbation directed orthogonally to the Poincare plane, with corresponding eigenvalue $0$, in order to obtain N on N matrix).
+ 
+We observe multi-stability (see fig. \ref{fig:evals-k}): many of fixed points are stable, moreover there are three separate stability domains.
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=.6\textwidth]{assets/theory-2019-09-05-124002319-236.eps}
     \caption{Linear stability of the fixed points: minimum and maximum of real parts of eigenvalues are shown in inner and outer circles. Location of the circle represents location of the fixed point in the dual lattice space. There are 3 domains of stability (domains of green circles).}
-    %\label{fig:crack}
+    \label{fig:evals-k}
 \end{figure}
 
 \begin{figure}[h]
@@ -508,13 +512,14 @@ TODO: continuous eigenspectrum
     %\label{fig:crack}
 \end{figure}
 
-\subsection{Eigenspectrum}
-Let's consider a fixed point $\FP_{\vec{k}}$, its Lyapunov exponents and eigenvectors $\lambda_j$,$\D_j$, We can map each eigenvector to a complex exponent of an $\vec{m}$-twist\eqref{eqn:delta_to_k}:
+\subsubsection{Eigenspectrum}
+Let's consider a fixed point $\FP_{\vec{k}}$, its Lyapunov exponents and eigenvectors $\lambda_j$,$\D_j$, We can map each eigenvector to a complex exponent of an $\vec{m}$-twist, as described in section \ref{sec:evec}, formula \eqref{eqn:delta_to_k}:
 \begin{equation}
-\D_j = \eps \exp(i\F_{\vec{m}_j}),
+\D_j = \eps \exp(i\F_{\vec{m}_j}).
 \label{eqn:delta_to_m}
 \end{equation}
-here we keep small number $\eps$ as a reminder that only small perturbations are allowed in linear regime.
+
+We can then map eigenvalues to nodes in dual lattice space (each corresponds to some $\vec{m}$), see fig. \ref{fig:evals-m}.
 
 \begin{figure}[h]
 \begin{subfigure}[h]{.55\textwidth}
@@ -530,7 +535,7 @@ here we keep small number $\eps$ as a reminder that only small perturbations are
   %\label{fig:label:323}
 \end{subfigure}
 \caption{Real parts of eigenvalues, as a function of $\vec{m}$}
- %\label{fig:12_geom}
+\label{fig:evals-m}
 \end{figure}
 
 Period of oscillations is slightly different at each of the limit cycles (Fig. \ref{fig:period})
@@ -544,7 +549,20 @@ TODO: explain how I group it.
     \label{fig:period}
 \end{figure}
 
+\clearpage
+\subsection{Basins of attraction}
+[try16.ipynb]
 
+See "basins of attraction.pptx". Simulation on a smaller domain: $n_x=n_y=6$.
+
+Basins of attraction volume estimates: figure \ref{fig:basins-1}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=.99\textwidth]{assets/theory-2019-09-18-153420477-2db.png}
+    \caption{Left: estimated volume fraction of basins of attraction, corresponding to fixed points with the biggest attraction volume. When converting it to 12x12 carpet, modenumbers have to be multiplied by 2. Right: fixed points with the biggest basins of attractions on the dual lattice.}
+    \label{fig:basins-1}
+\end{figure}
 
 \clearpage
 \section{Toy model: chain of oscillators with trigonometrical coupling}
