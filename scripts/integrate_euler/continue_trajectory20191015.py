@@ -1,0 +1,169 @@
+'''
+Integrate with Euler method with noise
+- Read input file phi_#.pkl -> continue trajectory until specified number of cycles
+
+INPUT: irun, ncycle, k1, k2, D, dt
+'''
+
+# import packages needed below
+import  sys, os
+import logging
+import pickle
+import scipy as sp
+
+import carpet
+import carpet.lattice_triangular as lattice
+
+carpet.setup_logging('continue_trajectory.log')
+## Parameters
+# Physics
+set_name = 'machemer_1' # which hydrodynamic coefficients to use
+order_g11 = (8,0)
+order_g12 = (4,4)
+period = 31.25 # [ms] period of cilia beat; freq = 2 * sp.pi / period [rad/ms]
+
+# Geometry
+nx = 6
+ny = 6 # even number
+N = nx * ny
+a = 18  # [um] lattice spacing
+
+## Initialize
+# Geometry
+L1,L2 = lattice.get_domain_sizes(nx,ny ,a)
+coords, lattice_ids = lattice.get_nodes_and_ids(nx, ny, a)
+N1, T1 = lattice.get_neighbours_list(coords, nx, ny, a)
+get_k = lattice.define_get_k(nx, ny, a)
+get_mtwist = lattice.define_get_mtwist(coords, nx, ny, a)
+
+
+
+# Physics: carpet
+gmat_glob, q_glob = lattice.define_gmat_glob_and_q_glob(set_name, a, N1, T1,order_g11, order_g12, period)
+right_side_of_ODE = lattice.define_right_side_of_ODE(gmat_glob, q_glob)
+solve_cycle = carpet.define_solve_cycle(right_side_of_ODE,2 * period, carpet.get_mean_phase)
+
+filename = '../../out/08/fixpoint_dict_class_finer.pkl' # 'fixpoint_dict.pkl' #
+
+with open(filename, 'rb') as f:
+    _fixpoint_dict = pickle.load(f)
+
+
+def get_fixpoint(k1, k2):  # Create a copy of a fixpoint - to avoid editing
+    return sp.array(_fixpoint_dict[(k1, k2)])
+
+
+def gaussian():  # returns random values, distributed as gaussian
+    return sp.randn(N)  # with the same dimension as number of cilia
+
+
+def integrate_euler(y0, fun, D, dt, t_span, eps=10 ** -8):
+    """
+    y' = f(t,y)
+    y(t0) = y0
+    :param y0: Initial state, array
+    :param fun: Right-hand side of the system f(t,y)
+    :param D: Diffusion coefficient; <xi(t),xi(t')> = 2 D delta(t-t')
+    :param dt: Time step
+    :param t_span: tuple (t0, tf) - start and end of integration interval
+    :param eps: If t_span can't be divided in integer number of steps of size `dt`.
+                The last time step will end at time `t_span[1]`, and the last step will have a different length,
+                bigger than or equal to `eps`, but smaller than `dt + eps`.
+    :return: (ys, ts)
+             Where ys: list of states y(t_i), ts: list of times t_i
+    """
+    t = t_span[0]
+    t_end = t_span[1]
+    y = sp.array(y0)
+    noise_coeff = (2 * D * dt) ** (1 / 2)
+
+    ys = [y]
+    ts = [t]
+    while t < t_end - dt - eps:
+        dy = fun(t, y) * dt + noise_coeff * gaussian()
+        y = y + dy  # don't  use += on vectors!
+        t += dt
+
+        ys.append(y)
+        ts.append(t)
+
+    # The last step
+    dt = t_end - t
+    noise_coeff = (2 * D * dt) ** (1 / 2)
+    dy = fun(t, y) * noise_coeff * gaussian()
+    y = y + dy
+    t += dt
+
+    ys.append(y)
+    ts.append(t)
+
+    return sp.array(ys), sp.array(ts)
+
+
+def integrate_cycles(y0, D, dt, T, ncycle, eps):
+    '''
+    Call integrate Euler N times.
+    Use right_side_of_ODE as input function.
+    Reset phase to (0, 2 pi) interval after every cycle.
+    Save initial state and after every cycle.
+    '''
+    y = y0
+    t = 0
+    ys_coarse = [y]
+    ts_coarse = [t]
+    for icycle in range(ncycle):
+        ys, ts = integrate_euler(y, right_side_of_ODE, D, dt, (t, t + T), eps)
+        y = ys[-1] % (2 * sp.pi)
+        t = ts[-1]
+        ys_coarse.append(y)
+        ts_coarse.append(t)
+    return ys_coarse, ts_coarse
+
+
+
+## Prepare input
+irun, ncycle, k1,k2, D, dt = int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4]),\
+                                                             float(sys.argv[5]), float(sys.argv[6])
+
+output_folder = "{}_{}-twist_D={:.3E}_dt={:.3E}/".format( k1, k2, D, dt)
+os.makedirs(output_folder, exist_ok=True)
+
+input_name = 'phi_{}.pkl'.format(irun)
+
+with open(output_folder + input_name, 'rb') as f:
+    phis0 = pickle.load(f)
+
+
+## Get new rng state - save after sim
+state = sp.random.get_state()
+
+
+## Run simulation
+phi0 = phis0[-1]
+ncycle0 = len(phis0) - 1
+ncycle1 = ncycle - ncycle0
+
+if ncycle1 > 0:
+    phis1, ts = integrate_cycles(phi0, D, dt, period, ncycle1, eps=10 ** -3 * dt)
+    phis = phis0 + phis1[1:]
+else:
+    print('opt 2')
+    phis = phis0
+
+
+assert len(phis) == ncycle + 1 # if ncycle < ncycle0 this won't be ever fulfilled!
+
+## Backup old rng state
+os.rename(output_folder + 'state_{}.pkl'.format(irun), output_folder + 'state_{}.pkl.bak'.format(irun))
+## Backup old phis
+# TODO: after testing remove this
+os.rename(output_folder + 'phi_{}.pkl'.format(irun), output_folder + 'phi_{}.pkl.bak'.format(irun))
+
+## Save new rng state
+with open(output_folder + 'state_{}.pkl'.format(irun), 'wb') as f:
+    pickle.dump(state, f, pickle.HIGHEST_PROTOCOL)
+## Save new phis
+with open(output_folder + input_name, 'wb') as f:
+    pickle.dump(phis, f, pickle.HIGHEST_PROTOCOL)
+
+logging.info("Finished run {} at ({},{})-twist; D={:.3E}; dt={:.3E}".format(irun, k1,k2, D, dt))
