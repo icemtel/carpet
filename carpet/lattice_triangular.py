@@ -351,24 +351,28 @@ if __name__ == '__main__':
     # plt.show()
 
     ## Friction
-    order_g11 = (8, 0)
-    order_g12 = (4, 4)
-    T = 31.25
-    gmat, qglob = define_gmat_glob_and_q_glob('machemer_1', a, N1, T1, order_g11, order_g12, T)
+    # order_g11 = (8, 0)
+    # order_g12 = (4, 4)
+    # T = 31.25
+    # gmat, qglob = define_gmat_glob_and_q_glob('machemer_1', a, N1, T1, order_g11, order_g12, T)
 
     ### Check get_k vs get_k_naive:
-    # Result: they are equivalent
-    # get_k = define_get_k(nx,ny,a)
-    # get_k_naive = define_get_k_naive(nx,ny,a)
-    #
-    # for k1 in range(nx):
-    #     for k2 in range(ny):
-    #         print(k1,k2)
-    #
-    #         k = get_k(k1,k2)
-    #         k_naive = get_k_naive(k1,k2)
-    #
-    #         for coord in coords:
-    #             if abs(sp.exp(1j * k @ coord)  - sp.exp(1j * k_naive @ coord)) > 10 ** -8:
-    #                 print('WHOOPS')
-    #                #print("whoops", k, k_naive)
+    ## Result: they are equivalent
+    get_k = define_get_k(nx,ny,a)
+    get_k_naive = define_get_k_naive(nx,ny,a)
+
+    for k1 in range(nx):
+        for k2 in range(ny):
+            print(k1,k2)
+
+            k = get_k(k1,k2)
+            k_naive = get_k_naive(k1,k2)
+
+            for coord in coords:
+                if abs(sp.exp(1j * k @ coord)  - sp.exp(1j * k_naive @ coord)) > 10 ** -8:
+                    print('WHOOPS')
+                   #print("whoops", k, k_naive)
+
+    ## Dual basis?
+    print(get_cell_sizes(a))
+    print(get_dual_basis(a))

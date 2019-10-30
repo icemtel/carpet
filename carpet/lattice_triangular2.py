@@ -19,7 +19,7 @@ def get_cell_sizes(a):
 
 
 def get_basis():
-    e1 = sp.array([3 ** (1 / 2) / 2,  0.5])
+    e1 = sp.array([3 ** (1 / 2) / 2, 0.5])
     e2 = sp.array([0, 1])
     return e1, e2
 
@@ -110,14 +110,39 @@ def get_neighbours_list(coords, nx, ny, a):
 ### mtwist solutions ###
 
 def get_dual_basis(a):
-    # Reciprocal lattice for rectangular unit cell
+    '''
+    Reciprocal lattice for rectangular unit cell
+    Ben's method
+    '''
     ax, ay = get_cell_sizes(a)
-    a1 = ax * sp.array([1,0]) / a
-    a2 = ay * sp.array([0,1]) / a
+    a1 = ax * sp.array([1, 0]) / a
+    a2 = ay * sp.array([0, 1]) / a
     R = sp.array([[0, 1], [-1, 0]])  # rotation by 90deg
     a1dual = 2 * sp.pi * (R @ a2) / (a1 @ (R @ a2)) / a
     a2dual = 2 * sp.pi * (R @ a1) / (a2 @ (R @ a1)) / a
     return a1dual, a2dual  # [1/L]
+
+
+def get_dual_basis2(a):
+    '''
+    Does the same as the first one, but maybe it's more clear what the method does.
+    Google:
+    B = (a1, a2)
+    D = (a1dual, a2dual)
+    -> D = inv(B.T)
+    Below implemented the same thing, but with a factor of 2pi
+    '''
+    from scipy.linalg import inv, solve
+    ax, ay = get_cell_sizes(a)
+    a1 = ax * sp.array([1, 0])
+    a2 = ay * sp.array([0, 1])
+    # B = sp.array([a1 ,a2]).T
+    BT = sp.array([a1, a2])
+    # By definition D = inv(B.T)
+    # Miss a step of transposing
+    D = 2 * sp.pi *  inv(BT)
+
+    return D[:, 0], D[:, 1]
 
 
 def define_get_k_naive(nx, ny, a):
@@ -130,6 +155,15 @@ def define_get_k_naive(nx, ny, a):
     return get_k
 
 
+# def get_k(k1, k2):  # get wave vector corresponding to wave numbers
+#     k = k1 * a1dual / nx + k2 * a2dual / ny
+#     if k[0] >= a1dual[0] / 2:
+#         k[0] -= a1dual[0]
+#         k[1] -= a2dual[1] / 2
+#     if k[1] >= a2dual[1] / 2:
+#         k[1] -= a2dual[1]
+#     return k
+
 def define_get_k(nx, ny, a):
     '''
     Checked: get_k is equivalent to get_k_naive: gives the same mtwists mod 2pi
@@ -138,11 +172,11 @@ def define_get_k(nx, ny, a):
 
     def get_k(k1, k2):  # get wave vector corresponding to wave numbers
         k = k1 * a1dual / nx + k2 * a2dual / ny
-        if k[0] >= a1dual[0] / 2:
-            k[0] -= a1dual[0]
-            k[1] -= a2dual[1] / 2
-        if k[1] >= a2dual[1] / 2:
-            k[1] -= a2dual[1]
+        if k[1] >= a1dual[1] / 2:
+            k[1] -= a1dual[1]
+            k[0] -= a2dual[0] / 2
+        if k[0] >= a2dual[0] / 2:
+            k[0] -= a2dual[0]
         return k
 
     return get_k
@@ -233,6 +267,7 @@ def define_get_mtwist_exp(get_mtwist):
 
     return get_mtwist_exp
 
+
 def define_print_decomposition(decompose_to_mtwist_exp_basis):
     def print_decomposition(phi_exp, eps=10 ** -8, print_abs=True):
         if print_abs is True:
@@ -247,14 +282,17 @@ def define_print_decomposition(decompose_to_mtwist_exp_basis):
 
     return print_decomposition
 
+
 def define_decompose_to_mtwist_exp_basis(get_mtwist_exp, nx, ny):
     N = nx * ny
+
     # 2D case update: store coeffs as 1D array
     def decompose_to_mtwist_exp_basis(phi_exp):
         # divide by N to normalize (both vectors have length of N ** (1/2)
         return sp.array([phi_exp @ get_mtwist_exp(k1, k2).conj() / N for k1 in range(nx) for k2 in range(ny)])
 
     return decompose_to_mtwist_exp_basis
+
 
 def define_get_evec2mtwist(get_mtwist, nx, ny):
     decompose_to_mtwist_exp_basis = define_decompose_to_mtwist_exp_basis(get_mtwist, nx, ny)
@@ -311,11 +349,10 @@ if __name__ == '__main__':
     coords, lattice_ids = get_nodes_and_ids(nx, ny, a)
     N1, T1 = get_neighbours_list(coords, nx, ny, a)
 
-    print(get_dual_basis(a))
     ## Visualize
-    visualize.plot_edges(coords, T1)
-    visualize.plot_nodes(coords)
-    visualize.plt.show()
+    # visualize.plot_edges(coords, T1)
+    # visualize.plot_nodes(coords)
+    # visualize.plt.show()
 
     ### Check mtwists
     get_mtwist_phi = define_get_mtwist(coords, nx, ny, a)
@@ -351,24 +388,29 @@ if __name__ == '__main__':
     # plt.show()
 
     ## Friction
-    order_g11 = (8, 0)
-    order_g12 = (4, 4)
-    T = 31.25
-    gmat, qglob = define_gmat_glob_and_q_glob('machemer_1', a, N1, T1, order_g11, order_g12, T)
+    # order_g11 = (8, 0)
+    # order_g12 = (4, 4)
+    # T = 31.25
+    # gmat, qglob = define_gmat_glob_and_q_glob('machemer_1', a, N1, T1, order_g11, order_g12, T)
 
     ### Check get_k vs get_k_naive:
     # Result: they are equivalent
-    # get_k = define_get_k(nx,ny,a)
-    # get_k_naive = define_get_k_naive(nx,ny,a)
-    #
-    # for k1 in range(nx):
-    #     for k2 in range(ny):
-    #         print(k1,k2)
-    #
-    #         k = get_k(k1,k2)
-    #         k_naive = get_k_naive(k1,k2)
-    #
-    #         for coord in coords:
-    #             if abs(sp.exp(1j * k @ coord)  - sp.exp(1j * k_naive @ coord)) > 10 ** -8:
-    #                 print('WHOOPS')
-    #                #print("whoops", k, k_naive)
+    get_k = define_get_k(nx, ny, a)
+    get_k_naive = define_get_k_naive(nx, ny, a)
+
+    for k1 in range(nx):
+        for k2 in range(ny):
+            print(k1, k2)
+
+            k = get_k(k1, k2)
+            k_naive = get_k_naive(k1, k2)
+
+            for coord in coords:
+                if abs(sp.exp(1j * k @ coord) - sp.exp(1j * k_naive @ coord)) > 10 ** -8:
+                    print('WHOOPS')
+                # print("whoops", k, k_naive)
+
+    ### Dual basis test?
+    print(get_cell_sizes(a))
+    print(get_dual_basis(a))
+    print(get_dual_basis2(a))
