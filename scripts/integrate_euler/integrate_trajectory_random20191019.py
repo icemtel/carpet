@@ -1,8 +1,9 @@
 '''
 Integrate with Euler method with noise
-- Read input file phi_#.pkl -> continue trajectory until specified number of cycles
 
-INPUT: irun, ncycle, k1, k2, D, dt
+- Random I.Co
+
+INPUT: irun, ncycle, D, dt
 '''
 
 # import packages needed below
@@ -14,7 +15,7 @@ import scipy as sp
 import carpet
 import carpet.lattice_triangular as lattice
 
-carpet.setup_logging('continue_trajectory.log')
+carpet.setup_logging('integrate_trajectory.log')
 ## Parameters
 # Physics
 set_name = 'machemer_1' # which hydrodynamic coefficients to use
@@ -42,16 +43,6 @@ get_mtwist = lattice.define_get_mtwist(coords, nx, ny, a)
 gmat_glob, q_glob = lattice.define_gmat_glob_and_q_glob(set_name, a, N1, T1,order_g11, order_g12, period)
 right_side_of_ODE = lattice.define_right_side_of_ODE(gmat_glob, q_glob)
 solve_cycle = carpet.define_solve_cycle(right_side_of_ODE,2 * period, carpet.get_mean_phase)
-
-filename = '../../out/08/fixpoint_dict_class_finer.pkl' # 'fixpoint_dict.pkl' #
-
-with open(filename, 'rb') as f:
-    _fixpoint_dict = pickle.load(f)
-
-
-def get_fixpoint(k1, k2):  # Create a copy of a fixpoint - to avoid editing
-    return sp.array(_fixpoint_dict[(k1, k2)])
-
 
 def gaussian():  # returns random values, distributed as gaussian
     return sp.randn(N)  # with the same dimension as number of cilia
@@ -121,48 +112,30 @@ def integrate_cycles(y0, D, dt, T, ncycle, eps):
 
 
 
+def get_phi_random():
+    '''
+    Phases from 0 to 2pi & subtract mean phase so that we project initial condition to the Poincare plane.
+    '''
+    phi = 2 * sp.pi * sp.rand(N)
+    return phi
+
 ## Prepare input
-irun, ncycle, k1,k2, D, dt = int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4]),\
-                                                             float(sys.argv[5]), float(sys.argv[6])
+irun, ncycle, D, dt = int(sys.argv[1]), int(sys.argv[2]), float(sys.argv[3]), float(sys.argv[4])
 
-output_folder = "{}_{}-twist_D={:.3E}_dt={:.3E}/".format( k1, k2, D, dt)
+output_folder = "traj_random_D={:.3E}_dt={:.3E}/".format(D, dt)
 os.makedirs(output_folder, exist_ok=True)
+output_name = 'phi_{}.pkl'.format(irun)
 
-input_name = 'phi_{}.pkl'.format(irun)
-
-with open(output_folder + input_name, 'rb') as f:
-    phis0 = pickle.load(f)
-
-
-## Get new rng state - save after sim
+## Save rng state
 state = sp.random.get_state()
-
-
-## Run simulation
-phi0 = phis0[-1]
-ncycle0 = len(phis0) - 1
-ncycle1 = ncycle - ncycle0
-
-if ncycle1 > 0:
-    phis1, ts = integrate_cycles(phi0, D, dt, period, ncycle1, eps=10 ** -3 * dt)
-    phis = phis0 + phis1[1:]
-else:
-    phis = phis0
-
-
-assert len(phis) == ncycle + 1 # if ncycle < ncycle0 this won't be ever fulfilled!
-
-## Backup old rng state
-os.rename(output_folder + 'state_{}.pkl'.format(irun), output_folder + 'state_{}.pkl.bak'.format(irun))
-## Backup old phis
-# TODO: after testing remove this
-os.rename(output_folder + 'phi_{}.pkl'.format(irun), output_folder + 'phi_{}.pkl.bak'.format(irun))
-
-## Save new rng state
 with open(output_folder + 'state_{}.pkl'.format(irun), 'wb') as f:
     pickle.dump(state, f, pickle.HIGHEST_PROTOCOL)
-## Save new phis
-with open(output_folder + input_name, 'wb') as f:
+
+## Run simulation
+phi0 = get_phi_random()
+phis, ts = integrate_cycles(phi0, D, dt, period, ncycle, eps=10 ** -3 * dt)
+
+with open(output_folder + output_name, 'wb') as f:
     pickle.dump(phis, f, pickle.HIGHEST_PROTOCOL)
 
-logging.info("Finished run {} at ({},{})-twist; D={:.3E}; dt={:.3E}".format(irun, k1,k2, D, dt))
+logging.info("Finished run {} at random I.Co.; D={:.3E}; dt={:.3E}".format(irun, D, dt))

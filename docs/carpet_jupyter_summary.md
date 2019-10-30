@@ -752,6 +752,26 @@ Cilia:
 - Investigate a limit cycle in vicinity of (2,1)-twist: most likely it IS a limit cycle
   - Typical order parameter: from 0.9 to 0.92
 
+  ### Basins of attraction: estimated error as Bernoulli trial experiment
+  `tol = 10 **-6`, 900 trajectories
+  ```
+  (3,1)-twist: volume: 0.887  ste: 1.057e-02
+  (2,1)-twist: volume: 0.093  ste: 9.697e-03
+  (3,2)-twist: volume: 0.016  ste: 4.125e-03
+  (4,1)-twist: volume: 0.003  ste: 1.921e-03
+  ```
+
+  `tol = 10** -8`, 100 trajectories
+
+  ```
+  (3,1)-twist: volume: 0.890  ste: 3.129e-02
+  (2,1)-twist: volume: 0.090  ste: 2.862e-02
+  (3,2)-twist: volume: 0.000  ste: 0.000e+00
+  (4,1)-twist: volume: 0.020  ste: 1.400e-02
+  ```
+
+  - Note: the second number is trajectories both at (2,1)-twist and limit cycle nearby.
+
 ### `try16c_2D_carpet_attraction_basins_rotated_lattice.ipynb`
 
 - Rotated lattice (the same as in `11b`, but 6x6)

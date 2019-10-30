@@ -176,5 +176,39 @@ FIXME: have to tranpose L_log_lin !
   - Typical order parameter: from 0.9 to 0.92
 - See pptx presentation
 
- 
+### `try16b_2D_sine_cosine_attraction_basins.ipynb`
+- Short notebook - simulations for carpet with sine + cosine coupling
+- Basins of attractions: cosine and sine; newer version than try14
+- See how new convergence condition works: OK
+
+### `try16c_2D_carpet_attraction_basins_rotated_lattice.ipynb`
+- Rotated lattice -> trajectories do not converge to a known fixed point?
+TODO: update
+
+
+### `try17_solve_with_noise.ipynb`
+- Introduce euler scheme with noise
+- tests
+-> bin
+
+### `try17b_solve_with_noise_N=6.ipynb`
+- Update Euler scheme with noise function
+- Tests, visualizations
+
+### `try17c_solve_with_noise_nx=6_ny=6.ipynb`
+- Prepare simulations with noise on a larger system
+- Test different dt
+- Check ciruclar std versus order parameter
+
+### `try18_solve_with_noise_many_nx=6_ny=6.ipynb`
+- Simulations with noise; run parallel using external scripts (scripts/integrate_euler/)
+- Run for different D, different I.Co.
+- TODO: update
+
+
+### `try18b_analyze_results_try18.ipynb`
+- TODO: update
+
+
+
 TODO: Update this file
