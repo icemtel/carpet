@@ -155,18 +155,10 @@ def define_get_k_naive(nx, ny, a):
     return get_k
 
 
-# def get_k(k1, k2):  # get wave vector corresponding to wave numbers
-#     k = k1 * a1dual / nx + k2 * a2dual / ny
-#     if k[0] >= a1dual[0] / 2:
-#         k[0] -= a1dual[0]
-#         k[1] -= a2dual[1] / 2
-#     if k[1] >= a2dual[1] / 2:
-#         k[1] -= a2dual[1]
-#     return k
-
 def define_get_k(nx, ny, a):
     '''
     Checked: get_k is equivalent to get_k_naive: gives the same mtwists mod 2pi
+    The same as in `lattice_triangular`, but indices swapped
     '''
     a1dual, a2dual = get_dual_basis(a)
 
