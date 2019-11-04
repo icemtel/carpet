@@ -38,16 +38,18 @@ def define_solve_cycle(right_side_of_ODE, t_max, phi_global_func, backwards=Fals
             Event triggered when this function returns zero.
             Defined in such a way that it returns zero when global phase increment = 2 * sp.pi * ncycle
             '''
-            glob_phase_increment = (phi_global_func(phi) - phi_global_end)
+            glob_phase_increment = (phi_global_func(phi) - phi_global_end) * increment_sign
             if glob_phase_increment > 2 * sp.pi * (ncycle - 0.5):
                 return sp.sin(glob_phase_increment / 2)
             else:
                 return sp.inf
 
         if backwards:
+            increment_sign = +1
             right_side = lambda t, phi: - right_side_of_ODE(t, phi)
             end_cycle_event.direction = +1
         else:
+            increment_sign = -1
             right_side = right_side_of_ODE
             end_cycle_event.direction = -1  # event only triggered if return variable passes through zero from positive to negative values
 
