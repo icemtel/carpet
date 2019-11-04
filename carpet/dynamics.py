@@ -24,6 +24,9 @@ def define_solve_cycle(right_side_of_ODE, t_max, phi_global_func, backwards=Fals
 
     def solve_cycle(phi_init, tol, phi_global_end=None, max_step=t_max / 20, ncycle=1):
         """
+        - Before end of cycle event is triggered the following condition is checked
+          `glob_phase_increment > 2 * sp.pi * (ncycle - 0.5)`
+          Therefore this function is not suitable for running a small fraction of a cycle. TODO: fix it?
         :param phi_global_end: if not given, the cycle will finish at the initial phase, otherwise at phase_finish up to 2pi
         :param ncycle: solve several cycles; default: 1 cycle
                Works only if global phase increases over 2pi rather than  resetting to zero
