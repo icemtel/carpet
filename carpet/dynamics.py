@@ -47,12 +47,11 @@ def define_solve_cycle(right_side_of_ODE, t_max, phi_global_func, backwards=Fals
         if backwards:
             increment_sign = -1
             right_side = lambda t, phi: - right_side_of_ODE(t, phi)
-            end_cycle_event.direction = +1
         else:
             increment_sign = +1
             right_side = right_side_of_ODE
-            end_cycle_event.direction = -1  # event only triggered if return variable passes through zero from positive to negative values
 
+        end_cycle_event.direction = -1  # event only triggered if return variable passes through zero from positive to negative values
         end_cycle_event.terminal = True  # tell solver to terminate the process in case of the event
 
         # Local error estimates are kept less than `atol + rtol * abs(y)`
