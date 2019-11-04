@@ -1,6 +1,11 @@
 '''
 2019-09-02: tried to force zero mean phase; run -> non-zero mean phase (even bigger than previously)
             despite big values of penalty function
+
+2019-10-30: lattice_triangular2
+
+TODO: -  preserve mean phase?
+      - What's used since now doesn't work well; I have to propogate in time until I hit Poincare section
 '''
 
 import sys
@@ -105,6 +110,12 @@ def find_fixpoint(phi0, tol, mini_tol):
     return fixpoint
 
 
+def phi_to_minus_plus_pi_interval(phi):
+    phi = phi % (2 * sp.pi)
+    if phi > sp.pi:
+        phi = phi - 2 * sp.pi
+    return phi
+
 ### Main
 k1,k2 = int(sys.argv[1]), int(sys.argv[2])
 dirname = os.path.dirname(__file__) # sys.argv[3]
@@ -125,6 +136,7 @@ def load_object(filename):
 
 
 
+
 phi0 = get_mtwist(k1, k2)
 phi0 = phi0 - carpet.get_mean_phase(phi0)  # only search for fixpoints with zero mean phase
 
@@ -139,6 +151,8 @@ else:
     tol = 10 ** - 6
     fixpoint = find_fixpoint(fixpoint, tol, tol)
 
+    # In case of phase slips during optimization
+    fixpoint = sp.array([phi_to_minus_plus_pi_interval(phi) for phi in fixpoint])
     tol = 10 ** - 8
     fixpoint = find_fixpoint(fixpoint, tol, tol)
 
