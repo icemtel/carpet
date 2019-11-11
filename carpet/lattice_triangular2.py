@@ -158,17 +158,17 @@ def define_get_k_naive(nx, ny, a):
 def define_get_k(nx, ny, a):
     '''
     Checked: get_k is equivalent to get_k_naive: gives the same mtwists mod 2pi
-    The same as in `lattice_triangular`, but indices swapped
+    The same as in `lattice_triangular`, but indices swapped, and a1dual swapped with a2dual.
     '''
     a1dual, a2dual = get_dual_basis(a)
 
     def get_k(k1, k2):  # get wave vector corresponding to wave numbers
         k = k1 * a1dual / nx + k2 * a2dual / ny
-        if k[1] >= a1dual[1] / 2:
-            k[1] -= a1dual[1]
-            k[0] -= a2dual[0] / 2
-        if k[0] >= a2dual[0] / 2:
-            k[0] -= a2dual[0]
+        if k[1] >= a2dual[1] / 2:
+            k[1] -= a2dual[1]
+            k[0] -= a1dual[0] / 2
+        if k[0] >= a1dual[0] / 2:
+            k[0] -= a1dual[0]
         return k
 
     return get_k
@@ -336,7 +336,7 @@ if __name__ == '__main__':
 
     a = 18
     nx = 8
-    ny = 8  # must be even
+    ny = 12  # must be even
 
     coords, lattice_ids = get_nodes_and_ids(nx, ny, a)
     N1, T1 = get_neighbours_list(coords, nx, ny, a)
