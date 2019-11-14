@@ -107,11 +107,11 @@ def plot_nodes(coords, phi=None, color=(0.5, 0.5, 0.5), s=100,
     norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
     # if isinstance(cmap, str):
     #     cmap = colors.Colormap(cmap)
-    ax.scatter(coords[:, 0], coords[:, 1], c=colors, norm=norm, cmap=cmap, s=s, zorder=zorder) # , markersize=24
+    cax = ax.scatter(coords[:, 0], coords[:, 1], c=colors, norm=norm, cmap=cmap, s=s, zorder=zorder) # , markersize=24
 
+    ## Colorbar
     if colorbar is True and phi is not None:
-        legend = fig.add_axes([0.88, 0.25, 0.07, 0.5])  # [0.85, 0.25, 0.1, 0.5]
-        cb = mpl.colorbar.ColorbarBase(legend, cmap=cmap, norm=norm, orientation='vertical')
+        cb = fig.colorbar(cax, cmap=cmap, norm=norm, fraction=0.046, pad=0.04) # Default fraction0.15, pad=0.05
         if vmin == 0 and vmax == 2 * sp.pi:
             cb.set_ticks(ticks=[0, sp.pi / 2, sp.pi, 3 * sp.pi / 2, 2 * sp.pi])
             cb.set_ticklabels(['$0$', r'$\frac{\pi}{2}$', r'$\pi$', r'$\frac{3 \pi}{2}$', r'$2 \pi$'])
@@ -448,8 +448,8 @@ if __name__ == '__main__':
     import carpet.lattice_triangular as lattice
 
     a = 10
-    nx = 5
-    ny = 4
+    nx = 4
+    ny = 8
 
     coords, lattice_ids = lattice.get_nodes_and_ids(nx, ny, a)
     N1, T1 = lattice.get_neighbours_list(coords, nx, ny, a)
