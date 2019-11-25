@@ -27,3 +27,4 @@ Importing **`carpet`** will give direct access to functions inside several modul
 - `classes.py` - implementation of cilia classes
 
 
+TODO: update requirements to python 3.7, etc

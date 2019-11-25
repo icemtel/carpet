@@ -1,12 +1,12 @@
 """
 2019-10-08
-Master script to run a parallel job on Renate
+Master script to parallelize trajectories integration.
 """
 import logging
 import time
 import os
 import pickle
-import carpet.parallel_with_threads as pwt # to find fixpoints faster
+import carpet.parallel_with_threads as pwt
 import carpet
 
 ## Setup logging
@@ -64,4 +64,6 @@ for D in Ds:
     list_of_args += [[irun, ncycle, k1,k2, D, dt] for irun in range(nrun_start, nrun_end)]
 
 
-pwt.run_parallel(2, integrate_trajectory_script, list_of_args)
+pwt.run_parallel(4, integrate_trajectory_script, list_of_args)
+
+logging.info("master_script (integrate_euler) finished")

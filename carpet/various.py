@@ -15,7 +15,7 @@ def rms(vec):
     return sp.sqrt(abs(sp.mean(vec * sp.conj(vec))))
 
 
-def setup_logging(filename=None, mode='a', print_log_messages=True):
+def setup_logging(filename=None, mode='a', print_log_messages=True, level=logging.INFO):
     """
     Setup logging: use `logging.info(msg)` or `logger.info(msg)` to log something into a file and console.
     """
@@ -30,14 +30,14 @@ def setup_logging(filename=None, mode='a', print_log_messages=True):
         log_handler = logging.FileHandler(filename, mode=mode)
         logger.addHandler(log_handler)
         log_handler.setFormatter(_formatter)
-        log_handler.setLevel(logging.INFO)
+        log_handler.setLevel(level)
     if print_log_messages:
         stream_handler = logging.StreamHandler(sys.stdout)
         stream_handler.setFormatter(_formatter)
         logger.addHandler(stream_handler)
-        stream_handler.setLevel(logging.INFO)
+        stream_handler.setLevel(level)
     # Set level - pass all messages with level INFO or higher (WARNING, ERROR, CRITICAL)
-    logger.setLevel(logging.INFO)
+    logger.setLevel(level)
 
     return logger
 
