@@ -22,7 +22,7 @@ def define_solve_cycle(right_side_of_ODE, t_max, phi_global_func, backwards=Fals
     - atol and rtol are chosen with an assumption that phases are close to interval [0, 2pi]
     '''
 
-    def solve_cycle(phi_init, tol, phi_global_end=None, max_step=t_max / 20, ncycle=1):
+    def solve_cycle(phi_init, tol, phi_global_end=None, ncycle=1, **kwargs):
         """
         - Before end of cycle event is triggered the following condition is checked
           `glob_phase_increment > 2 * sp.pi * (ncycle - 0.5)`
@@ -32,8 +32,12 @@ def define_solve_cycle(right_side_of_ODE, t_max, phi_global_func, backwards=Fals
         :param ncycle: solve several cycles; default: 1 cycle
                Works only if global phase increases over 2pi rather than  resetting to zero
                ex: mean phase works; circular mean phase - doesn't
+        :param kwargs: key-word arguments for solve_ivp;
+                       parameters `rtol` and `atol` will override tolerance specified by `tol` in `solve_cycle`
         :return:
         """
+        # ==============================================================
+        # Determine when to end computation (end cycle event)
         if phi_global_end is None:
             phi_global_end = phi_global_func(phi_init)  # end at starting phase (up to 2pi)
 
@@ -58,15 +62,18 @@ def define_solve_cycle(right_side_of_ODE, t_max, phi_global_func, backwards=Fals
         end_cycle_event.direction = -1  # event only triggered if return variable passes through zero from positive to negative values
         end_cycle_event.terminal = True  # tell solver to terminate the process in case of the event
 
+        # ==============================================================
         # Local error estimates are kept less than `atol + rtol * abs(y)`
-        atol = tol  # absolute tolerance
-        rtol = 3 * 10 ** -14  # = 0, but scipy doesn't like zero relative tolerance
+        if 'atol' not in kwargs.keys():
+            kwargs['atol'] = tol   # absolute tolerance
+        if 'rtol' not in kwargs.keys():
+            kwargs['rtol'] = 3 * 10 ** -14  # = 0, but scipy doesn't like zero relative tolerance
+        if 'max_step' not in kwargs.keys():
+            kwargs['max_step'] = t_max / 20  # max step size - to be safe
 
         t_span = (0, ncycle * t_max)
 
-        sol = solve_ivp(right_side, t_span, phi_init, rtol=rtol, atol=atol, max_step=max_step,
-                        events=end_cycle_event)  # returns a solution class
-
+        sol = solve_ivp(right_side, t_span, phi_init, events=end_cycle_event, **kwargs)  # returns a solution class
         # Check that we ended cycle;
         # if not - the list of times when event was triggered will be empty and we raise an error
         if sol.t_events[0].size == 0:
