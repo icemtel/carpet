@@ -163,7 +163,9 @@ def plot_node_numbers(coords, spacing, fig=None, ax=None, fontsize=12, shift=(-0
 
 class MidpointNormalize(colors.Normalize):
     '''
-    Note: check out colors.OffsetNorm() in newer versions
+    Note:
+         - check out colors.OffsetNorm() in newer versions
+         - matplotlib 3.1 https://matplotlib.org/3.1.0/api/_as_gen/matplotlib.colors.DivergingNorm.html
     '''
 
     def __init__(self, vmin=None, vmax=None, midpoint=0, clip=False):
@@ -196,6 +198,7 @@ def _midpoint_imshow(vals, x1_min, x1_max, x2_min, x2_max, ax=None, colorbar=Tru
                      **kwargs):
     '''
     If =ax= exists, plot to ax, else plot to file or on screen if there is no filename given
+	vals: [[f(x,y) for x in xs] for y in ys]
     '''
     if ax == None:
         ax = plt.gca()
