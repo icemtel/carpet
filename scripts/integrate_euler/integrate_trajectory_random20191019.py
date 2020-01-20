@@ -16,6 +16,7 @@ import carpet
 import carpet.lattice_triangular as lattice
 
 carpet.setup_logging('integrate_trajectory.log')
+
 ## Parameters
 # Physics
 set_name = 'machemer_1' # which hydrodynamic coefficients to use
@@ -138,4 +139,4 @@ phis, ts = integrate_cycles(phi0, D, dt, period, ncycle, eps=10 ** -3 * dt)
 with open(output_folder + output_name, 'wb') as f:
     pickle.dump(phis, f, pickle.HIGHEST_PROTOCOL)
 
-logging.info("Finished run {} at random I.Co.; D={:.3E}; dt={:.3E}".format(irun, D, dt))
+# logging.info("Finished run {} at random I.Co.; D={:.3E}; dt={:.3E}".format(irun, D, dt))

@@ -36,7 +36,6 @@ get_k = lattice.define_get_k(nx, ny, a)
 get_mtwist = lattice.define_get_mtwist(coords, nx, ny, a)
 
 
-
 # Physics: carpet
 gmat_glob, q_glob = lattice.define_gmat_glob_and_q_glob(set_name, a, N1, T1,order_g11, order_g12, period)
 right_side_of_ODE = lattice.define_right_side_of_ODE(gmat_glob, q_glob)
@@ -140,4 +139,4 @@ phis, ts = integrate_cycles(phi0, D, dt, period, ncycle, eps=10 ** -3 * dt)
 with open(output_folder + output_name, 'wb') as f:
     pickle.dump(phis, f, pickle.HIGHEST_PROTOCOL)
 
-logging.info("Finished run {} at ({},{})-twist; D={:.3E}; dt={:.3E}".format(irun, k1,k2, D, dt))
+# logging.info("Finished run {} at ({},{})-twist; D={:.3E}; dt={:.3E}".format(irun, k1,k2, D, dt))
