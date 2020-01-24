@@ -184,7 +184,7 @@ if __name__ == '__main__':
     e1 = (1, 0)
     L1 = get_domain_size(N, a)
     coords, lattice_ids = get_nodes_and_ids(N, a, e1)
-    N1, T1 = get_neighbours_list(N, a, e1)  # get_neighbours_list_chain_non_periodic(N, a * e1) #
+    N1, T1 = get_neighbours_list(N, a, e1)  # get_neighbours_list_non_periodic(N, a, e1) #
 
     # Passes the check
     # eps = 0.001 * a

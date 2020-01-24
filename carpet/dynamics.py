@@ -91,7 +91,7 @@ def define_solve_cycle(right_side_of_ODE, t_max, phi_global_func, backwards=Fals
 from scipy.stats import circmean, circstd, circvar
 
 
-def circ_dist(phi, phi0, axis=None):
+def circ_dist(phi, phi0=0, axis=None):
     '''
     If two phase vectors age given, calculate for dphi=phi-phi0
     '''
