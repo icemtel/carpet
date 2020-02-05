@@ -42,6 +42,32 @@ def setup_logging(filename=None, mode='a', print_log_messages=True, level=loggin
     return logger
 
 
+def phases_to_interval(phi):
+    '''
+    Take phase vector.
+    Return equivalent phase vector with
+    phases in the +-2pi interval, centered at the mean of the initial phase vector (mean unchanged)
+
+    Tested  - doesn't break.
+    Problem: one vector has more than 1 representation in that interval
+    '''
+    x = sp.array(phi)
+    xmin = x.mean() - 2 * sp.pi
+    xmax = x.mean() + 2 * sp.pi
+    flag = (x.max() > xmax) or (x.min() < xmin)
+    while flag:
+        imax = x.argmax()
+        imin = x.argmin()
+        x[imax] -= 2 * sp.pi
+        x[imin] += 2 * sp.pi
+
+        flag = (x.max() > xmax) or (x.min() < xmin)
+
+    return x
+
+
+
+
 if __name__ == '__main__':
     ## Test RMS
     a = sp.array([1,1])

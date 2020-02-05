@@ -1,2 +1,2 @@
 from .dynamics import *
-from .various import *
+from .various import rms, setup_logging
