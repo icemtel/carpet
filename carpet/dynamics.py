@@ -94,6 +94,7 @@ from scipy.stats import circmean, circstd, circvar
 def circ_dist(phi, phi0=0, axis=None):
     '''
     If two phase vectors age given, calculate for dphi=phi-phi0
+    Without axis option is equivalent to math.sqrt(- 2 * math.log(abs(sp.exp(1j *(phi0 - phi)).mean())))
     '''
     return stats.circstd(phi - phi0, axis=axis)
 
