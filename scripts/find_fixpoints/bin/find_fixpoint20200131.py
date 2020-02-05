@@ -4,12 +4,14 @@
 
 2019-10-30: lattice_triangular2
 
-TODO: -  preserve mean phase?
-      - What's used since now doesn't work well; I have to propogate in time until I hit Poincare section
+2020-01-22 changed parameters for simulation
+
+-NOT DONE: fix mean phase inside the script
+
+args: k1, k2
 '''
 
 import sys
-import logging
 import os
 import pickle
 import scipy as sp
@@ -25,14 +27,14 @@ import scipy.optimize as opt
 ## Parameters
 # Physics
 set_name = 'machemer_1' # which hydrodynamic coefficients to use
-order_g11 = (8,0)
-order_g12 = (4,4)
+order_g11 = (4,0)
+order_g12 = (2,2)
 period = 31.25 # [ms] period of (a single cilium) beat
 # freq = 2 * sp.pi / period # [rad/ms] angular frequency
 
 # Geometry
-nx = 12 # even number
-ny = 12
+nx = 6 # even number
+ny = 6
 N = nx * ny
 a = 18  # [um] lattice spacing
 ## Initialize
@@ -47,7 +49,7 @@ get_mtwist = lattice.define_get_mtwist(coords, nx, ny, a)
 gmat_glob, q_glob = lattice.define_gmat_glob_and_q_glob(set_name, a, N1, T1, order_g11, order_g12, period)
 right_side_of_ODE = lattice.define_right_side_of_ODE(gmat_glob, q_glob)
 solve_cycle = carpet.define_solve_cycle(right_side_of_ODE,2 * period, carpet.get_mean_phase)
-
+solve_cycle_backwards = carpet.define_solve_cycle(right_side_of_ODE,2 * period, carpet.get_mean_phase, backwards=True)
 
 
 def get_optimization_target(solve_cycle, tol):
@@ -110,12 +112,6 @@ def find_fixpoint(phi0, tol, mini_tol):
     return fixpoint
 
 
-def phi_to_minus_plus_pi_interval(phi):
-    phi = phi % (2 * sp.pi)
-    if phi > sp.pi:
-        phi = phi - 2 * sp.pi
-    return phi
-
 ### Main
 k1,k2 = int(sys.argv[1]), int(sys.argv[2])
 dirname = os.path.dirname(__file__) # sys.argv[3]
@@ -134,8 +130,22 @@ def load_object(filename):
     return obj
 
 
+def propogate_to_zero_mean_phase(fixpoint, tol):
+    diff = carpet.get_mean_phase(fixpoint)
+  #  print("diff", diff)
+    if abs(diff) > tol * 10:
+        if diff > 0:
+            sol = solve_cycle(fixpoint, tol, phi_global_end=0)
+            phi1 = sol.y.T[-1] - 2 * sp.pi
+          #  print(k1, k2, 'fwd time: {:.3e}    mean_phase: {:.3e}'.format(sol.t[-1], carpet.get_mean_phase(phi1)))
+        elif diff < 0:
+            sol = solve_cycle_backwards(fixpoint, tol, phi_global_end=0)
+            phi1 = sol.y.T[-1] + 2 * sp.pi
+         #   print(k1, k2, 'bkd time: {:.3e}    mean_phase: {:.3e}'.format(sol.t[-1], carpet.get_mean_phase(phi1)))
+    else:
+        return fixpoint
 
-
+    return phi1
 
 phi0 = get_mtwist(k1, k2)
 phi0 = phi0 - carpet.get_mean_phase(phi0)  # only search for fixpoints with zero mean phase
@@ -147,15 +157,29 @@ if k1 == 0 and k2 == 0:
 else:
     tol = 10 ** - 4
     fixpoint = find_fixpoint(phi0, tol, tol)
+    fixpoint = (fixpoint + sp.pi) % (2 * sp.pi) - sp.pi  # move phases from (-pi to pi interval)
+    fixpoint = propogate_to_zero_mean_phase(fixpoint, 10 ** -6)
+
 
     tol = 10 ** - 6
     fixpoint = find_fixpoint(fixpoint, tol, tol)
+    fixpoint = (fixpoint + sp.pi) % (2 * sp.pi) - sp.pi  # move phases from (-pi to pi interval)
+    fixpoint = propogate_to_zero_mean_phase(fixpoint, 10**-8)
 
     # In case of phase slips during optimization
-    fixpoint = sp.array([phi_to_minus_plus_pi_interval(phi) for phi in fixpoint])
     tol = 10 ** - 8
     fixpoint = find_fixpoint(fixpoint, tol, tol)
+    fixpoint = (fixpoint + sp.pi) % (2 * sp.pi) - sp.pi  # move phases from (-pi to pi interval)
+    fixpoint = propogate_to_zero_mean_phase(fixpoint, tol)
 
+    # check that it is close to real fixed point:
+    sol = solve_cycle(fixpoint, tol)
+    fp_image = sol.y.T[-1] - 2 * sp.pi
+    diff = carpet.circ_dist(fixpoint, fp_image)
+  # print("diff", diff)
+    if diff > tol * 10:
+        fixpoint = find_fixpoint(fixpoint, tol, tol)
+        fixpoint = (fixpoint + sp.pi) % (2 * sp.pi) - sp.pi  # move phases from (-pi to pi interval)
 
 filename = "fixpoint_k1={}_k2={}.pkl".format(k1,k2)
 dump_object(fixpoint, filename)

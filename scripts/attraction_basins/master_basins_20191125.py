@@ -1,10 +1,14 @@
 '''
 Master script to run attraction_basinsXXXXXX.py in parallel
 
+---- (probably for 12x12 carpet), 10 ** -6
 - Renate: 8s per cycle -> 2.22 hrs for 1000 cycles
   => guess 3h per 1000 cycles at Taurus
   => 133 traj doable by 16 cores in 25 h
   Be safe: run 100 traj
+----
+6x6: try 200 in 24h on Renate
+----
 
 args: num_threads
 Memory? Windows: 60 per thread (12x12 carpet), 30 for main
@@ -21,7 +25,7 @@ import sys
 carpet.setup_logging('master.log')
 
 script_path = '.'
-script_name = "attraction_basins_20191125.py"
+script_name = "attraction_basins_20200128.py"
 
 def run_script(*args):
     '''
@@ -37,8 +41,8 @@ def run_script(*args):
 
 num_threads = int(sys.argv[1])
 tol = 10 ** -6
-nbatch_range = (0, 100)
-nrun = 1 # trajectories per batch
+nbatch_range = (0, 20)
+nrun = 10 # trajectories per batch
 ncycle = 1000
 fixpoint_radius = 0.2
 termination_eps = 2 * 10 ** - 3 # terminate cycles if we are close enough to a fixpoint

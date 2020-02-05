@@ -4,6 +4,10 @@
 - ! Don't subtract mean phase from I. Co.
 - basic logging
 
+2020-01-28: Redo analysis for the rotated lattice
+
+- To test: new procedure to keep zero mean phase
+
 args: ibatch, nrun, ncycle, tol,  fixpoint_radius, termination_eps
 '''
 import sys
@@ -13,8 +17,8 @@ import pandas as pd
 
 
 import carpet
-import carpet.lattice_triangular as lattice
-from carpet import circstd # root mean square
+import carpet.lattice_triangular2 as lattice
+from carpet import circ_dist
 
 logger = carpet.setup_logging('attraction_basins.log')
 
@@ -26,8 +30,8 @@ order_g12 = (4,4)
 period = 31.25 # [ms] period of cilia beat; freq = 2 * sp.pi / period [rad/ms]
 
 # Geometry
-nx = 12
-ny = 12 # even number
+nx = 6
+ny = 6 # even number
 N = nx * ny
 a = 18  # [um] lattice spacing
 
@@ -45,11 +49,10 @@ right_side_of_ODE = lattice.define_right_side_of_ODE(gmat_glob, q_glob)
 solve_cycle = carpet.define_solve_cycle(right_side_of_ODE,2 * period, carpet.get_mean_phase)
 
 # Fixpoints
-
-
-def get_fixpoint(k1,k2): # Create a copy of a fixpoint - to avoid editing
+def get_fixpoint(k1,k2):
     fp = get_mtwist(k1,k2)
     fp -= carpet.get_mean_phase(fp)
+    fp = phases_to_interval(fp)
     return fp
 
 # Attraction basins definitions
@@ -60,9 +63,27 @@ def get_fixpoint(k1,k2): # Create a copy of a fixpoint - to avoid editing
 - Don't store phase vectors at intermediate time steps
 """
 
-def circ_dist(x, y):
-    return circstd(x - y)
 
+
+def phases_to_interval(phi):
+    '''
+    Take phase vector.
+    Return equivalent phase vector with
+    phases in the +-2pi interval, centered at the mean of the initial phase vector (mean unchanged)
+    '''
+    x = sp.array(phi)
+    xmin = x.mean() - 2 * sp.pi
+    xmax = x.mean() + 2 * sp.pi
+    flag = (x.max() > xmax) or (x.min() < xmin)
+    while flag:
+        imax = x.argmax()
+        imin = x.argmin()
+        x[imax] -= 2 * sp.pi
+        x[imin] += 2 * sp.pi
+
+        flag = (x.max() > xmax) or (x.min() < xmin)
+
+    return x
 
 def solve_many_cycles(phi0, tol, ncycle, termination_eps):
     '''
@@ -77,9 +98,11 @@ def solve_many_cycles(phi0, tol, ncycle, termination_eps):
     dphi_prev = 0
     for icycle in range(ncycle):
         sol = solve_cycle(phi0, tol)
-        phi1 = sol.y.T[-1] % (2 * sp.pi)
+        phi1 = sol.y.T[-1] - 2 * sp.pi
+        phi1 = phases_to_interval(phi1)
 
         dphi = circ_dist(phi1, phi0)
+
         if termination_condition(dphi, dphi_prev):
             break
         else:
