@@ -12,7 +12,8 @@ Use now - `lm` with non-zero starting phase; If it fails - switch to other metho
 'lm' - OK if start with non-zero mean phase
 'broyden1' - was OK, but need more testing
 
-Might want to try `krylov` - it is said to be good for large-scale problems.
+MAYBE: try scipy.optimize.fixed_point
+MAYBE: try `krylov` - it is said to be good for large-scale problems.
 '''
 
 import sys
