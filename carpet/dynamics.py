@@ -1,4 +1,5 @@
 import scipy as sp
+import numpy as np
 from scipy.integrate import solve_ivp
 import scipy.stats as stats
 
@@ -25,7 +26,7 @@ def define_solve_cycle(right_side_of_ODE, t_max, phi_global_func, backwards=Fals
     def solve_cycle(phi_init, tol, phi_global_end=None, ncycle=1, **kwargs):
         """
         - Before end of cycle event is triggered the following condition is checked
-          `glob_phase_increment > 2 * sp.pi * (ncycle - 0.5)`
+          `glob_phase_increment > 2 * np.pi * (ncycle - 0.5)`
           Therefore this function is not suitable for running a small fraction of a cycle. TODO: fix it?
           Tried: setting ncycle to 0.5 + eps, but it doesn't seem to work (might work for bigger eps)
         :param phi_global_end: if not given, the cycle will finish at the initial phase, otherwise at phase_finish up to 2pi
@@ -44,13 +45,13 @@ def define_solve_cycle(right_side_of_ODE, t_max, phi_global_func, backwards=Fals
         def end_cycle_event(t, phi):
             '''
             Event triggered when this function returns zero.
-            Defined in such a way that it returns zero when global phase increment = 2 * sp.pi * ncycle
+            Defined in such a way that it returns zero when global phase increment = 2 * np.pi * ncycle
             '''
             glob_phase_increment = (phi_global_func(phi) - phi_global_end) * increment_sign
-            if glob_phase_increment > 2 * sp.pi * (ncycle - 0.5):
-                return sp.sin(glob_phase_increment / 2)
+            if glob_phase_increment > 2 * np.pi * (ncycle - 0.5):
+                return np.sin(glob_phase_increment / 2)
             else:
-                return sp.inf
+                return np.inf
 
         if backwards:
             increment_sign = -1
@@ -94,7 +95,7 @@ from scipy.stats import circmean, circstd, circvar
 def circ_dist(phi, phi0=0, axis=None):
     '''
     If two phase vectors age given, calculate for dphi=phi-phi0
-    Without axis option is equivalent to math.sqrt(- 2 * math.log(abs(sp.exp(1j *(phi0 - phi)).mean())))
+    Without axis option is equivalent to math.sqrt(- 2 * math.log(abs(np.exp(1j *(phi0 - phi)).mean())))
     '''
     return stats.circstd(phi - phi0, axis=axis)
 
@@ -103,7 +104,7 @@ def complex_exp_mean(phi, phi0=0):
     '''
     Mean of complex exponents of array of phases phi, relative to phi0
     '''
-    return sp.mean(sp.exp(1j * (phi - phi0)))
+    return np.mean(np.exp(1j * (phi - phi0)))
 
 
 def define_circular_mean_phase(phi0):
@@ -111,7 +112,7 @@ def define_circular_mean_phase(phi0):
     :return: function which computes circular mean phase of phi, relative to phi0.
     '''
 
-    def get_phi_global(phi):  # equivalent up to mod 2pi to sp.angle(sp.mean(sp.exp(1j * (phi - phi0))))
+    def get_phi_global(phi):  # equivalent up to mod 2pi to np.angle(np.mean(np.exp(1j * (phi - phi0))))
         return circmean(phi - phi0)
 
     return get_phi_global
@@ -123,7 +124,7 @@ def order_parameter(phi, phi0=0):
 
 ### Mean phase
 def get_mean_phase(phi): # keep for compatibility
-    return sp.mean(phi)
+    return np.mean(phi)
 
 def mean_phase(phi):
-    return sp.mean(phi)
+    return np.mean(phi)

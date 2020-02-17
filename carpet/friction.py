@@ -12,6 +12,7 @@ TODO: Get samples of g11 and g12 -> g12 / g11 * omega = right side of ODE. Use F
 '''
 import os
 import scipy as sp
+import numpy as np
 import scipy.linalg as lin
 import scipy.sparse as sparse
 import pandas as pd
@@ -41,7 +42,7 @@ def get_basis_function(j1, j2):
 
 # Compute value of two-dimensional Fourier series, given its list of coefficients
 def fourier_series2D(coeffs, coeff_ids, swap_axes=False):
-    coeffs = sp.array(coeffs)
+    coeffs = np.array(coeffs)
     # Save copies of basis functions - gains ~20% to speed, including parallel jobs; but not sure due to variation
     basis_functions = [get_basis_function(j1, j2) for j1, j2 in coeff_ids]
 
@@ -71,10 +72,10 @@ def get_coeff_ids(order, sample_size=None, truncate_triangular=False):
     :param truncate_triangular: If True: truncate series, s.t. n_x/N_x + n_y/N_y =< 1
     '''
     if sample_size == None:
-        sample_size = (sp.inf, sp.inf)
+        sample_size = (np.inf, np.inf)
     len_xs, len_ys = sample_size
     if order is None:
-        if len_xs == sp.inf or len_ys == sp.inf:
+        if len_xs == np.inf or len_ys == np.inf:
             raise ValueError("Either order or sample_size should be specified.")
         order = len_xs // 2, len_ys // 2
 
@@ -109,7 +110,7 @@ def load_coeffs_from_file(filename, order_max=None, truncate_triangular=False):
     :param order_max: see order in get_coeff_ids()
     '''
 
-    df = pd.read_csv(filename, dtype={'n1': sp.int32, 'n2': sp.int32, 'coeff': sp.float64})
+    df = pd.read_csv(filename, dtype={'n1': np.int32, 'n2': np.int32, 'coeff': np.float64})
     df.set_index(['n1', 'n2'], drop=False, inplace=True)
 
     if order_max is not None:
@@ -128,7 +129,7 @@ def load_function_from_file(filename, order_max=None, truncate_triangular=False)
     :param order_max: see order in get_coeff_ids()
     '''
     df = load_coeffs_from_file(filename, order_max, truncate_triangular)
-    coeffs = sp.array(df['coeff'])
+    coeffs = np.array(df['coeff'])
     coeff_ids = [(m, n) for (m, n) in zip(df['n1'], df['n2'])]
 
     series = fourier_series2D(coeffs, coeff_ids)
@@ -172,7 +173,7 @@ def load_gii(friction_coeffs_root, translation, order_g11, eps=1e-8):
 
     # Load friction as a function (fourier sum); swap order of input when needed
     df = load_coeffs_from_file(filename, order_max=order, truncate_triangular=False)
-    coeffs = sp.array(df['coeff'])
+    coeffs = np.array(df['coeff'])
     coeff_ids = [(m, n) for (m, n) in zip(df['n1'], df['n2'])]
 
     # swap variable in fouerier series if in lower half plane - fix of symmetry
@@ -208,7 +209,7 @@ def load_gij(friction_coeffs_root, translation, order_g12, eps=1e-8):
 
     # Load friction as a function (Fourier sum); swap order of input when needed
     df = load_coeffs_from_file(filename, order_max=order, truncate_triangular=False)
-    coeffs = sp.array(df['coeff'])
+    coeffs = np.array(df['coeff'])
     coeff_ids = [(m, n) for (m, n) in zip(df['n1'], df['n2'])]
 
     # swap variable in fouerier series if in lower half plane - fix of symmetry
@@ -258,7 +259,7 @@ def define_gmat_glob_and_q_glob0(set_name, connections, e1, e2, a, neighbours_in
     :param neighbours_rel_positions: the same structure as `neighbours_indices`; contains relative positions of cilia (taking into account periodicity)
     '''
 
-    transformation_matrix = lin.inv((sp.array([e1, e2]).T)) / a  # from Euclidean to lattice
+    transformation_matrix = lin.inv((np.array([e1, e2]).T)) / a  # from Euclidean to lattice
 
     def euclidean_to_lattice_coords(translation):
         nm = transformation_matrix @ translation
@@ -281,9 +282,9 @@ def define_gmat_glob_and_q_glob0(set_name, connections, e1, e2, a, neighbours_in
         # Add interactions
         for j, t in zip(neighbours, translations):
             nm = euclidean_to_lattice_coords(t)  # Detetermine relative positions of cilia in lattice
-            nm_int = sp.around(nm)
+            nm_int = np.around(nm)
 
-            if not sp.allclose(nm, nm_int, rtol=10 ** -3, atol=10 ** -3):  # Assure correct rounding
+            if not np.allclose(nm, nm_int, rtol=10 ** -3, atol=10 ** -3):  # Assure correct rounding
                 raise ValueError
 
             gij = interactions_dict[(nm_int[0], nm_int[1])]
@@ -291,8 +292,8 @@ def define_gmat_glob_and_q_glob0(set_name, connections, e1, e2, a, neighbours_in
             cols.append(j)
             gij_func_list.append(gij)
 
-    rows = sp.array(rows)
-    cols = sp.array(cols)
+    rows = np.array(rows)
+    cols = np.array(cols)
     N = len(neighbours_indices)  # matrix size
 
     def gmat_glob(phi):
@@ -304,7 +305,7 @@ def define_gmat_glob_and_q_glob0(set_name, connections, e1, e2, a, neighbours_in
             vals.append(gij_func(phi[i], phi[j]))
         return sparse.csr_matrix((vals, (rows, cols)), shape=(N, N))
 
-    freq = 2 * sp.pi / period
+    freq = 2 * np.pi / period
 
     ## Define Q(phi)
     ## First - calibrate only with self-friction
@@ -312,7 +313,7 @@ def define_gmat_glob_and_q_glob0(set_name, connections, e1, e2, a, neighbours_in
         '''
         :param phi: vector of phases, corresponding to each of the cilia
         '''
-        return sp.array([freq * gii(phii, 0) for phii in phi])
+        return np.array([freq * gii(phii, 0) for phii in phi])
 
     return gmat_glob, q_glob
 
@@ -324,36 +325,36 @@ if __name__ == "__main__":
     connections = [(-1, 0), (1, 0)]
 
     a = 18
-    e1 = sp.array([1, 0])
-    e2 = sp.array([0, 1])
+    e1 = np.array([1, 0])
+    e2 = np.array([0, 1])
     order_g11 = (8, 0)
     order_g12 = (4, 4)
     T = 31.25
-    N1 = [sp.array([2, 1]), sp.array([0, 2]), sp.array([1, 0])]
-    T1 = [[sp.array([18, 0]), sp.array([-18, 0])],
-          [sp.array([18, 0]), sp.array([-18, 0])],
-          [sp.array([18, 0]), sp.array([-18, 0])]]
+    N1 = [np.array([2, 1]), np.array([0, 2]), np.array([1, 0])]
+    T1 = [[np.array([18, 0]), np.array([-18, 0])],
+          [np.array([18, 0]), np.array([-18, 0])],
+          [np.array([18, 0]), np.array([-18, 0])]]
 
     gmat_glob, q_glob = define_gmat_glob_and_q_glob0(set_name, connections, e1, e2, a, N1, T1, order_g11, order_g12, T)
 
-    phis = sp.array([[0, 0, 0], [0.5, 0.5, 0.5], [sp.pi, sp.pi, sp.pi],
-                     [3 / 2 * sp.pi, 3 / 2 * sp.pi, 3 / 2 * sp.pi], [2 * sp.pi, 2 * sp.pi, 2 * sp.pi]])
+    phis = np.array([[0, 0, 0], [0.5, 0.5, 0.5], [np.pi, np.pi, np.pi],
+                     [3 / 2 * np.pi, 3 / 2 * np.pi, 3 / 2 * np.pi], [2 * np.pi, 2 * np.pi, 2 * np.pi]])
 
-    plt.plot(phis.T[0], 1 / 2 / sp.pi * T * sp.array([q_glob(phi) for phi in phis]))
+    plt.plot(phis.T[0], 1 / 2 / np.pi * T * np.array([q_glob(phi) for phi in phis]))
     plt.show()
 
 ## Checks
 # # Ben checked: mtwist solution -> classes of cilia with different inital phase have the same phase after N cycles
 # # Is self-friction different if cilia are located differently? Check
 # # Result: difference ~0.2%
-# phis = sp.linspace(0, 2 * sp.pi, 50, endpoint=False)
+# phis = np.linspace(0, 2 * np.pi, 50, endpoint=False)
 # test_vals = []
 # for key, g_ii in self_friction_dict.items():
 #     gii_vals = [g_ii(phi,0) for phi in phis]
 #     test_vals.append(gii_vals)
 
-# test_vals = sp.array(test_vals)
-# mean_vals = sp.mean(test_vals, axis=0)
+# test_vals = np.array(test_vals)
+# mean_vals = np.mean(test_vals, axis=0)
 # for i,vals in enumerate(test_vals):
 #     delta = (vals - mean_vals ) / mean_vals
 #     plt.plot(phis, delta)
@@ -365,7 +366,7 @@ if __name__ == "__main__":
 #     gii_vals = [g_ii(phi,phi) for phi in phis]
 #     test_vals.append(gii_vals)
 
-# test_vals = sp.array(test_vals)
+# test_vals = np.array(test_vals)
 # for i,vals in enumerate(test_vals):
 #     delta = (vals - mean_vals ) / mean_vals
 #     plt.plot(phis, delta)

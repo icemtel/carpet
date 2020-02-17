@@ -8,6 +8,7 @@ But this way I can stay more flexible, and change parts if needed easily.
 '''
 import math
 import scipy as sp
+import numpy as np
 from scipy.linalg import norm
 import carpet.friction as friction
 
@@ -19,8 +20,8 @@ def get_cell_sizes(a):
 
 
 def get_basis():
-    e1 = sp.array([3 ** (1 / 2) / 2, 0.5])
-    e2 = sp.array([0, 1])
+    e1 = np.array([3 ** (1 / 2) / 2, 0.5])
+    e2 = np.array([0, 1])
     return e1, e2
 
 
@@ -58,8 +59,8 @@ def get_nodes_and_ids(nx, ny, a):
                 coords.append(x)
                 lattice_ids.append((n, m))
 
-    coords = sp.array(coords)
-    lattice_ids = sp.array(lattice_ids)
+    coords = np.array(coords)
+    lattice_ids = np.array(lattice_ids)
 
     return coords, lattice_ids
 
@@ -115,11 +116,11 @@ def get_dual_basis(a):
     Ben's method
     '''
     ax, ay = get_cell_sizes(a)
-    a1 = ax * sp.array([1, 0]) / a
-    a2 = ay * sp.array([0, 1]) / a
-    R = sp.array([[0, 1], [-1, 0]])  # rotation by 90deg
-    a1dual = 2 * sp.pi * (R @ a2) / (a1 @ (R @ a2)) / a
-    a2dual = 2 * sp.pi * (R @ a1) / (a2 @ (R @ a1)) / a
+    a1 = ax * np.array([1, 0]) / a
+    a2 = ay * np.array([0, 1]) / a
+    R = np.array([[0, 1], [-1, 0]])  # rotation by 90deg
+    a1dual = 2 * np.pi * (R @ a2) / (a1 @ (R @ a2)) / a
+    a2dual = 2 * np.pi * (R @ a1) / (a2 @ (R @ a1)) / a
     return a1dual, a2dual  # [1/L]
 
 
@@ -134,13 +135,13 @@ def get_dual_basis2(a):
     '''
     from scipy.linalg import inv, solve
     ax, ay = get_cell_sizes(a)
-    a1 = ax * sp.array([1, 0])
-    a2 = ay * sp.array([0, 1])
-    # B = sp.array([a1 ,a2]).T
-    BT = sp.array([a1, a2])
+    a1 = ax * np.array([1, 0])
+    a2 = ay * np.array([0, 1])
+    # B = np.array([a1 ,a2]).T
+    BT = np.array([a1, a2])
     # By definition D = inv(B.T)
     # Miss a step of transposing
-    D = 2 * sp.pi *  inv(BT)
+    D = 2 * np.pi *  inv(BT)
 
     return D[:, 0], D[:, 1]
 
@@ -183,23 +184,23 @@ def define_get_mtwist(coords, nx, ny, a):
         is preferred when working with floats
         :return: a value in interval from 0 to 2pi
         '''
-        x = math.fmod(x, 2 * sp.pi)
+        x = math.fmod(x, 2 * np.pi)
         if x < 0:
-            x += 2 * sp.pi
+            x += 2 * np.pi
         return x
 
     # Fill mtwist array
-    mtwist_phi = sp.zeros((nx, ny, nx * ny))
+    mtwist_phi = np.zeros((nx, ny, nx * ny))
 
     for k1 in range(nx):
         for k2 in range(ny):
             # wave vector
             k = get_k(k1, k2)  # k1 * a1dual / nx + k2 * a2dual / ny
             for ix in range(nx * ny):
-                mtwist_phi[k1, k2, ix] = mod(- sp.dot(k, coords[ix, :]))
+                mtwist_phi[k1, k2, ix] = mod(- np.dot(k, coords[ix, :]))
 
     def get_mtwist(k1, k2):
-        return sp.array(mtwist_phi[k1, k2])
+        return np.array(mtwist_phi[k1, k2])
 
     return get_mtwist
 
@@ -255,7 +256,7 @@ def define_right_side_of_ODE(gmat_glob, q_glob):
 ## map eigenvectors to mtwists
 def define_get_mtwist_exp(get_mtwist):
     def get_mtwist_exp(k1, k2=0):  # non-normalized
-        return sp.exp(1j * get_mtwist(k1, k2))
+        return np.exp(1j * get_mtwist(k1, k2))
 
     return get_mtwist_exp
 
@@ -281,7 +282,7 @@ def define_decompose_to_mtwist_exp_basis(get_mtwist_exp, nx, ny):
     # 2D case update: store coeffs as 1D array
     def decompose_to_mtwist_exp_basis(phi_exp):
         # divide by N to normalize (both vectors have length of N ** (1/2)
-        return sp.array([phi_exp @ get_mtwist_exp(k1, k2).conj() / N for k1 in range(nx) for k2 in range(ny)])
+        return np.array([phi_exp @ get_mtwist_exp(k1, k2).conj() / N for k1 in range(nx) for k2 in range(ny)])
 
     return decompose_to_mtwist_exp_basis
 
@@ -303,7 +304,7 @@ def define_get_evec2mtwist(get_mtwist, nx, ny):
             evec_renormed = evecs[:, ievec] * N ** (1 / 2)
             coeffs = decompose_to_mtwist_exp_basis(evec_renormed)
 
-            sorted_ind = sp.argsort(abs(coeffs))  # ascending order
+            sorted_ind = np.argsort(abs(coeffs))  # ascending order
 
             # 3: Return the biggest component idx
             idx = -1
@@ -312,7 +313,7 @@ def define_get_evec2mtwist(get_mtwist, nx, ny):
             # But skip 0-twist
             if sorted_ind[idx - 1] == 0:
                 idx -= 1
-            residual = sp.sum(abs(coeffs[sorted_ind[:idx]]) ** 2) ** (1 / 2)
+            residual = np.sum(abs(coeffs[sorted_ind[:idx]]) ** 2) ** (1 / 2)
             if residual > warning_threshold:
                 print("WARNING: ievec={} - Residual is too big: {:.3g}".format(ievec, residual))
 
@@ -369,8 +370,8 @@ if __name__ == '__main__':
     # fig, ax = visualize.plot_nodes(coords, phi=phi, colorbar=False)
     ## Duplicate
     # L1, L2 = get_domain_sizes(nx, ny, a)
-    # visualize.plot_nodes(coords + sp.array([L1, 0])[sp.newaxis, :], phi=phi, colorbar=False)
-    # visualize.plot_nodes(coords + sp.array([0, L2])[sp.newaxis, :], phi=phi, colorbar=True)
+    # visualize.plot_nodes(coords + np.array([L1, 0])[np.newaxis, :], phi=phi, colorbar=False)
+    # visualize.plot_nodes(coords + np.array([0, L2])[np.newaxis, :], phi=phi, colorbar=True)
     # visualize.plot_node_numbers(coords, a)
     #
     # ax.set_title('m-twist: (' + str(k1) + ',' + str(k2) + ')')
@@ -398,7 +399,7 @@ if __name__ == '__main__':
             k_naive = get_k_naive(k1, k2)
 
             for coord in coords:
-                if abs(sp.exp(1j * k @ coord) - sp.exp(1j * k_naive @ coord)) > 10 ** -8:
+                if abs(np.exp(1j * k @ coord) - np.exp(1j * k_naive @ coord)) > 10 ** -8:
                     print('WHOOPS')
                 # print("whoops", k, k_naive)
 

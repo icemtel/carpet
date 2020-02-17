@@ -10,6 +10,7 @@ Important:
   checks phases of the first level neighbours.
 '''
 import scipy as sp
+import numpy as np
 from scipy.linalg import norm
 import copy
 
@@ -20,11 +21,11 @@ def get_classes(phi, eps=1e-8):
     define classes of nodes, according to which nodes have the same phase for the given m-twist solution
     :param eps: a small number
     """
-    phi = sp.array(phi)
+    phi = np.array(phi)
 
     unclassified_list = [(i, phii) for i, phii in enumerate(phi)]
 
-    ix_to_class = sp.full_like(phi, fill_value=sp.nan, dtype=int)
+    ix_to_class = np.full_like(phi, fill_value=np.nan, dtype=int)
     class_to_ix = []
 
     class_id = 0
@@ -34,13 +35,13 @@ def get_classes(phi, eps=1e-8):
         class_list = []
         classified_ixs = []  # indices to remove from unclassified_list
         for ix, (j, phij) in enumerate(unclassified_list):
-            diff = abs(sp.exp(1j * (phii - phij)) - 1)
+            diff = abs(np.exp(1j * (phii - phij)) - 1)
             if diff < eps:  # Add to the class if difference is small; take into account periodicity
                 ix_to_class[j] = class_id
                 class_list.append(j)
                 classified_ixs.append(ix)
 
-        class_to_ix.append(sp.array(class_list, dtype=int))
+        class_to_ix.append(np.array(class_list, dtype=int))
         unclassified_list = [i for j, i in enumerate(unclassified_list) if j not in classified_ixs]
         class_id += 1
     return ix_to_class, class_to_ix
@@ -69,7 +70,7 @@ def get_unique_cilia_ix(class_to_ix):
     Get one cilium from each class. Return their indices.
     """
     nclass = len(class_to_ix)
-    unique_cilia_ix = sp.array([class_to_ix[iclass][0] for iclass in range(nclass)], dtype=sp.int64)
+    unique_cilia_ix = np.array([class_to_ix[iclass][0] for iclass in range(nclass)], dtype=np.int64)
     return unique_cilia_ix
 
 def check_class_neighbours(phi_k, class_to_ix, N1, T1, eps=10**-8):
@@ -89,18 +90,18 @@ def check_class_neighbours(phi_k, class_to_ix, N1, T1, eps=10**-8):
         '''
         import math
 
-        x = math.fmod(x, 2 * sp.pi)
+        x = math.fmod(x, 2 * np.pi)
         if x < 0:
-            x += 2 * sp.pi
+            x += 2 * np.pi
         return x
 
     phi_k = [mod(phi) for phi in phi_k]
-    phi_k = sp.array(phi_k)
+    phi_k = np.array(phi_k)
 
     for c in class_to_ix:
         # Get neighbours parameters of the first cilium in a class - compare others with it
         first_neighbours_ix = N1[c[0]]
-        first_neighbours_translations = sp.array(T1[c[0]])  # position of the neighbour, relative to the cilium
+        first_neighbours_translations = np.array(T1[c[0]])  # position of the neighbour, relative to the cilium
         first_neighbours_phases = phi_k[first_neighbours_ix]
 
         # Go through cilia from the same class
@@ -109,17 +110,17 @@ def check_class_neighbours(phi_k, class_to_ix, N1, T1, eps=10**-8):
             neighbours_translations = T1[ix]
             neighbours_phases = phi_k[neighbours_ix]
 
-            checked_flag = sp.full_like(neighbours_ix, dtype=bool, fill_value=False)
+            checked_flag = np.full_like(neighbours_ix, dtype=bool, fill_value=False)
             for i, (phase, translation) in enumerate(zip(neighbours_phases, neighbours_translations)):
                 for phase1, translation1 in zip(first_neighbours_phases, first_neighbours_translations):
-                    if abs(sp.exp(1j *(phase-phase1))-1) < eps:
+                    if abs(np.exp(1j *(phase-phase1))-1) < eps:
                         if norm(translation - translation1) < eps:
                             if checked_flag[i] == False:
                                 checked_flag[i] = True
                             else:
                                 raise ValueError("Found a second matching neighbour")
 
-            if not sp.all(checked_flag):
+            if not np.all(checked_flag):
                 print(ix)
                 print(first_neighbours_phases)
                 print(neighbours_phases)
@@ -134,13 +135,13 @@ if __name__ == '__main__':
     # ix_to_class, class_to_ix = get_classes(phi_k)
     # print(ix_to_class) # [0, 1, 0, 1]
     #
-    # phi_k = (0, 2.5, 0, 2.5 + 2 * sp.pi)
+    # phi_k = (0, 2.5, 0, 2.5 + 2 * np.pi)
     # ix_to_class, class_to_ix = get_classes(phi_k)
     # print(ix_to_class) # [0, 1, 0, 1]
 
-    #phi_k = (0, 2.5, 3.5, 2 * sp.pi, 2.5, 3.5)
-    # N1 = sp.array([[5,1], [0,2],[1,3],[2, 4],[3,5],[4,0]])
-    # T1 = sp.array([[-1,1],[-1,1],[-1,1],[-1,1],[-1,1],[-1,1]])
+    #phi_k = (0, 2.5, 3.5, 2 * np.pi, 2.5, 3.5)
+    # N1 = np.array([[5,1], [0,2],[1,3],[2, 4],[3,5],[4,0]])
+    # T1 = np.array([[-1,1],[-1,1],[-1,1],[-1,1],[-1,1],[-1,1]])
     #
     """
     Tested on all m-twists of lattice_triangular and lattice_triangular2 6x6
@@ -167,7 +168,7 @@ if __name__ == '__main__':
     ix_to_class, class_to_ix = get_classes(phi_k)
 
     # Test if each cilium is classified only once
-    assert len(set(sp.concatenate(class_to_ix))) == N
+    assert len(set(np.concatenate(class_to_ix))) == N
 
     # Test if classes are balanced
     ncl = [len(cl) for cl in class_to_ix]

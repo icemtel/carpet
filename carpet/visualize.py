@@ -7,6 +7,7 @@ Fucntions for visualization
 - Stability plots
 """
 import scipy as sp
+import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import matplotlib.colors as colors
@@ -26,7 +27,7 @@ def get_colors(num, cmap=default_colormap):
     '''
     import matplotlib.cm as mcm
     cm = getattr(mcm, cmap)
-    return cm(sp.linspace(0, 1, num))
+    return cm(np.linspace(0, 1, num))
 
 
 # See usage below
@@ -53,7 +54,7 @@ def get_stylecycler():  # Only cycle linestyle; color will be changed by matplot
 # (1)
 # styles = vis.get_linecycler()
 # for i in range(12):
-#     plt.plot(sp.linspace(0, 2), sp.linspace(0, 2) ** 2 + i,**next(styles))
+#     plt.plot(np.linspace(0, 2), np.linspace(0, 2) ** 2 + i,**next(styles))
 # plt.show()
 # (2) OR Change globally
 # rc('axes', prop_cycle = get_linecycler())
@@ -81,7 +82,7 @@ def landscape_figure(height):
 
 def plot_nodes(coords, phi=None, color=(0.5, 0.5, 0.5), s=100,
                 cmap = 'hsv',
-                colorbar=True, vmin=0, vmax=2 * sp.pi, zorder=2,
+                colorbar=True, vmin=0, vmax=2 * np.pi, zorder=2,
                 fig=None, ax=None):
     '''
     :param color: if no phi is given, use this color to color all nodes
@@ -112,8 +113,8 @@ def plot_nodes(coords, phi=None, color=(0.5, 0.5, 0.5), s=100,
     ## Colorbar
     if colorbar is True and phi is not None:
         cb = fig.colorbar(cax, cmap=cmap, norm=norm, fraction=0.046, pad=0.04) # Default fraction0.15, pad=0.05
-        if vmin == 0 and vmax == 2 * sp.pi:
-            cb.set_ticks(ticks=[0, sp.pi / 2, sp.pi, 3 * sp.pi / 2, 2 * sp.pi])
+        if vmin == 0 and vmax == 2 * np.pi:
+            cb.set_ticks(ticks=[0, np.pi / 2, np.pi, 3 * np.pi / 2, 2 * np.pi])
             cb.set_ticklabels(['$0$', r'$\frac{\pi}{2}$', r'$\pi$', r'$\frac{3 \pi}{2}$', r'$2 \pi$'])
 
     return fig, ax
@@ -133,7 +134,7 @@ def plot_edges(coords, T1, fig=None, ax=None, zorder=1):
     # Draw edges
     for (coord, translations) in zip(coords, T1):
         for translation in translations:
-            points_to_plot = sp.array([coord, coord + translation])
+            points_to_plot = np.array([coord, coord + translation])
             ax.plot(points_to_plot[:, 0], points_to_plot[:, 1], 'r--', zorder=zorder)
 
     return fig, ax
@@ -177,7 +178,7 @@ class MidpointNormalize(colors.Normalize):
         normalized_max = min(1, 1 / 2 * (1 + abs((self.vmax - self.midpoint) / (self.midpoint - self.vmin))))
         normalized_mid = 0.5
         x, y = [self.vmin, self.midpoint, self.vmax], [normalized_min, normalized_mid, normalized_max]
-        return sp.ma.masked_array(sp.interp(value, x, y))
+        return np.ma.masked_array(np.interp(value, x, y))
 
 
 def _trajectory(ax, x, y, colors, *args, **kwargs):  # use 'quick.get_colors' as 'colors' argument
@@ -185,8 +186,8 @@ def _trajectory(ax, x, y, colors, *args, **kwargs):  # use 'quick.get_colors' as
 
 
 def _field(ax, x, y, z, colors, *args, **kwargs):
-    mn = sp.amin(z)
-    mx = sp.amax(z)
+    mn = np.amin(z)
+    mx = np.amax(z)
     for (x1, x2, y1, y2, zz) in zip(x, x[1:], y, y[1:], z):
         index = int((len(z) - 1) * (zz - mn) / (mx - mn))
         ax.plot([x1, x2], [y1, y2], *args,
@@ -210,7 +211,7 @@ def _midpoint_imshow(vals, x1_min, x1_max, x2_min, x2_max, ax=None, colorbar=Tru
             cmap = default_colormap
 
     if midpoint is not None:
-        norm = MidpointNormalize(sp.amin(vals), sp.amax(vals), midpoint)
+        norm = MidpointNormalize(np.amin(vals), np.amax(vals), midpoint)
 
     mappable = ax.imshow(vals, extent=[x1_min, x1_max, x2_min, x2_max],
                          origin='lower', cmap=cmap, norm=norm,
@@ -250,29 +251,29 @@ def phase_plot(vals, ax=None, colorbar=True,
     :param kwargs:
     :return:
     '''
-    ax = _midpoint_imshow(vals, 0, 2 * sp.pi, 0, 2 * sp.pi,
+    ax = _midpoint_imshow(vals, 0, 2 * np.pi, 0, 2 * np.pi,
                           ax=ax, colorbar=colorbar, title=title,
                           midpoint=midpoint, norm=norm, cmap=cmap,
                           xlabel=xlabel, ylabel=ylabel, **kwargs)
     # set x phase ticks
-    ax.set_xticks(ticks=[0, sp.pi / 2, sp.pi, 3 * sp.pi / 2, 2 * sp.pi])
+    ax.set_xticks(ticks=[0, np.pi / 2, np.pi, 3 * np.pi / 2, 2 * np.pi])
     ax.set_xticklabels(['$0$', r'$\frac{\pi}{2}$', r'$\pi$', r'$\frac{3 \pi}{2}$', r'$2 \pi$'])
     # set y phase ticks
-    ax.set_yticks(ticks=[0, sp.pi / 2, sp.pi, 3 * sp.pi / 2, 2 * sp.pi])
+    ax.set_yticks(ticks=[0, np.pi / 2, np.pi, 3 * np.pi / 2, 2 * np.pi])
     ax.set_yticklabels(['$0$', r'$\frac{\pi}{2}$', r'$\pi$', r'$\frac{3 \pi}{2}$', r'$2 \pi$'])
 
     if phase_colored_lines:
         color_func = lambda x: get_colors(x, cmap=default_cyclic_colormap)
-        shift = 2 * sp.pi / 200 * 2
-        phi = sp.array(range(num_phases)) * 2 * sp.pi / (num_phases - 1)
+        shift = 2 * np.pi / 200 * 2
+        phi = np.array(range(num_phases)) * 2 * np.pi / (num_phases - 1)
         # color_coding
         magic_num = 10
         for i in range(magic_num):
-            _trajectory(ax, phi, sp.zeros(num_phases) - shift * (i + 1 / 2), color_func, lw=2)
-            _trajectory(ax, sp.zeros(num_phases) - shift * (i + 1 / 2), phi, color_func, lw=2)
+            _trajectory(ax, phi, np.zeros(num_phases) - shift * (i + 1 / 2), color_func, lw=2)
+            _trajectory(ax, np.zeros(num_phases) - shift * (i + 1 / 2), phi, color_func, lw=2)
 
-        ax.set_xlim((-shift * (magic_num), sp.pi * 2))
-        ax.set_ylim((-shift * (magic_num), sp.pi * 2))
+        ax.set_xlim((-shift * (magic_num), np.pi * 2))
+        ax.set_ylim((-shift * (magic_num), np.pi * 2))
 
 
 
@@ -286,7 +287,7 @@ def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
         cmap = plt.get_cmap(cmap)
     new_cmap = colors.LinearSegmentedColormap.from_list(
         'trunc({n},{a:.2f},{b:.2f})'.format(n=cmap.name, a=minval, b=maxval),
-        cmap(sp.linspace(minval, maxval, n)))
+        cmap(np.linspace(minval, maxval, n)))
     return new_cmap
 
 
@@ -302,9 +303,9 @@ def _collect_values(ev_dict, get_k, eps=10 ** -8):
         for m2 in range(ny):
             k = get_k(m1)
             if abs(ev_dict[m1, m2][-1]) < eps:
-                ev = sp.real(ev_dict[m1, m2][-2])
+                ev = np.real(ev_dict[m1, m2][-2])
             else:
-                ev = sp.real(ev_dict[m1, m2][-1])
+                ev = np.real(ev_dict[m1, m2][-1])
 
             # Stable
             if ev < 0:
@@ -317,12 +318,12 @@ def _collect_values(ev_dict, get_k, eps=10 ** -8):
                 vals_unstable.append(ev)
 
                 # Saddle nodes
-            if ev > 0 and sp.real(ev_dict[m1, m2][0]) < 0:
+            if ev > 0 and np.real(ev_dict[m1, m2][0]) < 0:
                 ks_saddle.append(k)
 
-    ks_stable = sp.array(ks_stable)
-    ks_unstable = sp.array(ks_unstable)
-    ks_saddle = sp.array(ks_saddle)
+    ks_stable = np.array(ks_stable)
+    ks_unstable = np.array(ks_unstable)
+    ks_saddle = np.array(ks_saddle)
     return (vals_stable, ks_stable), (vals_unstable, ks_unstable), ks_saddle
 
 
@@ -340,7 +341,7 @@ def plot_stability(ev_dict, get_k, range_stable=None, range_unstable=None):
     if range_stable is not None:
         cmap_norm = SymLogNorm(vmin=range_stable[0], vmax=range_stable[1], linthresh=10 ** -5)
     else:
-        cmap_norm = SymLogNorm(vmin=sp.amin(vals_stable), vmax=sp.amax(vals_stable), linthresh=10 ** -5)
+        cmap_norm = SymLogNorm(vmin=np.amin(vals_stable), vmax=np.amax(vals_stable), linthresh=10 ** -5)
     plt.scatter(ks_stable[:, 0], ks_stable[:, 1], c=vals_stable, cmap=cmap, norm=cmap_norm)
     plt.colorbar()
 
@@ -349,7 +350,7 @@ def plot_stability(ev_dict, get_k, range_stable=None, range_unstable=None):
     if range_stable is not None:
         cmap_norm = SymLogNorm(vmin=range_unstable[0], vmax=range_unstable[1], linthresh=10 ** -5)
     else:
-        cmap_norm = SymLogNorm(vmin=sp.amin(vals_unstable), vmax=sp.amax(vals_unstable), linthresh=10 ** -5)
+        cmap_norm = SymLogNorm(vmin=np.amin(vals_unstable), vmax=np.amax(vals_unstable), linthresh=10 ** -5)
     plt.scatter(ks_unstable[:, 0], ks_unstable[:, 1], c=vals_unstable, cmap=cmap, norm=cmap_norm)
     plt.colorbar()
 
@@ -370,7 +371,7 @@ def plot_stability2(ev_dict, get_k, range_stable=None, range_unstable=None):
     if range_stable is not None:
         cmap_norm = SymLogNorm(vmin=range_stable[0], vmax=range_stable[1], linthresh=10 ** -5)
     else:
-        cmap_norm = SymLogNorm(vmin=sp.amin(vals_stable), vmax=sp.amax(vals_stable), linthresh=10 ** -5)
+        cmap_norm = SymLogNorm(vmin=np.amin(vals_stable), vmax=np.amax(vals_stable), linthresh=10 ** -5)
     plt.scatter(ks_stable[:, 0], ks_stable[:, 1], c=vals_stable, cmap=cmap, norm=cmap_norm)
     plt.colorbar()
 
@@ -379,7 +380,7 @@ def plot_stability2(ev_dict, get_k, range_stable=None, range_unstable=None):
     if range_stable is not None:
         cmap_norm = SymLogNorm(vmin=range_unstable[0], vmax=range_unstable[1], linthresh=10 ** -5)
     else:
-        cmap_norm = SymLogNorm(vmin=sp.amin(vals_unstable), vmax=sp.amax(vals_unstable), linthresh=10 ** -5)
+        cmap_norm = SymLogNorm(vmin=np.amin(vals_unstable), vmax=np.amax(vals_unstable), linthresh=10 ** -5)
     plt.scatter(ks_unstable[:, 0], ks_unstable[:, 1], c=vals_unstable, cmap=cmap, norm=cmap_norm)
     plt.colorbar()
 
@@ -418,8 +419,8 @@ def plot_evals_k_vec(evals, evec2mtwist, get_k, range_stable=None, range_unstabl
             ks_unstable.append(k)
             vals_unstable.append(ev)
 
-    ks_stable = sp.array(ks_stable)
-    ks_unstable = sp.array(ks_unstable)
+    ks_stable = np.array(ks_stable)
+    ks_unstable = np.array(ks_unstable)
 
     # Plot Stable
     if len(vals_stable) > 0:
@@ -427,18 +428,18 @@ def plot_evals_k_vec(evals, evec2mtwist, get_k, range_stable=None, range_unstabl
         if range_stable is not None:
             cmap_norm = SymLogNorm(vmin=range_stable[0], vmax=range_stable[1], linthresh=10 ** -5)
         else:
-            cmap_norm = SymLogNorm(vmin=sp.amin(vals_stable), vmax=sp.amax(vals_stable), linthresh=10 ** -5)
+            cmap_norm = SymLogNorm(vmin=np.amin(vals_stable), vmax=np.amax(vals_stable), linthresh=10 ** -5)
         plt.scatter(ks_stable[:, 0], ks_stable[:, 1], c=vals_stable, cmap=cmap, norm=cmap_norm)
         plt.colorbar()
 
     if len(vals_unstable) > 0:
         # Plot Unstable
         cmap = 'Reds'  # truncate_colormap('Reds', 0.6, 0.95)
-        # norm = Normalize(vmin=sp.amin(vals_unstable), vmax=sp.amax(vals_unstable))
+        # norm = Normalize(vmin=np.amin(vals_unstable), vmax=np.amax(vals_unstable))
         if range_stable is not None:
             cmap_norm = SymLogNorm(vmin=range_unstable[0], vmax=range_unstable[1], linthresh=10 ** -5)
         else:
-            cmap_norm = SymLogNorm(vmin=sp.amin(vals_unstable), vmax=sp.amax(vals_unstable), linthresh=10 ** -5)
+            cmap_norm = SymLogNorm(vmin=np.amin(vals_unstable), vmax=np.amax(vals_unstable), linthresh=10 ** -5)
         plt.scatter(ks_unstable[:, 0], ks_unstable[:, 1], c=vals_unstable, cmap=cmap, norm=cmap_norm)
         plt.colorbar()
 
@@ -459,7 +460,7 @@ if __name__ == '__main__':
 
 
     plot_edges(coords, T1)
-    fig, ax = plot_nodes(coords, phi=sp.linspace(0, 2 * sp.pi, len(coords)), vmin=0, vmax=2 * sp.pi)
+    fig, ax = plot_nodes(coords, phi=np.linspace(0, 2 * np.pi, len(coords)), vmin=0, vmax=2 * np.pi)
 
     plot_node_numbers(coords, a, fig=fig, ax=ax)
 

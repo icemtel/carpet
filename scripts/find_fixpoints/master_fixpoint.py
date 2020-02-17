@@ -4,7 +4,7 @@
 import logging
 import subprocess
 import sys
-import carpet.parallel_with_threads as pwt  # to find fixpoints faster
+import carpet.parallel_with_threads as pwt
 import carpet
 
 ## Script

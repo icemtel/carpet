@@ -4,6 +4,7 @@
 '''
 import math
 import scipy as sp
+import numpy as np
 from scipy.linalg import norm
 import carpet.friction as friction
 
@@ -13,28 +14,28 @@ def get_domain_size(N, a):
 
 
 def get_nodes_and_ids(num_cilia, a, direction):
-    direction = sp.array(direction) / norm(direction)
+    direction = np.array(direction) / norm(direction)
     translation = a * direction
 
     coords = []
     lattice_ids = []
-    position = sp.array([0., 0])
+    position = np.array([0., 0])
     for ix in range(num_cilia):
-        coords.append(sp.array(position))
+        coords.append(np.array(position))
         lattice_ids.append((ix, 0))
         position += translation
 
-    return sp.array(coords), sp.array(lattice_ids)
+    return np.array(coords), np.array(lattice_ids)
 
 
 def get_neighbours_list(num_cilia, a, direction):
-    direction = sp.array(direction) / norm(direction)
+    direction = np.array(direction) / norm(direction)
     translation = a * direction
 
     N1 = []
     T1 = []
     for ix in range(num_cilia):
-        neighbours = sp.array([(ix - 1) % num_cilia, (ix + 1) % num_cilia], dtype=sp.int64)
+        neighbours = np.array([(ix - 1) % num_cilia, (ix + 1) % num_cilia], dtype=np.int64)
         translations = [translation, - translation]
         N1.append(neighbours)
         T1.append(translations)
@@ -42,7 +43,7 @@ def get_neighbours_list(num_cilia, a, direction):
 
 
 def get_neighbours_list_non_periodic(num_cilia, a, direction):
-    direction = sp.array(direction) / norm(direction)
+    direction = np.array(direction) / norm(direction)
     translation = a * direction
 
     translation_neighbours = [-translation, translation]
@@ -66,21 +67,21 @@ def get_neighbours_list_non_periodic(num_cilia, a, direction):
 #     L = get_domain_size(N, a)
 #
 #     def get_k_naive(k1):  # get wave vector corresponding to wave numbers
-#         return k1 * 2 * sp.pi / L * direction
+#         return k1 * 2 * np.pi / L * direction
 #
 #     return get_k_naive
 
 
 def define_get_k(N, a, direction):
-    direction = sp.array(direction) / norm(direction)
+    direction = np.array(direction) / norm(direction)
     L = get_domain_size(N, a)
 
     def get_k(k1, k2=0):  # get wave vector corresponding to wave numbers
         if k1 >= N // 2 + 1:
-            return (k1 - N) * 2 * sp.pi / L * direction
+            return (k1 - N) * 2 * np.pi / L * direction
 
         else:
-            return k1 * 2 * sp.pi / L * direction
+            return k1 * 2 * np.pi / L * direction
 
     return get_k
 
@@ -94,23 +95,23 @@ def define_get_mtwist(coords, N, a, direction):
         is preferred when working with floats
         :return: a value in interval from 0 to 2pi
         '''
-        x = math.fmod(x, 2 * sp.pi)
+        x = math.fmod(x, 2 * np.pi)
         if x < 0:
-            x += 2 * sp.pi
+            x += 2 * np.pi
         return x
 
     # Fill mtwist array
-    mtwist_phi = sp.zeros((N, 1, N * 1))
+    mtwist_phi = np.zeros((N, 1, N * 1))
 
     for k1 in range(N):
         for k2 in range(1):
             # wave vector
             k = get_k(k1)  # k1 * a1dual / nx + k2 * a2dual / ny
             for ix in range(N * 1):
-                mtwist_phi[k1, k2, ix] = mod(- sp.dot(k, coords[ix, :]))
+                mtwist_phi[k1, k2, ix] = mod(- np.dot(k, coords[ix, :]))
 
     def get_mtwist(k1, k2=0):  # two arguments for compatibility
-        return sp.array(mtwist_phi[k1, k2])
+        return np.array(mtwist_phi[k1, k2])
 
     return get_mtwist
 
@@ -136,8 +137,8 @@ def define_gmat_glob_and_q_glob(set_name, a, direction, neighbours_indices, neig
     :return: gmat, q_glob  - functions
     '''
     connections = _get_connections()
-    e1 = sp.array(direction) / norm(direction)
-    e2 = sp.array([[0,-1],[1, 0]]) @ e1
+    e1 = np.array(direction) / norm(direction)
+    e2 = np.array([[0,-1],[1, 0]]) @ e1
     return friction.define_gmat_glob_and_q_glob0(set_name, connections, e1, e2, a,
                                                  neighbours_indices, neighbours_rel_positions,
                                                  order_g11, order_g12, T)
@@ -219,11 +220,11 @@ if __name__ == '__main__':
     # # OK: translation direction
     # for i, (neighbours, translations) in enumerate(zip(N1, T1)):
     #     for j, translation in zip(neighbours, translations):
-    #         points_to_plot = sp.array([coords[i], coords[i] + translation])
-    #         angle = sp.arctan2(translation[1], translation[0])
-    #         if abs(angle - sp.pi / 3) < eps:
+    #         points_to_plot = np.array([coords[i], coords[i] + translation])
+    #         angle = np.arctan2(translation[1], translation[0])
+    #         if abs(angle - np.pi / 3) < eps:
     #             code = 'g-.'
-    #         elif abs(angle + sp.pi * 2 / 3) < eps:
+    #         elif abs(angle + np.pi * 2 / 3) < eps:
     #             code = 'r:'
     #         else:
     #             code = 'b'

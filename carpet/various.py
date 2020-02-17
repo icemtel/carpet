@@ -5,14 +5,14 @@
 
 import logging
 import sys
-import scipy as sp
+import numpy as np
 
 
 def rms(vec):
     '''
     Root mean square; Quadratic averarge
     '''
-    return sp.sqrt(abs(sp.mean(vec * sp.conj(vec))))
+    return np.sqrt(abs(np.mean(vec * np.conj(vec))))
 
 
 def setup_logging(filename=None, mode='a', print_log_messages=True, level=logging.INFO):
@@ -51,15 +51,15 @@ def phases_to_interval(phi):
     Tested  - doesn't break.
     Problem: one vector has more than 1 representation in that interval
     '''
-    x = sp.array(phi)
-    xmin = x.mean() - 2 * sp.pi
-    xmax = x.mean() + 2 * sp.pi
+    x = np.array(phi)
+    xmin = x.mean() - 2 * np.pi
+    xmax = x.mean() + 2 * np.pi
     flag = (x.max() > xmax) or (x.min() < xmin)
     while flag:
         imax = x.argmax()
         imin = x.argmin()
-        x[imax] -= 2 * sp.pi
-        x[imin] += 2 * sp.pi
+        x[imax] -= 2 * np.pi
+        x[imin] += 2 * np.pi
 
         flag = (x.max() > xmax) or (x.min() < xmin)
 
@@ -70,8 +70,9 @@ def phases_to_interval(phi):
 
 if __name__ == '__main__':
     ## Test RMS
-    a = sp.array([1,1])
+    a = np.array([1, 1])
     print(rms(a))
+    print(phases_to_interval(a))
 
     ## Test Logger:
     #   logger = setup_logging('a.log')
