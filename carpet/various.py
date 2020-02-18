@@ -1,6 +1,8 @@
 '''
 - root mean square
 - logging
+- phases_to_interval: map phases to  mean+-2pi interval without changing mean
+- sine coupling
 '''
 
 import logging
@@ -64,8 +66,6 @@ def phases_to_interval(phi):
         flag = (x.max() > xmax) or (x.min() < xmin)
 
     return x
-
-
 
 
 if __name__ == '__main__':

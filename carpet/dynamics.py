@@ -66,7 +66,7 @@ def define_solve_cycle(right_side_of_ODE, t_max, phi_global_func, backwards=Fals
         # ==============================================================
         # Local error estimates are kept less than `atol + rtol * abs(y)`
         if 'atol' not in kwargs.keys():
-            kwargs['atol'] = tol   # absolute tolerance
+            kwargs['atol'] = tol  # absolute tolerance
         if 'rtol' not in kwargs.keys():
             kwargs['rtol'] = 3 * 10 ** -14  # = 0, but scipy doesn't like zero relative tolerance
         if 'max_step' not in kwargs.keys():
@@ -85,6 +85,55 @@ def define_solve_cycle(right_side_of_ODE, t_max, phi_global_func, backwards=Fals
     return solve_cycle
 
 
+## Solve with noise
+
+
+def integrate_euler(y0, fun, D, dt, t_span, eps=10 ** -8):
+    """
+    y' = f(t,y)
+    y(t0) = y0
+    :param y0: Initial state, array
+    :param fun: Right-hand side of the system f(t,y)
+    :param D: Diffusion coefficient; <xi(t),xi(t')> = 2 D delta(t-t')
+    :param dt: Time step
+    :param t_span: tuple (t0, tf) - start and end of integration interval
+    :param eps: If t_span can't be divided in integer number of steps of size `dt`.
+                The last time step will end at time `t_span[1]`, and the last step will have a different length,
+                bigger than or equal to `eps`, but smaller than `dt + eps`.
+    :return: (ys, ts)
+             Where ys: list of states y(t_i), ts: list of times t_i
+    """
+    N = len(y0)
+
+    def gaussian():  # returns random values, distributed normally
+        return np.randn(N)  # with the same dimension as number of cilia
+
+    t = t_span[0]
+    t_end = t_span[1]
+    y = np.array(y0)
+    noise_coeff = (2 * D * dt) ** (1 / 2)
+
+    ys = [y]
+    ts = [t]
+    while t < t_end - dt - eps:
+        dy = fun(t, y) * dt + noise_coeff * gaussian()
+        y = y + dy  # don't  use += on vectors!
+        t += dt
+
+        ys.append(y)
+        ts.append(t)
+
+    # The last step
+    dt = t_end - t
+    noise_coeff = (2 * D * dt) ** (1 / 2)
+    dy = fun(t, y) * noise_coeff * gaussian()
+    y = y + dy
+    t += dt
+
+    ys.append(y)
+    ts.append(t)
+
+    return np.array(ys), np.array(ts)
 
 
 ## Global phase
@@ -123,8 +172,9 @@ def order_parameter(phi, phi0=0):
 
 
 ### Mean phase
-def get_mean_phase(phi): # keep for compatibility
+def get_mean_phase(phi):  # keep for compatibility
     return np.mean(phi)
+
 
 def mean_phase(phi):
     return np.mean(phi)
