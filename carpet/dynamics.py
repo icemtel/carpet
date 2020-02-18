@@ -106,14 +106,14 @@ def integrate_euler(y0, fun, D, dt, t_span, eps=10 ** -8):
     N = len(y0)
 
     def gaussian():  # returns random values, distributed normally
-        return np.randn(N)  # with the same dimension as number of cilia
+        return np.random.randn(N)  # with the same dimension as number of cilia
 
     t = t_span[0]
     t_end = t_span[1]
     y = np.array(y0)
     noise_coeff = (2 * D * dt) ** (1 / 2)
 
-    ys = [y]
+    ys = [y] # MAYBE: Create an array
     ts = [t]
     while t < t_end - dt - eps:
         dy = fun(t, y) * dt + noise_coeff * gaussian()
