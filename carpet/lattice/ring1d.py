@@ -114,6 +114,14 @@ def define_get_mtwist(coords, N, a, direction):
     return get_mtwist
 
 
+def get_basis(direction):
+    '''
+    One unit vector in the direction of `direction`, and one - orthogonal to it.
+    '''
+    e1 = np.array(direction) / norm(direction)
+    e2 = np.array([[0,-1],[1, 0]]) @ e1
+    return e1, e2
+
 def get_connections():
     '''
     :return: Relative positions of neighbouring cilia in lattice coordinates
@@ -143,8 +151,7 @@ def define_gmat_glob_and_q_glob(set_name, a, direction, neighbours_indices, neig
     warnings.warn("To be depricated! Import 'coupling' instead", DeprecationWarning)
 
     connections = get_connections()
-    e1 = np.array(direction) / norm(direction)
-    e2 = np.array([[0,-1],[1, 0]]) @ e1
+    e1,e2 = get_basis(direction)
     return define_gmat_glob_and_q_glob0(set_name, connections, e1, e2, a,
                                        neighbours_indices, neighbours_rel_positions,
                                        order_g11, order_g12, T)

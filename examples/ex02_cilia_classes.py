@@ -7,6 +7,7 @@
 import scipy as sp
 import carpet
 import carpet.lattice.ring1d as lattice
+import carpet.physics.friction_pairwise as physics
 import carpet.classes as cc
 
 ## Parameters
@@ -22,20 +23,16 @@ N = 6
 a = 18  # [um] lattice spacing
 e1 = (1, 0)
 
-## Initialize
-# Geometry
 L1 = lattice.get_domain_size(N, a)
 coords, lattice_ids = lattice.get_nodes_and_ids(N, a, e1)
 N1, T1 = lattice.get_neighbours_list(N, a, e1)
 get_mtwist = lattice.define_get_mtwist(coords, N, a, e1)
 get_k = lattice.define_get_k(N, a, e1)
+connections = lattice.get_connections()
+e1, e2 = lattice.get_basis(e1)
 
-# # Physics
-# gmat_glob, q_glob = lattice.define_gmat_glob_and_q_glob(set_name, a, e1, N1, T1,order_g11, order_g12, T)
-# right_side_of_ODE = lattice.define_right_side_of_ODE(gmat_glob, q_glob)
-# solve_cycle = carpet.define_solve_cycle(right_side_of_ODE,2 * T, carpet.get_mean_phase)
 
-# m-twist
+# k-twist (visualize it with a plot!)
 k1 = 1
 phi_k = get_mtwist(k1)
 
@@ -49,9 +46,9 @@ unique_cilia_ids = cc.get_unique_cilia_ix(class_to_ix)# equivalent to sp.array([
 N1_class, T1_class = cc.get_neighbours_list_class(unique_cilia_ids, ix_to_class, N1, T1)
 
 # Physics
-gmat_glob_class, q_glob_class = lattice.define_gmat_glob_and_q_glob(set_name, a, e1, N1_class, T1_class,
+gmat_glob_class, q_glob_class = physics.define_gmat_glob_and_q_glob(set_name, connections, e1, e2,  a, N1_class, T1_class,
                                                                     order_g11, order_g12, T)
-right_side_of_ODE_class = lattice.define_right_side_of_ODE(gmat_glob_class, q_glob_class)
+right_side_of_ODE_class = physics.define_right_side_of_ODE(gmat_glob_class, q_glob_class)
 solve_cycle_class = carpet.define_solve_cycle(right_side_of_ODE_class, 2 * T, carpet.get_mean_phase)
 
 # Solve ODE

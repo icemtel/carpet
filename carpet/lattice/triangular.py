@@ -6,7 +6,6 @@ Comment: It would be more natural to rewrite most of the functions here as metho
 (a) stay flexible, (b) avoid rewriting a lot of working code.
 '''
 import math
-import scipy as sp
 import numpy as np
 from scipy.linalg import norm
 
@@ -18,7 +17,7 @@ def get_cell_sizes(a):
 
 def get_basis():
     e1 = np.array([1, 0])
-    e2 = sp.array([0.5, 3 ** (1 / 2) / 2])
+    e2 = np.array([0.5, 3 ** (1 / 2) / 2])
     return e1, e2
 
 
@@ -56,7 +55,7 @@ def get_nodes_and_ids(nx, ny, a):
                 coords.append(x)
                 lattice_ids.append((n, m))
 
-    coords = sp.array(coords)
+    coords = np.array(coords)
     lattice_ids = np.array(lattice_ids)
 
     return coords, lattice_ids
