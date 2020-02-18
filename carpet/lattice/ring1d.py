@@ -1,12 +1,10 @@
 '''
-- Generate triangular lattice
-- Define friction matrix, etc.
+One-dimensional ring (`get_neighbours_list`) or chain (`get_neigbhours_list_non_periodic`) of oscillators.
 '''
 import math
-import scipy as sp
 import numpy as np
 from scipy.linalg import norm
-import carpet.friction as friction
+
 
 
 def get_domain_size(N, a):
@@ -116,13 +114,16 @@ def define_get_mtwist(coords, N, a, direction):
     return get_mtwist
 
 
-### Friction coefficients - ver 1. ###
-def _get_connections():
+def get_connections():
     '''
     :return: Relative positions of neighbouring cilia in lattice coordinates
+             First order neighbours
     '''
     return [(-1, 0), (1, 0)]
 
+
+#
+# Cilia coupling. Must be removed in the future - call module with coupling
 
 def define_gmat_glob_and_q_glob(set_name, a, direction, neighbours_indices, neighbours_rel_positions,
                                 order_g11, order_g12, T):
@@ -136,37 +137,25 @@ def define_gmat_glob_and_q_glob(set_name, a, direction, neighbours_indices, neig
     :param T:
     :return: gmat, q_glob  - functions
     '''
-    connections = _get_connections()
+    from carpet.physics.friction_pairwise import define_gmat_glob_and_q_glob as define_gmat_glob_and_q_glob0
+    import warnings
+
+    warnings.warn("To be depricated! Import 'coupling' instead", DeprecationWarning)
+
+    connections = get_connections()
     e1 = np.array(direction) / norm(direction)
     e2 = np.array([[0,-1],[1, 0]]) @ e1
-    return friction.define_gmat_glob_and_q_glob0(set_name, connections, e1, e2, a,
-                                                 neighbours_indices, neighbours_rel_positions,
-                                                 order_g11, order_g12, T)
-
-import scipy.sparse.linalg as splin
-
+    return define_gmat_glob_and_q_glob0(set_name, connections, e1, e2, a,
+                                       neighbours_indices, neighbours_rel_positions,
+                                       order_g11, order_g12, T)
 
 def define_right_side_of_ODE(gmat_glob, q_glob):
-    def right_side_of_ODE(t, phi):
-        '''
-        Which method to use?
-        One test on sparse and iterative sparse methods gave the same result ~270s of computation
-        (maybe solving the linear equation is not the bottleneck?)
-        '''
-        ## Dense
-        # phidot = lin.inv(gmat_glob(phi)) @ q_glob(phi)
-        ## Sparse
-        phidot = splin.spsolve(gmat_glob(phi), q_glob(phi))
-        ## Sparse - iterative
-        # phidot, info = splin.bicgstab(gmat_glob(phi), q_glob(phi), tol=tol) #Check if this tolerance is sufficient
-        return phidot
+    import carpet.physics.friction_pairwise as coupling
+    import warnings
 
-    return right_side_of_ODE
+    warnings.warn("To be depricated! Import 'coupling' instead", DeprecationWarning)
 
-
-# TODO: Optimize:
-#  - dont calculate gii twice in gmat and qglob
-
+    return coupling.define_right_side_of_ODE(gmat_glob, q_glob)
 
 if __name__ == '__main__':
     # OK: chain lattice

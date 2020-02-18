@@ -1,12 +1,12 @@
 '''
 - Create a chain of cilia.
-- Define classes
+- Define symmetry classes
 - Use classes to solve ODE
 - Map back to cilia
 '''
 import scipy as sp
 import carpet
-import carpet.lattice_1D_chain as lattice
+import carpet.lattice.ring1d as lattice
 import carpet.classes as cc
 
 ## Parameters

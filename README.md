@@ -1,30 +1,44 @@
+Anton Solovev 2020
+
+Package to solve ODEs for cilia carpets - hence the name `carpet`. 
+Can be applied to lattices and networks of phase oscillators.
+
 ## Installation
-- Run in terminal `python setup.py develop`. 
-- After that one can use the package everywhere.
-- Any code changes to the code will be immediately active.
+Run in terminal `python setup.py develop`. 
+- After that package is ready to be imported.
+- Any changes to the code will be applied immediately.
 
 ## Structure
-Importing **`carpet`** will give direct access to functions inside several modules
-- `visualize` (name speaks for itself)
-- `dynamics` 
-  - Contains functions to solve ODE
-  - Define global phase
-- `various`: 
-  - a function to setup logging
-  - root mean square
- 
+- **`carpet`** - importing it immediately gives access to several modules, e.g.
+    - `dynamics` 
+      - Contains functions to solve ODE
+      - Define global phase
+    - `various`: 
+      - a function to setup logging
+      - root mean square
+      
 **Other modules** must be imported separately when needed. This is done as following
+`import carpet.visualize as vis`.
 
-`import carpet.lattice_triangular as lattice`
-
-
-- Geometry-specific files, e.g. `lattice_triangular.py`, `lattice_1D_chain.py` 
+- `visualize` - functions for visualization
+- Geometry-specific files, are contained in packages inside `lattice`. 
+  Recommended use `import carpet.lattice.triangular as lattice`
   - Each contains functions to build a list of cilia positions and neighbours
-  - m-twists
-  - Functions to load friction matrix, and compile the right side of ODE.
-- `parallel_with_threads.py`  - contains code to compute a function for a list of inputs in parallel manner.
+  - m-twists - metachronal waves 
+- Physics/coupling specific files: in `physics` folder.
+  - Recommended use `import carpet.physics.kuramoto as physics` 
+  
+- `parallel_with_threads.py`  - code to run a function in parallel on a list of inputs.
+- `classes.py` - implementation of cilia classes; assume symmetry classes and reduce ODE system.
 
-- `classes.py` - implementation of cilia classes
-
+- Many reusable functions reside outside the main package - they are located in `scripts`
 
 TODO: update requirements to python 3.7, etc
+
+## How to use
+
+- See examples
+- General idea: import lattice type as `import carpet.lattice.SOME_TYPE as lattice`,
+                import physics/coupling as `import carpet.coupling.SOME_TYPE as coupling`
+                => define geometry and physics, define right_side_of_ODE
+                Then use `define_solve_cycle` and dynamics can be integrated.

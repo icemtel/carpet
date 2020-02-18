@@ -1,27 +1,20 @@
 '''
-- Generate triangular lattice
-- Define friction matrix, etc.
-
-It would be more natural to use instead of `define_some_function()` a class `Lattice` and define corresponding methods.
-But this way I can stay more flexible, and change parts if needed easily.
-
+Triangular lattice, but rotated by 90 degrees. Because of rectangular domain, it is not trivial to introduce lattice for
+any rotation.
 '''
 import math
-import scipy as sp
 import numpy as np
 from scipy.linalg import norm
-import carpet.friction as friction
-
 
 def get_cell_sizes(a):
-    cell_length = a
-    cell_height = a * 3 ** (1 / 2) / 2
+    cell_length = a * 3 ** (1 / 2) / 2
+    cell_height = a
     return cell_length, cell_height
 
 
 def get_basis():
-    e1 = np.array([1, 0])
-    e2 = sp.array([0.5, 3 ** (1 / 2) / 2])
+    e1 = np.array([3 ** (1 / 2) / 2, 0.5])
+    e2 = np.array([0, 1])
     return e1, e2
 
 
@@ -52,14 +45,14 @@ def get_nodes_and_ids(nx, ny, a):
     lattice_ids = []  # list of corresponding lattice indices (n,m)
 
     for n in range(-2 * nx, 2 * nx):
-        for m in range(0, 2 * ny):
+        for m in range(- 2 * ny, 2 * ny):
             x = n * a * e1 + m * a * e2  # position vector
             # position vector within bounds?
-            if (x[0] >= 0 - eps) and (x[1] >= 0 - eps) and (x[0] < L1 - eps) and (x[1] < L2 - cell_height + eps):
+            if (x[0] >= 0 - eps) and (x[1] >= 0 - eps) and (x[0] < L1 - cell_length + eps) and (x[1] < L2 - eps):
                 coords.append(x)
                 lattice_ids.append((n, m))
 
-    coords = sp.array(coords)
+    coords = np.array(coords)
     lattice_ids = np.array(lattice_ids)
 
     return coords, lattice_ids
@@ -111,14 +104,39 @@ def get_neighbours_list(coords, nx, ny, a):
 ### mtwist solutions ###
 
 def get_dual_basis(a):
-    # Reciprocal lattice for rectangular unit cell
-    e1, e2 = get_basis()
-    a1 = e1
-    a2 = (2 * e2 - e1) / 2
+    '''
+    Reciprocal lattice for rectangular unit cell
+    Ben's method
+    '''
+    ax, ay = get_cell_sizes(a)
+    a1 = ax * np.array([1, 0]) / a
+    a2 = ay * np.array([0, 1]) / a
     R = np.array([[0, 1], [-1, 0]])  # rotation by 90deg
     a1dual = 2 * np.pi * (R @ a2) / (a1 @ (R @ a2)) / a
     a2dual = 2 * np.pi * (R @ a1) / (a2 @ (R @ a1)) / a
     return a1dual, a2dual  # [1/L]
+
+
+def get_dual_basis2(a):
+    '''
+    Does the same as the first one, but maybe it's more clear what the method does.
+    Google:
+    B = (a1, a2)
+    D = (a1dual, a2dual)
+    -> D = inv(B.T)
+    Below implemented the same thing, but with a factor of 2pi
+    '''
+    from scipy.linalg import inv, solve
+    ax, ay = get_cell_sizes(a)
+    a1 = ax * np.array([1, 0])
+    a2 = ay * np.array([0, 1])
+    # B = np.array([a1 ,a2]).T
+    BT = np.array([a1, a2])
+    # By definition D = inv(B.T)
+    # Miss a step of transposing
+    D = 2 * np.pi *  inv(BT)
+
+    return D[:, 0], D[:, 1]
 
 
 def define_get_k_naive(nx, ny, a):
@@ -134,16 +152,17 @@ def define_get_k_naive(nx, ny, a):
 def define_get_k(nx, ny, a):
     '''
     Checked: get_k is equivalent to get_k_naive: gives the same mtwists mod 2pi
+    The same as in `lattice_triangular`, but indices swapped, and a1dual swapped with a2dual.
     '''
     a1dual, a2dual = get_dual_basis(a)
 
     def get_k(k1, k2):  # get wave vector corresponding to wave numbers
         k = k1 * a1dual / nx + k2 * a2dual / ny
-        if k[0] >= a1dual[0] / 2:
-            k[0] -= a1dual[0]
-            k[1] -= a2dual[1] / 2
         if k[1] >= a2dual[1] / 2:
             k[1] -= a2dual[1]
+            k[0] -= a1dual[0] / 2
+        if k[0] >= a1dual[0] / 2:
+            k[0] -= a1dual[0]
         return k
 
     return get_k
@@ -180,16 +199,22 @@ def define_get_mtwist(coords, nx, ny, a):
 
 
 ### Friction coefficients - ver 1. ###
-def _get_connections():
+def get_connections():
     '''
     :return: Relative positions of neighbouring cilia in lattice coordinates
+             First order neighbours
     '''
     return [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, 1), (1, -1)]
+
+
+
+# Cilia coupling. Must be removed in the future - call module with coupling
 
 
 def define_gmat_glob_and_q_glob(set_name, a, neighbours_indices, neighbours_rel_positions,
                                 order_g11, order_g12, T):
     '''
+    Shortcut for cilia coupling - keep for backwards compatibility
     :param set_name: e.g. 'machemer_1'
     :param a: lattice spacing
     :param neighbours_indices: list of neighbours
@@ -199,124 +224,48 @@ def define_gmat_glob_and_q_glob(set_name, a, neighbours_indices, neighbours_rel_
     :param T:
     :return: gmat, q_glob  - functions
     '''
-    connections = _get_connections()
+    from carpet.physics.friction_pairwise import define_gmat_glob_and_q_glob as define_gmat_glob_and_q_glob0
+
+    import warnings
+
+    warnings.warn("To be depricated! Import 'coupling' instead", DeprecationWarning)
+
+    connections = get_connections()
     e1, e2 = get_basis()
-    return friction.define_gmat_glob_and_q_glob0(set_name, connections, e1, e2, a,
-                                                 neighbours_indices, neighbours_rel_positions,
-                                                 order_g11, order_g12, T)
-
-
-import scipy.sparse.linalg as splin
+    return define_gmat_glob_and_q_glob0(set_name, connections, e1, e2, a,
+                                       neighbours_indices, neighbours_rel_positions,
+                                       order_g11, order_g12, T)
 
 
 def define_right_side_of_ODE(gmat_glob, q_glob):
-    def right_side_of_ODE(t, phi):
-        '''
-        Which method to use?
-        One test on sparse and iterative sparse methods gave the same result ~270s of computation
-        (maybe solving the linear equation is not the bottleneck?)
-        '''
-        ## Dense
-        # phidot = lin.inv(gmat_glob(phi)) @ q_glob(phi)
-        ## Sparse
-        phidot = splin.spsolve(gmat_glob(phi), q_glob(phi))
-        ## Sparse - iterative
-        # phidot, info = splin.bicgstab(gmat_glob(phi), q_glob(phi), tol=tol) #Check if this tolerance is sufficient
-        return phidot
+    import carpet.physics.friction_pairwise as coupling
+    import warnings
 
-    return right_side_of_ODE
+    warnings.warn("To be depricated! Import 'coupling' instead", DeprecationWarning)
 
-
-## map eigenvectors to mtwists
-def define_get_mtwist_exp(get_mtwist):
-    def get_mtwist_exp(k1, k2=0):  # non-normalized
-        return np.exp(1j * get_mtwist(k1, k2))
-
-    return get_mtwist_exp
-
-def define_print_decomposition(decompose_to_mtwist_exp_basis):
-    def print_decomposition(phi_exp, eps=10 ** -8, print_abs=True):
-        if print_abs is True:
-            print("i    abs")
-            for i, x in enumerate(decompose_to_mtwist_exp_basis(phi_exp)):
-                if abs(x) > eps:
-                    print("{}    {:<10.3g}".format(i, abs(x)))
-        else:
-            for i, x in enumerate(decompose_to_mtwist_exp_basis(phi_exp)):
-                if abs(x) > eps:
-                    print("{}    {:<10.3g}    {:<10.3g}".format(i, x.real, x.imag))
-
-    return print_decomposition
-
-def define_decompose_to_mtwist_exp_basis(get_mtwist_exp, nx, ny):
-    N = nx * ny
-    # 2D case update: store coeffs as 1D array
-    def decompose_to_mtwist_exp_basis(phi_exp):
-        # divide by N to normalize (both vectors have length of N ** (1/2)
-        return np.array([phi_exp @ get_mtwist_exp(k1, k2).conj() / N for k1 in range(nx) for k2 in range(ny)])
-
-    return decompose_to_mtwist_exp_basis
-
-def define_get_evec2mtwist(get_mtwist, nx, ny):
-    decompose_to_mtwist_exp_basis = define_decompose_to_mtwist_exp_basis(get_mtwist, nx, ny)
-
-    def get_evec2mtwist4(evecs, warning_threshold=10 ** -2):
-        '''
-        Based on decomposition introduced above
-        2019-07: in 2D lattice
-        '''
-        nevecs = evecs.shape[1]
-        N = evecs.shape[0]  # nevecs must be equal to N if all evecs are in the input
-
-        evec2mtwist = {}
-        ks = [(k1, k2) for k1 in range(nx) for k2 in range(ny)]  # to find later to which mtwist to be mapped
-        for ievec in range(nevecs):
-            evec_renormed = evecs[:, ievec] * N ** (1 / 2)
-            coeffs = decompose_to_mtwist_exp_basis(evec_renormed)
-
-            sorted_ind = np.argsort(abs(coeffs))  # ascending order
-
-            # 3: Return the biggest component idx
-            idx = -1
-            evec2mtwist[ievec] = ks[sorted_ind[idx]]
-            # Warn if the next (in descending order) component is too big
-            # But skip 0-twist
-            if sorted_ind[idx - 1] == 0:
-                idx -= 1
-            residual = np.sum(abs(coeffs[sorted_ind[:idx]]) ** 2) ** (1 / 2)
-            if residual > warning_threshold:
-                print("WARNING: ievec={} - Residual is too big: {:.3g}".format(ievec, residual))
-
-        # Warn if the mapping is not unique
-        mtwists_unique = set(evec2mtwist.values())  # Only unique values
-        if len(evec2mtwist.values()) != len(mtwists_unique):
-            print("WARNING: the mapping from evecs to mtwists is not bijective")
-        return evec2mtwist
-
-    return get_evec2mtwist4
+    return coupling.define_right_side_of_ODE(gmat_glob, q_glob)
 
 
 if __name__ == '__main__':
-    # OK: both triangular and rectangular lattice
-    # OK: translations lengths (plot)
-    # OK: translations direction (plot)
-    # OK: mtwist no duplicates
-    # OK: mtwist (plot)
+    # OK: nodes plot
+    # OK: cell sizes: the same as in lattice_triangular, but inversed components
+    # OK: dual basis: the same as in lattice_triangular, but inversed components
+    # OK: mtwists
 
     import matplotlib.pyplot as plt
     import carpet.visualize as visualize
 
     a = 18
     nx = 8
-    ny = 8  # must be even
+    ny = 12  # must be even
 
     coords, lattice_ids = get_nodes_and_ids(nx, ny, a)
     N1, T1 = get_neighbours_list(coords, nx, ny, a)
 
     ## Visualize
-    visualize.plot_edges(coords, T1)
-    visualize.plot_nodes(coords)
-    visualize.plt.show()
+    # visualize.plot_edges(coords, T1)
+    # visualize.plot_nodes(coords)
+    # visualize.plt.show()
 
     ### Check mtwists
     get_mtwist_phi = define_get_mtwist(coords, nx, ny, a)
@@ -358,22 +307,23 @@ if __name__ == '__main__':
     # gmat, qglob = define_gmat_glob_and_q_glob('machemer_1', a, N1, T1, order_g11, order_g12, T)
 
     ### Check get_k vs get_k_naive:
-    ## Result: they are equivalent
-    get_k = define_get_k(nx,ny,a)
-    get_k_naive = define_get_k_naive(nx,ny,a)
+    # Result: they are equivalent
+    get_k = define_get_k(nx, ny, a)
+    get_k_naive = define_get_k_naive(nx, ny, a)
 
     for k1 in range(nx):
         for k2 in range(ny):
-            print(k1,k2)
+            print(k1, k2)
 
-            k = get_k(k1,k2)
-            k_naive = get_k_naive(k1,k2)
+            k = get_k(k1, k2)
+            k_naive = get_k_naive(k1, k2)
 
             for coord in coords:
-                if abs(np.exp(1j * k @ coord)  - np.exp(1j * k_naive @ coord)) > 10 ** -8:
+                if abs(np.exp(1j * k @ coord) - np.exp(1j * k_naive @ coord)) > 10 ** -8:
                     print('WHOOPS')
-                   #print("whoops", k, k_naive)
+                # print("whoops", k, k_naive)
 
-    ## Dual basis?
+    ### Dual basis test?
     print(get_cell_sizes(a))
     print(get_dual_basis(a))
+    print(get_dual_basis2(a))

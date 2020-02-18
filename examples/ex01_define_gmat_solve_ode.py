@@ -2,7 +2,7 @@ import time
 import scipy as sp
 import carpet
 import carpet.visualize as vis
-import carpet.lattice_triangular as lattice
+import carpet.lattice.triangular as lattice
 
 a = 18  # [um]
 T = 31.25  # [ms] period
@@ -11,7 +11,7 @@ ny = 4  # must be even
 set_name = 'machemer_1'
 order_g11 = (8, 0)
 order_g12 = (4, 4)
-tol = 10 ** -4  # solver tolerance
+tol = 10 ** -6   # solver tolerance
 
 coords, lattice_ids = lattice.get_nodes_and_ids(nx, ny, a)  # get cilia (nodes) coordinates
 N1, T1 = lattice.get_neighbours_list(coords, nx, ny, a)  # get list of neighbours and relative positions
