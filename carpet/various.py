@@ -2,7 +2,7 @@
 - root mean square
 - logging
 - phases_to_interval: map phases to  mean+-2pi interval without changing mean
-- sine coupling
+- get_phase_random
 '''
 
 import logging
@@ -66,6 +66,14 @@ def phases_to_interval(phi):
         flag = (x.max() > xmax) or (x.min() < xmin)
 
     return x
+
+
+def get_phase_random(N):
+    '''
+    Uniformly distributed random phase vector - on the interval from 0 to 2pi.
+    '''
+    phi = 2 * np.pi * np.rand(N)
+    return phi
 
 
 if __name__ == '__main__':

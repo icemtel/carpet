@@ -14,7 +14,6 @@ def define_sine_coupling(sin_str):
     :sin_str: coefficient in front of sine, units of [rad/s]
              In case of two cilia: positive => in-phase synchronization is stable
     '''
-
     def coupling(phi1, phi2, translation=None):
         c = sin_str * math.sin(phi2 - phi1)
         return c
