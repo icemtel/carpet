@@ -72,7 +72,7 @@ def get_phase_random(N):
     '''
     Uniformly distributed random phase vector - on the interval from 0 to 2pi.
     '''
-    phi = 2 * np.pi * np.rand(N)
+    phi = 2 * np.pi * np.random.rand(N)
     return phi
 
 
@@ -81,7 +81,7 @@ if __name__ == '__main__':
     a = np.array([1, 1])
     print(rms(a))
     print(phases_to_interval(a))
-
+    print(get_phase_random(3))
     ## Test Logger:
     #   logger = setup_logging('a.log')
     # #  logger = setup_logging()
