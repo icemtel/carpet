@@ -28,7 +28,7 @@ get_mtwist = lattice.define_get_mtwist(coords, nx, ny, a)
 
 # Physics: sine-coupling
 coupling = physics.define_sine_coupling(sin_str)
-right_side_of_ODE = physics.define_right_side_of_ODE(coupling,freq, N1,T1)
+right_side_of_ODE = physics.define_right_side_of_ODE(coupling, freq, N1,T1)
 solve_cycle = carpet.define_solve_cycle(right_side_of_ODE, 2 * period, carpet.get_mean_phase)
 
 

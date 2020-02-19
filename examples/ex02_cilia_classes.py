@@ -4,7 +4,7 @@
 - Use classes to solve ODE
 - Map back to cilia
 '''
-import scipy as sp
+import numpy as np
 import carpet
 import carpet.lattice.ring1d as lattice
 import carpet.physics.friction_pairwise as physics
@@ -16,7 +16,7 @@ set_name = 'machemer_1' # which hydrodynamic coefficients to use
 order_g11 = (8,0)
 order_g12 = (4,4)
 T = 31.25 # [ms] period of cilia beat
-freq = 2 * sp.pi / T # [rad/ms] angular frequency
+freq = 2 * np.pi / T # [rad/ms] angular frequency
 
 # Geometry
 N = 6
@@ -28,7 +28,6 @@ coords, lattice_ids = lattice.get_nodes_and_ids(N, a, e1)
 N1, T1 = lattice.get_neighbours_list(N, a, e1)
 get_mtwist = lattice.define_get_mtwist(coords, N, a, e1)
 get_k = lattice.define_get_k(N, a, e1)
-connections = lattice.get_connections()
 e1, e2 = lattice.get_basis(e1)
 
 
@@ -46,7 +45,7 @@ unique_cilia_ids = cc.get_unique_cilia_ix(class_to_ix)# equivalent to sp.array([
 N1_class, T1_class = cc.get_neighbours_list_class(unique_cilia_ids, ix_to_class, N1, T1)
 
 # Physics
-gmat_glob_class, q_glob_class = physics.define_gmat_glob_and_q_glob(set_name, connections, e1, e2,  a, N1_class, T1_class,
+gmat_glob_class, q_glob_class = physics.define_gmat_glob_and_q_glob(set_name, e1, e2,  a, N1_class, T1_class,
                                                                     order_g11, order_g12, T)
 right_side_of_ODE_class = physics.define_right_side_of_ODE(gmat_glob_class, q_glob_class)
 solve_cycle_class = carpet.define_solve_cycle(right_side_of_ODE_class, 2 * T, carpet.get_mean_phase)
@@ -59,4 +58,4 @@ phi_class_after_cycle = sol.y.T[-1]
 # Map from classes back to cilia
 phi_after_cycle = phi_class_after_cycle[ix_to_class]
 ## Print how much phase changed
-print(phi_after_cycle - phi_k - 2 * sp.pi) # [ 1.91280547e-04  1.84610272e-05 -1.01082591e-04 -1.82536506e-04  -5.43819305e-05  1.28259454e-04]
+print(phi_after_cycle - phi_k - 2 * np.pi) # [ 1.91280547e-04  1.84610272e-05 -1.01082591e-04 -1.82536506e-04  -5.43819305e-05  1.28259454e-04]
