@@ -10,13 +10,13 @@ carpet.setup_logging('integrate_trajectory.log')
 # Physics
 period = 31.25 # [ms] period of cilia beat; freq = 2 * sp.pi / period [rad/ms]
 freq = 2 * np.pi / period
+sin_str = 0.003 * freq
 # Geometry
 nx = 6
 ny = 6 # even number
 N = nx * ny
 a = 18  # [um] lattice spacing
 
-sin_str = 0.003 * freq
 
 ## Initialize
 # Geometry
