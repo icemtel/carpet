@@ -25,7 +25,7 @@ import sys
 carpet.setup_logging('master.log')
 
 script_path = '.'
-script_name = "attraction_basins_20200128.py"
+script_name = "attraction_basins20200128.py"
 
 def run_script(*args):
     '''

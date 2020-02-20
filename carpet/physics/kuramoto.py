@@ -23,7 +23,7 @@ def define_sine_coupling(sin_str):
 
 def define_sine_cosine_coupling(sin_str, cos_str):
     def coupling(phi1, phi2, translation=None):
-        c = sin_str * math.sin(phi2 - phi1) + cos_str * math.sin(phi2 - phi1)
+        c = sin_str * math.sin(phi2 - phi1) + cos_str * math.cos(phi2 - phi1)
         return c
 
     return coupling
