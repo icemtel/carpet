@@ -9,6 +9,7 @@ import math
 import numpy as np
 from scipy.linalg import norm
 
+
 def get_cell_sizes(a):
     cell_length = a
     cell_height = a * 3 ** (1 / 2) / 2
@@ -61,18 +62,26 @@ def get_nodes_and_ids(nx, ny, a):
     return coords, lattice_ids
 
 
-def get_neighbours_list(coords, nx, ny, a):
+def get_neighbours_list(coords, nx, ny, a, distances=(1,)):
     '''
-    Find nodes which are located at the distance `a`
+    For each node looks for other nodes at specified distances (multiplied by lattice edge length `a`).
+    Those nodes are saved in `N1` list. Relative positions are saved in `T1` list.
+    :distances: list of expected distances to neighbours (normalized by a)
+                Examples: 1-neighbours: [1]
+                          2-neighbours*: [1, 3 ** 0.5]
+                          2-neighbours:  [1, 3 ** 0.5, 2]
+                Assumption: d * a < max(L1,L2)
     :return: list of neighbours, list of relative neighbour positions
     '''
     eps = 10 ** -4 * a
 
     L1, L2 = get_domain_sizes(nx, ny, a)
+    if max(distances) * a >= max([L1, L2]):
+        raise NotImplementedError("Assumption: d * a < max(L1,L2) is not satisfied")
 
     N = len(coords)
 
-    ## find nearest neigbors
+    ## find nearest neighbors
     def get_neighbours(i, j):
         '''
         If the distance between two points is equal to the lattice spacing, return vector connecting them, else None.
@@ -82,24 +91,22 @@ def get_neighbours_list(coords, nx, ny, a):
         for a1 in range(-1, 2):
             for a2 in range(-1, 2):
                 translation = coords[j, :] - coords[i, :] + [a1 * L1, 0] + [0, a2 * L2]
-                if a - eps < norm(translation) < a + eps:
-                    return translation
+                for d in distances:
+                    if d * a - eps < norm(translation) < d * a + eps:
+                        return translation
         return None
 
-    ## TO change in case of rectangular domain
-    N1 = [[] for _ in coords]  # list of lists of neighbours
-    T1 = [[] for _ in coords]  # list of translation vectors between neighbours
+    N1 = [[] for _ in coords]  # list of lists of neighbours indices
+    T1 = [[] for _ in coords]  # list of lists of translation vectors between neighbours
     # loop over pairs of lattice points
     for i in range(N):
         for j in range(i + 1, N):
-            # lattice points close?
-            # (account for periodic boundary conditions)
-            translation = get_neighbours(i, j)
-            if translation is not None:
+            translation = get_neighbours(i, j)  # check if neighbours
+            if translation is not None:  # is yes - add to the list
                 N1[i].append(j)
                 T1[i].append(translation)
 
-                N1[j].append(i)
+                N1[j].append(i)  # save some iterations by using that being neighbors is symmetrical relation
                 T1[j].append(- translation)
     return N1, T1
 
@@ -207,9 +214,9 @@ def define_gmat_glob_and_q_glob(set_name, a, neighbours_indices, neighbours_rel_
 
     connections = get_connections()
     e1, e2 = get_basis()
-    return define_gmat_glob_and_q_glob0(set_name, connections, e1, e2, a,
-                                       neighbours_indices, neighbours_rel_positions,
-                                       order_g11, order_g12, T)
+    return define_gmat_glob_and_q_glob0(set_name, e1, e2, a,
+                                        neighbours_indices, neighbours_rel_positions,
+                                        order_g11, order_g12, T)
 
 
 def define_right_side_of_ODE(gmat_glob, q_glob):
@@ -236,8 +243,8 @@ if __name__ == '__main__':
     ny = 8  # must be even
 
     coords, lattice_ids = get_nodes_and_ids(nx, ny, a)
-    N1, T1 = get_neighbours_list(coords, nx, ny, a)
-
+    N1, T1 = get_neighbours_list(coords, nx, ny, a, distances=(1, np.sqrt(3), 2))
+    print("Neighbours as array shape:", np.array(N1).shape)
     ## Visualize
     visualize.plot_edges(coords, T1)
     visualize.plot_nodes(coords)
@@ -284,20 +291,20 @@ if __name__ == '__main__':
 
     ### Check get_k vs get_k_naive:
     ## Result: they are equivalent
-    get_k = define_get_k(nx,ny,a)
-    get_k_naive = define_get_k_naive(nx,ny,a)
+    get_k = define_get_k(nx, ny, a)
+    get_k_naive = define_get_k_naive(nx, ny, a)
 
     for k1 in range(nx):
         for k2 in range(ny):
-            print(k1,k2)
+            print(k1, k2)
 
-            k = get_k(k1,k2)
-            k_naive = get_k_naive(k1,k2)
+            k = get_k(k1, k2)
+            k_naive = get_k_naive(k1, k2)
 
             for coord in coords:
-                if abs(np.exp(1j * k @ coord)  - np.exp(1j * k_naive @ coord)) > 10 ** -8:
+                if abs(np.exp(1j * k @ coord) - np.exp(1j * k_naive @ coord)) > 10 ** -8:
                     print('WHOOPS')
-                   #print("whoops", k, k_naive)
+                # print("whoops", k, k_naive)
 
     ## Dual basis?
     print(get_cell_sizes(a))

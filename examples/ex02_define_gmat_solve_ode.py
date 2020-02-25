@@ -49,5 +49,6 @@ print("Time spent", time_spent)
 phi1 = solution.y.T[-1]
 print("Change in phase after one cycle:", phi1 - phi0 - 2 * np.pi)
 # Visualize
-vis.plot_nodes(coords, phi=(phi1 - phi0 - 2 * np.pi) % (2 * np.pi))  # can't see phase difference on this scale
+dphi = phi1 - phi0 - 2 * np.pi
+vis.plot_nodes(coords, phi=dphi, vmin=dphi.min(), vmax=dphi.max(), cmap='jet')
 vis.plt.show()
