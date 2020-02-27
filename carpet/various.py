@@ -16,6 +16,11 @@ def rms(vec):
     '''
     return np.sqrt(abs(np.mean(vec * np.conj(vec))))
 
+def cexp(vec):
+    '''
+    Calculate complex exponent
+    '''
+    return np.exp(1j * vec)
 
 def setup_logging(filename=None, mode='a', print_log_messages=True, level=logging.INFO):
     """
