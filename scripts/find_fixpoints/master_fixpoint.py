@@ -9,7 +9,7 @@ import carpet
 
 ## Script
 script_path = '.'
-script_name = "find_fixpoint20200203.py"
+script_name = "find_fixpoint20200220_next_to_nearest.py"
 
 
 def run_script(*args):

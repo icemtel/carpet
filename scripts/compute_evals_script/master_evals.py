@@ -15,7 +15,7 @@ import carpet
 
 ## Script
 script_path = '.'
-script_name = "compute_evals20200131_rot_lattice.py" # "compute_evals20200127.py"
+script_name = "compute_evals20200225_next_to_nearest.py" # "compute_evals20200127.py"
 
 
 def run_script(*args):

@@ -25,7 +25,7 @@ import sys
 carpet.setup_logging('master.log')
 
 script_path = '.'
-script_name = "attraction_basins20200225_sine.py"
+script_name = "attraction_basins2_20200310_next_to_nearest.py"
 
 def run_script(*args):
     '''
@@ -41,14 +41,11 @@ def run_script(*args):
 
 num_threads = int(sys.argv[1])
 tol = 10 ** -6
-nbatch_range = (0, 20)
-nrun = 100 # trajectories per batch
+nrun = 2000 # trajectories per batch
 ncycle = 1500
-fixpoint_radius = 0.2
-termination_eps = 2 * 10 ** - 3 # terminate cycles if we are close enough to a fixpoint
 
 
-list_of_args = [[ibatch, nrun, ncycle, tol,  fixpoint_radius, termination_eps] for ibatch in range(*nbatch_range)]
+list_of_args = [[irun, ncycle, tol] for irun in range(nrun)]
 
 pwt.run_parallel(num_threads, run_script, list_of_args)
 

@@ -3,6 +3,10 @@
 - NEW procedure - use scipy.optimize.root - much faster
 - fixed classes - before there were uneven classes due to jumps from 0 to 2pi!
 2020-02-20: upd carpet, upd scipy->numpy
+2020-02-25:
+- get_neighbours - updated, from carpet.lattice.triangular
+- get_classes - from carpet.classes
+- starting mean phase always = 0.01
 
 args: k1, k2
 
@@ -25,7 +29,7 @@ import logging
 
 import carpet
 import carpet.classes as cc
-import carpet.lattice.triangular2 as lattice
+import carpet.lattice.triangular as lattice
 import carpet.physics.friction_pairwise as physics
 
 import scipy.optimize as opt
@@ -49,47 +53,18 @@ N = nx * ny
 # Geometry
 L1, L2 = lattice.get_domain_sizes(nx, ny, a)
 coords, lattice_ids = lattice.get_nodes_and_ids(nx, ny, a)  # get cilia (nodes) coordinates
-N1, T1 = lattice.get_neighbours_list(coords, nx, ny, a)  # get list of neighbours and relative positions
 e1, e2 = lattice.get_basis()
 get_k = lattice.define_get_k(nx, ny, a)
 get_mtwist = lattice.define_get_mtwist(coords, nx, ny, a)
 
+
+#====Neighbours====
+N2, T2 = lattice.get_neighbours_list(coords, nx, ny, a, [1, 3 ** 0.5])
+
 # Physics
-gmat_glob, q_glob = physics.define_gmat_glob_and_q_glob(set_name, e1, e2, a, N1, T1, order_g11, order_g12, period)
+gmat_glob, q_glob = physics.define_gmat_glob_and_q_glob(set_name, e1, e2, a, N2, T2, order_g11, order_g12, period)
 right_side_of_ODE = physics.define_right_side_of_ODE(gmat_glob, q_glob)
 solve_cycle = carpet.define_solve_cycle(right_side_of_ODE, 2 * period, phi_global_func=carpet.get_mean_phase)
-
-
-def get_classes_rmk(phi, eps=10 ** -8):
-    """
-    Which cilia have the same phase values?
-    define classes of nodes, according to which nodes have the same phase for the given m-twist solution
-    :param eps: a small number
-    """
-    phi = np.array(phi)
-
-    unclassified_list = [(i, phii) for i, phii in enumerate(phi)]
-
-    ix_to_class = np.full_like(phi, fill_value=np.nan, dtype=int)
-    class_to_ix = []
-
-    class_id = 0
-    while unclassified_list:  # check if not empty
-        i, phii = unclassified_list[0]  # take the next oscillator without a class
-
-        class_list = []
-        classified_ixs = []  # indices to remove from unclassified_list
-        for ix, (j, phij) in enumerate(unclassified_list):
-            diff = abs(np.exp(1j * (phii - phij)) - 1)
-            if diff < eps:  # Add to the class if difference is small; take into account periodicity
-                ix_to_class[j] = class_id
-                class_list.append(j)
-                classified_ixs.append(ix)
-
-        class_to_ix.append(np.array(class_list, dtype=int))
-        unclassified_list = [i for j, i in enumerate(unclassified_list) if j not in classified_ixs]
-        class_id += 1
-    return ix_to_class, class_to_ix
 
 
 def get_vec_diff(solve_cycle, tol):
@@ -113,13 +88,13 @@ def find_fixpoint(phi0, tol, mini_tol):
                 - change dynamics for sine coupling
     '''
     # Map to classes
-    ix_to_class, class_to_ix = get_classes_rmk(phi0)  # cc.get_classes(phi0)
+    ix_to_class, class_to_ix = cc.get_classes(phi0)  # cc.get_classes(phi0)
     nclass = len(class_to_ix)
     # Get classes representatives
     # Get one cilium from each of cilia classes
     unique_cilia_ids = np.array([class_to_ix[iclass][0] for iclass in range(nclass)], dtype=np.int64)
     # Get neighbours
-    N1_class, T1_class = cc.get_neighbours_list_class(unique_cilia_ids, ix_to_class, N1, T1)
+    N1_class, T1_class = cc.get_neighbours_list_class(unique_cilia_ids, ix_to_class, N2, T2)
     # Dynamics
     gmat_glob_class, q_glob_class = physics.define_gmat_glob_and_q_glob(set_name, e1, e2, a, N1_class, T1_class,
                                                                         order_g11, order_g12, period)
@@ -140,12 +115,8 @@ def find_fixpoint(phi0, tol, mini_tol):
 
     return fixpoint
 
-
-### Main
-k1, k2 = int(sys.argv[1]), int(sys.argv[2])
+#
 dirname = os.path.dirname(__file__)  # sys.argv[3]
-tol = 10 ** -8
-
 
 def dump_object(obj, filename):
     filename = os.path.join(dirname, filename)
@@ -161,8 +132,13 @@ def load_object(filename):
     return obj
 
 
+### Main
+k1, k2 = int(sys.argv[1]), int(sys.argv[2])
+tol = 10 ** -8
+
 phi0 = get_mtwist(k1, k2)
-phi0 = phi0  # - carpet.get_mean_phase(phi0)  # Test without this line - it makes it worse at least in 1 case
+# phi0 = phi0  - carpet.get_mean_phase(phi0)  # Test without this line - it makes it worse at least in 1 case
+phi0 = phi0  - carpet.get_mean_phase(phi0) + 0.01 # Start with SMALL mean phase -> clear direction of minimizing for the solver
 
 if k1 == 0 and k2 == 0:
     # assuming that symmetries of fixpoint are preserved,
@@ -170,6 +146,12 @@ if k1 == 0 and k2 == 0:
     fixpoint = phi0
 else:
     fixpoint = find_fixpoint(phi0, tol, tol)
+
+## Test
+# sol = solve_cycle(fixpoint, tol)
+# fp_image = sol.y.T[-1] - 2 * np.pi
+# print("fp mean phase:", fixpoint.mean())
+# print("dist to image:", carpet.rms(fp_image - fixpoint))
 
 filename = "fixpoint_k1={}_k2={}.pkl".format(k1, k2)
 dump_object(fixpoint, filename)

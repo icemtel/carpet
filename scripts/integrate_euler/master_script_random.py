@@ -34,12 +34,12 @@ carpet.setup_logging('master.log')
 num_threads = int(sys.argv[1])  # number of threads utilized
 period = 31.25
 dt = 0.01 * period
-ncycle = 4000
-nrun_range = (0, 200)  # trajectories to simulate
+ncycle = 6000
+nrun_range = (0, 300)  # trajectories to simulate
 
 list_of_args = []
 # Different Ds
-Ds = [1e-5, 1e-4, 1e-3, 1e-2]
+Ds = [1e-5, 5e-5, 1e-4, 5e-4, 1e-3]
 for D in Ds:
     list_of_args += [[irun, ncycle, D, dt] for irun in range(*nrun_range)]
 
