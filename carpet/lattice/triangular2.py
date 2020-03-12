@@ -168,7 +168,7 @@ def define_get_k(nx, ny, a):
         if k[1] >= a2dual[1] / 2:
             k[1] -= a2dual[1]
             k[0] -= a1dual[0] / 2
-        if k[0] >= a1dual[0] / 2:
+        elif k[0] >= a1dual[0] / 2:
             k[0] -= a1dual[0]
         return k
 
