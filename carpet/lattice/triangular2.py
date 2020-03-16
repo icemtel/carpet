@@ -159,17 +159,38 @@ def define_get_k_naive(nx, ny, a):
 def define_get_k(nx, ny, a):
     '''
     Checked: get_k is equivalent to get_k_naive: gives the same mtwists mod 2pi
-    The same as in `lattice_triangular`, but indices swapped, and a1dual swapped with a2dual.
     '''
+
+    def shift_integer(k, n, s):
+        '''
+        :param k,n,s: integers
+        Assuming that k in Z/nZ (n-periodic integer),
+        shift it to interval [-s,n-s]
+
+        e.g. if s= n//2, the interval is:
+        even: - n1 / 2      to  n1 / 2 - 1
+        odd:  - (n1-1) / 2  to  (n1-1)/2
+        '''
+        return (k + s) % n - s
+
     a1dual, a2dual = get_dual_basis(a)
 
-    def get_k(k1, k2):  # get wave vector corresponding to wave numbers
-        k = k1 * a1dual / nx + k2 * a2dual / ny
-        if k[1] >= a2dual[1] / 2:
-            k[1] -= a2dual[1]
-            k[0] -= a1dual[0] / 2
-        elif k[0] >= a1dual[0] / 2:
-            k[0] -= a1dual[0]
+    nxhalf = nx // 2
+    nyhalf = ny // 2
+
+    def get_k(k1, k2, shiftx=nxhalf, shifty=nyhalf):
+        '''
+        :param k1,k2: wavemodes
+        :param shiftx,shifty: define additionally a shift
+                            Get k in region, x: [- shiftx * a1dual / nx, a1dual - shiftx * a1dual / nx]
+                                             y: ...
+        :return:
+        '''
+        div = (k2 + shifty) // ny
+        k1 = k1 - nx * div / 2  # shift k1 as a response on shift in k2
+
+        k = shift_integer(k1, nx, shiftx) * a1dual / nx + shift_integer(k2, ny, shifty) * a2dual / ny
+
         return k
 
     return get_k
