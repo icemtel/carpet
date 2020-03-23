@@ -260,7 +260,7 @@ def define_gmat_glob_and_q_glob(set_name, e1, e2, a, neighbours_indices, neighbo
     for i in range(N):
         K3D.append(gii_coeff_mat)  # put .copy() if want to edit entries!
 
-    for i, (neighbours, translations) in enumerate(zip(N1, T1)):
+    for i, (neighbours, translations) in enumerate(zip(neighbours_indices, neighbours_rel_positions)):
         for j, t in zip(neighbours, translations):
             nm = euclidean_to_lattice_coords(t)  # get lattice coordinates
             nm_int = np.around(nm)
@@ -273,7 +273,7 @@ def define_gmat_glob_and_q_glob(set_name, e1, e2, a, neighbours_indices, neighbo
         rows.append(i)
         cols.append(i)
 
-    for i, (neighbours, translations) in enumerate(zip(N1, T1)):
+    for i, (neighbours, translations) in enumerate(zip(neighbours_indices, neighbours_rel_positions)):
         for j, t in zip(neighbours, translations):
             rows.append(i)
             cols.append(j)
