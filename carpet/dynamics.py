@@ -126,7 +126,7 @@ def integrate_euler(y0, fun, D, dt, t_span, eps=10 ** -8):
     # The last step
     dt = t_end - t
     noise_coeff = (2 * D * dt) ** (1 / 2)
-    dy = fun(t, y) * noise_coeff * gaussian()
+    dy = fun(t, y) * dt + noise_coeff * gaussian()
     y = y + dy
     t += dt
 
