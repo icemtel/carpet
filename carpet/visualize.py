@@ -121,7 +121,7 @@ def plot_nodes(coords, phi=None, color=(0.5, 0.5, 0.5), s=100,
 
 
 
-def plot_edges(coords, T1, fig=None, ax=None, zorder=1):
+def plot_edges(coords, T1, fig=None, ax=None, color='red', zorder=1):
     """
     :param zorder: 1 - to plot nodes on top
     """
@@ -135,7 +135,7 @@ def plot_edges(coords, T1, fig=None, ax=None, zorder=1):
     for (coord, translations) in zip(coords, T1):
         for translation in translations:
             points_to_plot = np.array([coord, coord + translation])
-            ax.plot(points_to_plot[:, 0], points_to_plot[:, 1], 'r--', zorder=zorder)
+            ax.plot(points_to_plot[:, 0], points_to_plot[:, 1], '--', color=color, zorder=zorder)
 
     return fig, ax
 
@@ -449,7 +449,7 @@ if __name__ == '__main__':
     OK: plot nodes of a triangular lattice
     +-OK: plot node numbers
     '''
-    import carpet.lattice_triangular as lattice
+    import carpet.lattice.triangular as lattice
 
     a = 10
     nx = 4
@@ -459,7 +459,7 @@ if __name__ == '__main__':
     N1, T1 = lattice.get_neighbours_list(coords, nx, ny, a)
 
 
-    plot_edges(coords, T1)
+    plot_edges(coords, T1, color='blue')
     fig, ax = plot_nodes(coords, phi=np.linspace(0, 2 * np.pi, len(coords)), vmin=0, vmax=2 * np.pi)
 
     plot_node_numbers(coords, a, fig=fig, ax=ax)

@@ -16,11 +16,22 @@ def rms(vec):
     '''
     return np.sqrt(abs(np.mean(vec * np.conj(vec))))
 
+
+def cexp_dist(phi1, phi2=0):
+    '''
+    Distance (normalized by sqrt(ndim), i.e. rms)
+    between complex exponents (as vectors in 2N-Euclidean space);
+    Equivalent to rms(np.exp(1j * phi1) - np.exp(1j * phi2))
+    '''
+    return rms(2 * np.sin(0.5 * (phi1 - phi2)))
+
+
 def cexp(vec):
     '''
     Calculate complex exponent
     '''
     return np.exp(1j * vec)
+
 
 def setup_logging(filename=None, mode='a', print_log_messages=True, level=logging.INFO):
     """
