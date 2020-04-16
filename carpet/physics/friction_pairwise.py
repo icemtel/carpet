@@ -350,6 +350,9 @@ def define_gmat_glob_and_q_glob(set_name, e1, e2, a, neighbours_indices, neighbo
 
                 return sparse.csr_matrix((vals, (rows, cols)), shape=(N, N))
     else:
+        if order1 != order2:
+            raise NotImplementedError("Use of numba is not implemented if max(order_g11) is different from max(order_g12)")
+
         # numba needs numpy arrays
         rows_array = np.array(rows, dtype=np.int)
         cols_array = np.array(cols, dtype=np.int)
@@ -374,6 +377,8 @@ def define_gmat_glob_and_q_glob(set_name, e1, e2, a, neighbours_indices, neighbo
             vals = get_vals_njit(rows_array, cols_array, K3D_array, AT, nvals)
             # Equivalent, but slower: np.einsum('kl,k,l',Kij,AT[:,i],AT[:,j]) # AT[:,i] @ Kij @ AT[:,j]
             return sparse.csr_matrix((vals, (rows, cols)), shape=(N, N))
+
+
 
     ## Define Q(phi)
     ## In this version - calibrate only with self-friction
@@ -464,7 +469,7 @@ if __name__ == "__main__":
           [np.array([18, 0]), np.array([-18, 0])],
           [np.array([18, 0]), np.array([-18, 0])]]
 
-    gmat_glob, q_glob = define_gmat_glob_and_q_glob(set_name, e1, e2, a, N1, T1, order_g11, order_g12, T, use_numba=False)
+    gmat_glob, q_glob = define_gmat_glob_and_q_glob(set_name, e1, e2, a, N1, T1, order_g11, order_g12, T, use_numba=True)
     gmat_glob_test, q_glob_test = physics_test.define_gmat_glob_and_q_glob(set_name, e1, e2, a, N1, T1, order_g11,
                                                                            order_g12, T)
 
