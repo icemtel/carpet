@@ -16,12 +16,28 @@ I start studying networks rather than lattices
 MAYBE: move load_gii_coeff_matrix, load_gij_coeff_matrix to friction
 '''
 import os
+import math
 import numpy as np
 from scipy import linalg as lin, sparse as sparse
 from scipy.sparse.linalg import spsolve
-from carpet.friction import get_basis_function1D, \
-    get_translation_rotation_folder, load_coeffs_from_file, get_friction_coeffs_path
+from carpet.friction import   get_translation_rotation_folder, load_coeffs_from_file, get_friction_coeffs_path
 
+def njit_wrapper(use_numba, *args, **kwargs):
+    '''
+    Wrapper for numba njit decorator
+    If `use_numba` is True - will use @njit with given args and kwargs.
+    Else just uses the function
+    '''
+    if use_numba:
+        from numba import njit
+
+    def decorator(func):
+        if not use_numba:
+            # Return the function unchanged, not decorated.
+            return func
+        else:
+            return njit(func, *args, **kwargs)
+    return decorator
 
 def define_right_side_of_ODE(gmat_glob, q_glob, linear_solver=spsolve):
     '''
@@ -190,24 +206,34 @@ def load_interactions_coeffs_dict(set_name, connections, e1, e2, a, order_g12, e
     return interactions_dict
 
 
-def define_get_basis_matrix(order):
-    basis_functions = [get_basis_function1D(j) for j in range(-order, order + 1)]
-
-    def get_basis_matrix(phi):
+def define_get_basis_matrix(order, N, use_numba=True):
+    @njit_wrapper(use_numba)
+    def get_AT(phi):
         '''
         This is a transpose of Alternant matrix - https://en.wikipedia.org/wiki/Alternant_matrix
         Matrix which entries are each of (2*order+1) basis functions, evaluated at each of N phases.
+        Basis functions [cos(n * phi), cos((n-1)*phi), .. cos(phi), 1, sin(phi),.. sin(n*phi)]; n = order
         :param phi: vector of N phases
         :return: Represented by list of length N with elements - numpy.array of size (2 * order +1)
         '''
-        CS = [np.array([b(phij) for b in basis_functions], dtype=np.float) for phij in phi]
-        return CS
+        # almost the same speed as np.empty, but on windows I had problems with empty; np.ones - slower
+        AT = np.zeros((N, 2 * order + 1))
+     #   print(phi)
+        for j in range(1, order + 1):
+            for i in range(N):
+                phii = phi[i]
+                AT[i, order + j] = math.sin(j * phii)
+                AT[i, order - j] = math.cos(j * phii)
 
-    return get_basis_matrix
+        AT[:, order] = 1
+        return AT
+
+    return get_AT
 
 
 def define_gmat_glob_and_q_glob(set_name, e1, e2, a, neighbours_indices, neighbours_rel_positions,
-                                order_g11, order_g12, period, eps=1e-8):
+                                order_g11, order_g12, period, eps=1e-8,
+                                use_numba=True):
     '''
     Define friction matrix and active driving force.
 
@@ -230,7 +256,14 @@ def define_gmat_glob_and_q_glob(set_name, e1, e2, a, neighbours_indices, neighbo
     :param neighbours_rel_positions: the same structure as `neighbours_indices`; contains relative positions of cilia (taking into account periodicity)
     :param period: period of single cilium beat - used to calibrate active driving force
     :param eps: small number; used to check that cilia positions are at lattice nodes
+    :param use_numba: Whether to optimize execution time with numba;
+                      Reasons not to: 1. numba not installed 2. small system => might be no gain
     '''
+    try:
+        import numba
+    except:
+        raise ImportError("Couldn't import numba. Try to install it, or switch `use_numba=False`.")
+
     N = len(neighbours_indices)  # number of cilia
     # Define a helper functions - transforms from Euclidean to lattice coordinates
     transformation_matrix = lin.inv((np.array([e1, e2]).T)) / a  # from Euclidean to lattice
@@ -281,39 +314,65 @@ def define_gmat_glob_and_q_glob(set_name, e1, e2, a, neighbours_indices, neighbo
     order1 = max(order_g11)
     order2 = max(order_g12)
 
-    get_AT = define_get_basis_matrix(order1)  # alternation matrix transposed
+    get_AT = define_get_basis_matrix(order1, N, use_numba=use_numba)  # alternation matrix transposed
 
-    if order1 == order2:
+    if not use_numba:
+        if order1 == order2:
+            def gmat_glob(phi):
+                AT = get_AT(phi)
+
+                vals = []
+                ## Collect non-zero entries of gij matrix
+                for (i, j, Kij) in zip(rows, cols, K3D):
+                    vals.append(AT[i].dot(Kij.dot(AT[j])))
+                # Equivalent, but slower: np.einsum('kl,k,l',Kij,AT[:,i],AT[:,j]) # AT[:,i] @ Kij @ AT[:,j]
+                vals = np.array(vals, dtype=np.float)
+                return sparse.csr_matrix((vals, (rows, cols)), shape=(N, N))
+
+
+        else:  # If orders are different, have to calculate separate matrices for gii and gij
+            get_AT2 = define_get_basis_matrix(order2, N, use_numba=use_numba)
+
+            def gmat_glob(phi):
+                vals = []
+                ## First N elements - diagonal gii
+                AT = get_AT(phi)
+
+                for (i, j, Kij) in zip(rows, cols, K3D[:N]):
+                    vals.append(AT[i].dot(Kij.dot(AT[j])))
+
+                ## Then gij
+                AT = get_AT2(phi)
+                for (i, j, Kij) in zip(rows[N:], cols[N:], K3D[N:]):
+                    vals.append(AT[i].dot(Kij.dot(AT[j])))
+                # slower: np.einsum('kl,k,l',Kij,CS[:,i],CS[:,j]) # CS[:,i] @ Kij @ CS[:,j]
+                vals = np.array(vals, dtype=np.float)
+
+                return sparse.csr_matrix((vals, (rows, cols)), shape=(N, N))
+    else:
+        # numba needs numpy arrays
+        rows_array = np.array(rows, dtype=np.int)
+        cols_array = np.array(cols, dtype=np.int)
+        K3D_array = np.array(K3D)
+        nvals = len(rows)
+
+        # The same function can be used without numba;
+        # but nested loop is slower than array operations (but only slighter)
+        @njit_wrapper(use_numba=True)
+        def get_vals_njit(rows, cols, K3D, AT, nvals):
+            vals = np.zeros(nvals)
+            for ix in range(nvals):
+                i = rows[ix]
+                j = cols[ix]
+                vals[ix] = AT[i].dot(K3D[ix].dot(AT[j]))
+
+            return vals
+
         def gmat_glob(phi):
             AT = get_AT(phi)
 
-            vals = []
-            ## Collect non-zero entries of gij matrix
-            for (i, j, Kij) in zip(rows, cols, K3D):
-                vals.append(AT[i].dot(Kij.dot(AT[j])))
+            vals = get_vals_njit(rows_array, cols_array, K3D_array, AT, nvals)
             # Equivalent, but slower: np.einsum('kl,k,l',Kij,AT[:,i],AT[:,j]) # AT[:,i] @ Kij @ AT[:,j]
-            vals = np.array(vals, dtype=np.float)
-            return sparse.csr_matrix((vals, (rows, cols)), shape=(N, N))
-
-
-    else:  # If orders are different, have to calculate separate matrices for gii and gij
-        get_AT2 = define_get_basis_matrix(order2)
-
-        def gmat_glob(phi):
-            vals = []
-            ## First N elements - diagonal gii
-            AT = get_AT(phi)
-
-            for (i, j, Kij) in zip(rows, cols, K3D[:N]):
-                vals.append(AT[i].dot(Kij.dot(AT[j])))
-
-            ## Then gij
-            AT = get_AT2(phi)
-            for (i, j, Kij) in zip(rows[N:], cols[N:], K3D[N:]):
-                vals.append(AT[i].dot(Kij.dot(AT[j])))
-            # slower: np.einsum('kl,k,l',Kij,CS[:,i],CS[:,j]) # CS[:,i] @ Kij @ CS[:,j]
-            vals = np.array(vals, dtype=np.float)
-
             return sparse.csr_matrix((vals, (rows, cols)), shape=(N, N))
 
     ## Define Q(phi)
@@ -323,8 +382,9 @@ def define_gmat_glob_and_q_glob(set_name, e1, e2, a, neighbours_indices, neighbo
     ## And the speed gain is not big (not tested)
     freq = 2 * np.pi / period
 
+    get_AT_2cilia = define_get_basis_matrix(order1, 2, use_numba=False)
     def get_gii(phi1, phi2):
-        AT = get_AT([phi1, phi2])
+        AT = get_AT_2cilia([phi1, phi2])
         return AT[0].dot(gii_coeff_mat.dot(AT[1]))
 
     def q_glob(phi):
@@ -336,7 +396,57 @@ def define_gmat_glob_and_q_glob(set_name, e1, e2, a, neighbours_indices, neighbo
     return gmat_glob, q_glob
 
 
+def test_numba_perfomance(set_name, e1, e2, a, neighbours_indices, neighbours_rel_positions,
+                                order_g11, order_g12, period, eps=1e-8,
+                          ntest=100):
+    from timeit import default_timer as timer
+
+
+    gmat_glob_njit, q_glob_njit = define_gmat_glob_and_q_glob(set_name, e1, e2, a, neighbours_indices, neighbours_rel_positions,
+                                order_g11, order_g12, period, eps, use_numba=True)
+    gmat_glob, q_glob = define_gmat_glob_and_q_glob(set_name, e1, e2, a, neighbours_indices, neighbours_rel_positions,
+                                order_g11, order_g12, period, eps, use_numba=False)
+
+    N = len(neighbours_indices)
+    # Initialize numba  - for more accurate time comparison
+    gmat_glob_njit(np.zeros(N))
+
+    njit_times = []
+    no_njit_times = []
+    for itest in range(ntest):
+        phi = 2 * np.pi * np.random.rand(N)
+
+        start = timer()
+        gmat_njit = gmat_glob_njit(phi)
+        end = timer()
+        njit_times.append(end - start)
+
+        start = timer()
+        gmat_no_njit = gmat_glob(phi)
+        end = timer()
+        no_njit_times.append(end - start)
+
+        # Test if they are the same
+        assert np.allclose(gmat_njit.todense(), gmat_no_njit.todense(), rtol=1e-12, atol=1e-12)
+
+
+    mean = np.mean(njit_times) * 1000
+    std = np.std(njit_times)   * 1000
+    print(f"njit:    {mean:.3e}ms+-{std:.3e}ms per loop")
+    mean_njit = float(mean) # copy
+
+    mean = np.mean(no_njit_times) * 1000
+    std = np.std(no_njit_times)   * 1000
+    print(f"no njit: {mean:.3e}ms+-{std:.3e}ms per loop")
+
+    ratio = mean /  mean_njit
+    print(f"Numba makes execution   {ratio:.3e} times faster")
+
 if __name__ == "__main__":
+    '''
+    Tested after added numba:
+    - OK: no numba; orders g11, g12 the same; and different
+    '''
     import matplotlib.pyplot as plt
     import carpet.physics.friction_pairwise_v1 as physics_test
 
@@ -354,7 +464,7 @@ if __name__ == "__main__":
           [np.array([18, 0]), np.array([-18, 0])],
           [np.array([18, 0]), np.array([-18, 0])]]
 
-    gmat_glob, q_glob = define_gmat_glob_and_q_glob(set_name, e1, e2, a, N1, T1, order_g11, order_g12, T)
+    gmat_glob, q_glob = define_gmat_glob_and_q_glob(set_name, e1, e2, a, N1, T1, order_g11, order_g12, T, use_numba=False)
     gmat_glob_test, q_glob_test = physics_test.define_gmat_glob_and_q_glob(set_name, e1, e2, a, N1, T1, order_g11,
                                                                            order_g12, T)
 
@@ -370,3 +480,28 @@ if __name__ == "__main__":
         assert np.allclose(q_glob(phi), q_glob_test(phi), rtol=1e-12, atol=1e-12)
 
     print('pass')
+
+
+    ## Test numba on 6x6 lattice
+    import carpet.lattice.triangular as lattice
+    # Geometry
+    nx = 12
+    ny = 12  # even number
+    N = nx * ny
+    a = 18  # [um] lattice spacing
+
+    L1, L2 = lattice.get_domain_sizes(nx, ny, a)
+    coords, lattice_ids = lattice.get_nodes_and_ids(nx, ny, a)
+    distances = [1, 3 ** (0.5)]
+    N1, T1 = lattice.get_neighbours_list(coords, nx, ny, a, distances)
+    e1, e2 = lattice.get_basis()
+    get_k = lattice.define_get_k(nx, ny, a)
+    get_mtwist = lattice.define_get_mtwist(coords, nx, ny, a)
+
+    # Physics
+    set_name = 'machemer_1'  # hydrodynamic friction coefficients data set
+    period = 31.25  # [ms] period
+    freq = 2 * np.pi / period  # [rad/ms] angular frequency
+    order_g11 = (4, 0)  # order of Fourier expansion of friction coefficients
+
+    test_numba_perfomance(set_name, e1, e2, a, N1, T1, order_g11, order_g12, T)
