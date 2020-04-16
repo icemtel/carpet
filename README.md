@@ -7,6 +7,8 @@ Can be applied to lattices and networks of phase oscillators.
 Run in terminal `python setup.py develop`. 
 - After that package is ready to be imported.
 - Any changes to the code will be applied immediately.
+- Package `numba` is an optional requirement. It speeds up some simulations
+  (`carpet.physics.friction_pairwise.py`)
 
 ## Structure
 - **`carpet`** - importing it immediately gives access to several modules, e.g.
