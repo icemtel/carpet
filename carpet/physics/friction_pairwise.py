@@ -440,7 +440,7 @@ def test_numba_perfomance(set_name, e1, e2, a, neighbours_indices, neighbours_re
     print(f"no njit: {mean:.3e}ms+-{std:.3e}ms per loop")
 
     ratio = mean /  mean_njit
-    print(f"Numba makes execution   {ratio:.3e} times faster")
+    print(f"Numba makes gmat   {ratio:.3e} times faster")
 
 if __name__ == "__main__":
     '''
