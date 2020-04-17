@@ -1,10 +1,10 @@
 '''
 12x12 1-N triangular
 
-Renate:
-tol=1e-6 => 475ms per cycle
-tol=e1-8 => 1.16s per cycle
-stochastic dt=0.01*T => 403ms per period
+Renate+numba:
+tol=1e-6 => 300ms per cycle
+tol=e1-8 => 687s per cycle
+stochastic dt=0.01*T => 236ms per period
 '''
 
 import numpy as np

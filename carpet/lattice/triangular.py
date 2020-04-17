@@ -134,13 +134,11 @@ def define_get_k_naive(nx, ny, a):
     return get_k
 
 
-
-
-
 def define_get_k(nx, ny, a):
     '''
     Checked: get_k is equivalent to get_k_naive: gives the same mtwists mod 2pi
     '''
+
     def shift_integer(k, n, s):
         '''
         :param k,n,s: integers
@@ -152,7 +150,6 @@ def define_get_k(nx, ny, a):
         odd:  - (n1-1) / 2  to  (n1-1)/2
         '''
         return (k + s) % n - s
-
 
     a1dual, a2dual = get_dual_basis(a)
 
@@ -175,7 +172,6 @@ def define_get_k(nx, ny, a):
         return k
 
     return get_k
-
 
 
 def define_get_mtwist(coords, nx, ny, a):
