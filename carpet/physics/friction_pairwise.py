@@ -259,10 +259,11 @@ def define_gmat_glob_and_q_glob(set_name, e1, e2, a, neighbours_indices, neighbo
     :param use_numba: Whether to optimize execution time with numba;
                       Reasons not to: 1. numba not installed 2. small system => might be no gain
     '''
-    try:
-        import numba
-    except:
-        raise ImportError("Couldn't import numba. Try to install it, or switch `use_numba=False`.")
+    if use_numba:
+        try:
+            import numba
+        except:
+            raise ImportError("Couldn't import numba. Try to install it, or switch `use_numba=False`.")
 
     N = len(neighbours_indices)  # number of cilia
     # Define a helper functions - transforms from Euclidean to lattice coordinates
