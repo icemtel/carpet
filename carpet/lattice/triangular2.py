@@ -239,7 +239,7 @@ def get_connections():
 
 
 def define_gmat_glob_and_q_glob(set_name, a, neighbours_indices, neighbours_rel_positions,
-                                order_g11, order_g12, T):
+                                order_g11, order_g12, T, use_numba=True):
     '''
     Shortcut for cilia coupling - keep for backwards compatibility
     :param set_name: e.g. 'machemer_1'
@@ -252,16 +252,14 @@ def define_gmat_glob_and_q_glob(set_name, a, neighbours_indices, neighbours_rel_
     :return: gmat, q_glob  - functions
     '''
     from carpet.physics.friction_pairwise import define_gmat_glob_and_q_glob as define_gmat_glob_and_q_glob0
-
     import warnings
 
     warnings.warn("To be depricated! Import 'coupling' instead", DeprecationWarning)
 
-    connections = get_connections()
     e1, e2 = get_basis()
     return define_gmat_glob_and_q_glob0(set_name, e1, e2, a,
                                         neighbours_indices, neighbours_rel_positions,
-                                        order_g11, order_g12, T)
+                                        order_g11, order_g12, T, use_numba=use_numba)
 
 
 def define_right_side_of_ODE(gmat_glob, q_glob):
