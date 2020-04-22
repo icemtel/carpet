@@ -92,6 +92,43 @@ def get_phase_random(N):
     return phi
 
 
+def define_dump_object(default_output_folder='.'):
+    '''
+    Define a function-shortcut for pickling objects.
+    - Pickling is a way to save python objects to the disk space.
+    - complex objects might get broken (e.g. matplotlib figure)
+    - works well with dictionaries, numpy.arrays
+    - There is a chance that won't be able to load objects on a different python/libraries version.
+    '''
+    import pickle, os
+
+    def dump_object(obj, filename, path=default_output_folder):
+        filename = os.path.join(path, filename)
+        print(filename)
+        with open(filename, 'wb') as f:
+            pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
+
+    return dump_object
+
+
+def define_load_object(default_output_folder='.'):
+    '''
+    Define a function-shortcut for loading (un-pickling) objects.
+    - There is a chance that won't be able to load objects on a different python/libraries version.
+    '''
+    import pickle, os
+
+    def load_object(filename, path=default_output_folder):
+        filename = os.path.join(path, filename)
+        with open(filename, 'rb') as f:
+            obj = pickle.load(f)
+        return obj
+
+    return load_object
+
+
+
+
 if __name__ == '__main__':
     ## Test RMS
     a = np.array([1, 1])
