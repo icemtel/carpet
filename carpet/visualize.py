@@ -121,9 +121,10 @@ def plot_nodes(coords, phi=None, color=(0.5, 0.5, 0.5), s=100,
 
 
 
-def plot_edges(coords, T1, fig=None, ax=None, color='red', zorder=1):
+def plot_edges(coords, T1, fig=None, ax=None, color='red', zorder=1, **kwargs):
     """
     :param zorder: 1 - to plot nodes on top
+    :param kwargs: keyword arguments for plot
     """
 
     # Get a figure and axis to draw on, unless they were already specified in input
@@ -135,7 +136,7 @@ def plot_edges(coords, T1, fig=None, ax=None, color='red', zorder=1):
     for (coord, translations) in zip(coords, T1):
         for translation in translations:
             points_to_plot = np.array([coord, coord + translation])
-            ax.plot(points_to_plot[:, 0], points_to_plot[:, 1], '--', color=color, zorder=zorder)
+            ax.plot(points_to_plot[:, 0], points_to_plot[:, 1], '--', color=color, zorder=zorder, **kwargs)
 
     return fig, ax
 
