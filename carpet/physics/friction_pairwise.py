@@ -20,7 +20,8 @@ import math
 import numpy as np
 from scipy import linalg as lin, sparse as sparse
 from scipy.sparse.linalg import spsolve
-from carpet.friction import   get_translation_rotation_folder, load_coeffs_from_file, get_friction_coeffs_path
+from carpet.friction import get_translation_rotation_folder, load_coeffs_from_file, get_friction_coeffs_path
+
 
 def njit_wrapper(use_numba, *args, **kwargs):
     '''
@@ -37,7 +38,9 @@ def njit_wrapper(use_numba, *args, **kwargs):
             return func
         else:
             return njit(func, *args, **kwargs)
+
     return decorator
+
 
 def define_right_side_of_ODE(gmat_glob, q_glob, linear_solver=spsolve):
     '''
@@ -218,7 +221,7 @@ def define_get_basis_matrix(order, N, use_numba=True):
         '''
         # almost the same speed as np.empty, but on windows I had problems with empty; np.ones - slower
         AT = np.zeros((N, 2 * order + 1))
-     #   print(phi)
+        #   print(phi)
         for j in range(1, order + 1):
             for i in range(N):
                 phii = phi[i]
@@ -346,7 +349,8 @@ def define_gmat_glob_and_q_glob(set_name, e1, e2, a, neighbours_indices, neighbo
                 return sparse.csr_matrix((vals, (rows, cols)), shape=(N, N))
     else:
         if order1 != order2:
-            raise NotImplementedError("Use of numba is not implemented if max(order_g11) is different from max(order_g12)")
+            raise NotImplementedError(
+                "Use of numba is not implemented if max(order_g11) is different from max(order_g12). Try `use_numba=False`")
 
         # numba needs numpy arrays
         rows_array = np.array(rows, dtype=np.int)
@@ -373,8 +377,6 @@ def define_gmat_glob_and_q_glob(set_name, e1, e2, a, neighbours_indices, neighbo
             # Equivalent, but slower: np.einsum('kl,k,l',Kij,AT[:,i],AT[:,j]) # AT[:,i] @ Kij @ AT[:,j]
             return sparse.csr_matrix((vals, (rows, cols)), shape=(N, N))
 
-
-
     ## Define Q(phi)
     ## In this version - calibrate only with self-friction
     ## Could optimize this and calculate right_side_of_ODE straight away
@@ -383,6 +385,7 @@ def define_gmat_glob_and_q_glob(set_name, e1, e2, a, neighbours_indices, neighbo
     freq = 2 * np.pi / period
 
     get_AT_2cilia = define_get_basis_matrix(order1, 2, use_numba=False)
+
     def get_gii(phi1, phi2):
         AT = get_AT_2cilia([phi1, phi2])
         return AT[0].dot(gii_coeff_mat.dot(AT[1]))
@@ -397,15 +400,15 @@ def define_gmat_glob_and_q_glob(set_name, e1, e2, a, neighbours_indices, neighbo
 
 
 def test_numba_perfomance(set_name, e1, e2, a, neighbours_indices, neighbours_rel_positions,
-                                order_g11, order_g12, period, eps=1e-8,
+                          order_g11, order_g12, period, eps=1e-8,
                           ntest=100):
     from timeit import default_timer as timer
 
-
-    gmat_glob_njit, q_glob_njit = define_gmat_glob_and_q_glob(set_name, e1, e2, a, neighbours_indices, neighbours_rel_positions,
-                                order_g11, order_g12, period, eps, use_numba=True)
+    gmat_glob_njit, q_glob_njit = define_gmat_glob_and_q_glob(set_name, e1, e2, a, neighbours_indices,
+                                                              neighbours_rel_positions,
+                                                              order_g11, order_g12, period, eps, use_numba=True)
     gmat_glob, q_glob = define_gmat_glob_and_q_glob(set_name, e1, e2, a, neighbours_indices, neighbours_rel_positions,
-                                order_g11, order_g12, period, eps, use_numba=False)
+                                                    order_g11, order_g12, period, eps, use_numba=False)
 
     N = len(neighbours_indices)
     # Initialize numba  - for more accurate time comparison
@@ -429,18 +432,18 @@ def test_numba_perfomance(set_name, e1, e2, a, neighbours_indices, neighbours_re
         # Test if they are the same
         assert np.allclose(gmat_njit.todense(), gmat_no_njit.todense(), rtol=1e-12, atol=1e-12)
 
-
     mean = np.mean(njit_times) * 1000
-    std = np.std(njit_times)   * 1000
+    std = np.std(njit_times) * 1000
     print(f"njit:    {mean:.3e}ms+-{std:.3e}ms per loop")
-    mean_njit = float(mean) # copy
+    mean_njit = float(mean)  # copy
 
     mean = np.mean(no_njit_times) * 1000
-    std = np.std(no_njit_times)   * 1000
+    std = np.std(no_njit_times) * 1000
     print(f"no njit: {mean:.3e}ms+-{std:.3e}ms per loop")
 
-    ratio = mean /  mean_njit
+    ratio = mean / mean_njit
     print(f"Numba makes gmat   {ratio:.3e} times faster")
+
 
 if __name__ == "__main__":
     '''
@@ -464,7 +467,8 @@ if __name__ == "__main__":
           [np.array([18, 0]), np.array([-18, 0])],
           [np.array([18, 0]), np.array([-18, 0])]]
 
-    gmat_glob, q_glob = define_gmat_glob_and_q_glob(set_name, e1, e2, a, N1, T1, order_g11, order_g12, T, use_numba=True)
+    gmat_glob, q_glob = define_gmat_glob_and_q_glob(set_name, e1, e2, a, N1, T1, order_g11, order_g12, T,
+                                                    use_numba=True)
     gmat_glob_test, q_glob_test = physics_test.define_gmat_glob_and_q_glob(set_name, e1, e2, a, N1, T1, order_g11,
                                                                            order_g12, T)
 
@@ -481,9 +485,9 @@ if __name__ == "__main__":
 
     print('pass')
 
-
     ## Test numba on 6x6 lattice
     import carpet.lattice.triangular as lattice
+
     # Geometry
     nx = 12
     ny = 12  # even number

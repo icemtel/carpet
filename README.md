@@ -37,6 +37,10 @@ Run in terminal `python setup.py develop`.
 
 TODO: update requirements to python 3.7, etc
 
+## Backwards compatibility
+- Some scripts might work on older versions of `carpet`. Important changes are usually tagged 
+  (see them with `git tag`)
+
 ## How to use
 
 - See examples
