@@ -138,6 +138,7 @@ def define_get_k(nx, ny, a):
     '''
     Checked: get_k is equivalent to get_k_naive: gives the same mtwists mod 2pi
     '''
+    assert ny % 2 == 0 # check that ny is even
 
     def shift_integer(k, n, s):
         '''
@@ -165,7 +166,7 @@ def define_get_k(nx, ny, a):
         :return:
         '''
         div = (k1 + shiftx) // nx
-        k2 = k2 - ny * div / 2  # shift k2 as a response on shift in k1 - needed in triangular lattice
+        k2 = k2 - ny * div // 2  # shift k2 as a response on shift in k1 - needed in triangular lattice
 
         k = shift_integer(k1, nx, shiftx) * a1dual / nx + shift_integer(k2, ny, shifty) * a2dual / ny
 
