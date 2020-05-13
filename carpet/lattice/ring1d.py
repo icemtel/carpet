@@ -148,7 +148,7 @@ def define_gmat_glob_and_q_glob(set_name, a, direction, neighbours_indices, neig
     from carpet.physics.friction_pairwise import define_gmat_glob_and_q_glob as define_gmat_glob_and_q_glob0
     import warnings
 
-    warnings.warn("To be depricated! Import 'coupling' instead", DeprecationWarning)
+    warnings.warn("To be depricated! Import 'physics' instead")
 
     connections = get_connections()
     e1,e2 = get_basis(direction)
@@ -160,7 +160,7 @@ def define_right_side_of_ODE(gmat_glob, q_glob):
     import carpet.physics.friction_pairwise as coupling
     import warnings
 
-    warnings.warn("To be depricated! Import 'coupling' instead", DeprecationWarning)
+    warnings.warn("To be depricated! Import 'physics' instead")
 
     return coupling.define_right_side_of_ODE(gmat_glob, q_glob)
 
