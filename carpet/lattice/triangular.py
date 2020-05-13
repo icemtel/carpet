@@ -9,6 +9,8 @@ import math
 import numpy as np
 from scipy.linalg import norm
 
+from carpet.various import get_basis_dual
+
 
 def get_cell_sizes(a):
     cell_length = a
@@ -111,24 +113,39 @@ def get_neighbours_list(coords, nx, ny, a, distances=(1,)):
     return N1, T1
 
 
-### mtwist solutions ###
+### Wave vectors and reciprocal lattice ###
 
-def get_dual_basis(a):
-    # Reciprocal lattice for rectangular unit cell
+def get_basis_dual_domain(nx, ny, a):
+    '''
+    Reciprocal vectors for rectangular domain
+    '''
     e1, e2 = get_basis()
-    a1 = e1
-    a2 = (2 * e2 - e1) / 2
-    R = np.array([[0, 1], [-1, 0]])  # rotation by 90deg
-    a1dual = 2 * np.pi * (R @ a2) / (a1 @ (R @ a2)) / a
-    a2dual = 2 * np.pi * (R @ a1) / (a2 @ (R @ a1)) / a
-    return a1dual, a2dual  # [1/L]
+    a1 = nx * a * e1
+    a2 = ny * a * (2 * e2 - e1) / 2
+    b1, b2 = get_basis_dual(a1, a2)
+    return b1, b2  # [rad/L]
+
+def get_basis_dual_cell(a):
+    '''
+    Reciprocal vectors for the triangular unit
+    '''
+    e1, e2 = get_basis()
+    a1 = a * e1
+    a2 = a * e2
+    b1,b2 = get_basis_dual(a1, a2)
+    return b1, b2 # [rad/L]
 
 
 def define_get_k_naive(nx, ny, a):
-    a1dual, a2dual = get_dual_basis(a)
+    '''
+    The simplest way to get a wave vector from the dual basis.
+    Other functions shift wave vector k to a different unit cell of reciprocal lattice.
+    :return: wave vector k [rad/L]
+    '''
+    a1dual, a2dual = get_basis_dual_domain(nx,ny, a)
 
     def get_k(k1, k2):  # get wave vector corresponding to wave numbers
-        k = k1 * a1dual / nx + k2 * a2dual / ny
+        k = k1 * a1dual + k2 * a2dual
         return k
 
     return get_k
@@ -136,9 +153,13 @@ def define_get_k_naive(nx, ny, a):
 
 def define_get_k(nx, ny, a):
     '''
-    Checked: get_k is equivalent to get_k_naive: gives the same mtwists mod 2pi
+    Checked: get_k is equivalent to get_k_naive: gives the same phase vectors mod 2pi
     '''
-    assert ny % 2 == 0 # check that ny is even
+    import warnings
+    warnings.warn("To be depricated! Returns vectors from a rectangular, rather than hexagonal cell (FBZ)",
+                  DeprecationWarning)
+
+    assert ny % 2 == 0  # check that ny is even
 
     def shift_integer(k, n, s):
         '''
@@ -152,7 +173,7 @@ def define_get_k(nx, ny, a):
         '''
         return (k + s) % n - s
 
-    a1dual, a2dual = get_dual_basis(a)
+    a1dual, a2dual = get_basis_dual_domain(nx,ny, a)
 
     nxhalf = nx // 2
     nyhalf = ny // 2
@@ -168,15 +189,61 @@ def define_get_k(nx, ny, a):
         div = (k1 + shiftx) // nx
         k2 = k2 - ny * div // 2  # shift k2 as a response on shift in k1 - needed in triangular lattice
 
-        k = shift_integer(k1, nx, shiftx) * a1dual / nx + shift_integer(k2, ny, shifty) * a2dual / ny
+        k = shift_integer(k1, nx, shiftx) * a1dual + shift_integer(k2, ny, shifty) * a2dual
 
         return k
 
     return get_k
 
 
+def define_shift_k_to_fbz(a):
+    def project(vec, basis_vec):
+        basis_vec = np.asarray(basis_vec)
+        return vec @ basis_vec / (basis_vec @ basis_vec)
+
+    def decompose_recip(k):
+        # decompose a vector to vectors b1,b2,b3 (double of normals of the hexagon cell)
+        ms = np.array([project(k, bi) for bi in bs])
+        return ms
+
+    b1, b2 = get_basis_dual_cell(a)
+    b3 = b1 + b2
+    bs = [b1, b2, b3]
+
+    def k_to_fbz(k, eps=1e-8):
+        k = np.array(k)
+        num_iter = 0
+        ms = decompose_recip(k)
+
+        while np.amax(abs(ms)) > 0.5 + eps and num_iter < 10:  # +eps to acccount for numerical edge case
+            i = int(np.argmax(abs(ms)))  # start with the direction with the biggest projection
+            mi = ms[i]
+            bi = bs[i]
+            k -= bi * np.round(mi)  # shift by integer value
+            ms = decompose_recip(k)
+            num_iter += 1
+        if num_iter == 10:
+            raise ValueError("Didn't converge to a unit cell - check algorithm!")
+        return k
+
+    return k_to_fbz
+
+
+def define_get_k_fbz(nx, ny, a):
+    assert ny % 2 == 0  # check that ny is even
+    get_k_naive = define_get_k_naive(nx, ny, a)
+    k_to_fbz = define_shift_k_to_fbz(a)
+
+    def get_k(k1, k2, eps=1e-8):
+        k = get_k_naive(k1, k2)
+        return k_to_fbz(k, eps)
+
+    return get_k
+
+
+
 def define_get_mtwist(coords, nx, ny, a):
-    get_k = define_get_k(nx, ny, a)
+    get_k = define_get_k_naive(nx, ny, a)
 
     def mod(x):
         '''
@@ -313,7 +380,7 @@ if __name__ == '__main__':
 
     ### Check get_k vs get_k_naive:
     ## Result: they are equivalent
-    get_k = define_get_k(nx, ny, a)
+    get_k = define_get_k_fbz(nx, ny, a)
     get_k_naive = define_get_k_naive(nx, ny, a)
 
     for k1 in range(nx):
@@ -323,11 +390,29 @@ if __name__ == '__main__':
             k = get_k(k1, k2)
             k_naive = get_k_naive(k1, k2)
 
-            for coord in coords:
-                if abs(np.exp(1j * k @ coord) - np.exp(1j * k_naive @ coord)) > 10 ** -8:
-                    print('WHOOPS')
-                # print("whoops", k, k_naive)
+            for c in coords:
+                assert np.allclose(np.exp(1j * k_naive @ c), np.exp(1j * k @ c))
+
+    # Check: get_k_fbz maps to FBZ (hexagon)
+    b1, b2 = get_basis_dual_cell(a)
+    n1 = b1 / 2    # hexagon_from_edge_to_origin *np.array([0,1])
+    n2 = b2 / 2
+    n3 = n1 + n2
+    ns = [n1, n2, n3]
+
+    for _ in range(100):
+        k1, k2 = np.random.randint(100, size=2) # test on random wave numbers
+        k_naive = get_k_naive(k1, k2)
+        k = get_k(k1, k2)
+
+        # Check that wave vectors are equivalent
+        for c in coords:
+            assert np.allclose(np.exp(1j * k_naive @ c), np.exp(1j * k @ c))
+
+        # Check that it's whithin the hexagon borders
+        for nvec in ns:
+            assert abs(k @ nvec) / (nvec @ nvec) <= 1 + 1e-8 # small number to account for numerical edge cases
 
     ## Dual basis?
     print(get_cell_sizes(a))
-    print(get_dual_basis(a))
+    print(get_basis_dual_domain(nx,ny, a))

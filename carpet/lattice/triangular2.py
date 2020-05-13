@@ -160,6 +160,11 @@ def define_get_k(nx, ny, a):
     '''
     Checked: get_k is equivalent to get_k_naive: gives the same mtwists mod 2pi
     '''
+    import warnings
+    warnings.warn("To be depricated! Returns vectors from a rectangular, rather than hexagonal cell (FBZ)",
+                  DeprecationWarning)
+
+    assert nx % 2 == 0 # check that nx is even
 
     def shift_integer(k, n, s):
         '''

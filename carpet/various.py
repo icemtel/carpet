@@ -143,3 +143,14 @@ if __name__ == '__main__':
     #   logging.warning("THIS IS WARNING!")
     #   logging.debug("THIS IS A DEBUG MESSAGE! IT SHOULDN't BE DISPLAYED!!")
     #   logger.info("Can also log this")
+
+
+def get_basis_dual(a1,a2):
+    '''
+    :param a1, a2: basis vectors
+    :return: dual basis vectors; https://en.wikipedia.org/wiki/Reciprocal_lattice
+    '''
+    R = np.array([[0, 1], [-1, 0]])  # rotation by 90deg
+    b1 = 2 * np.pi * (R @ a2) / (a1 @ (R @ a2))
+    b2 = 2 * np.pi * (R @ a1) / (a2 @ (R @ a1))
+    return b1, b2
