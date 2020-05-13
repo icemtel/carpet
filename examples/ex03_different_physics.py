@@ -18,7 +18,7 @@ L1, L2 = lattice.get_domain_sizes(nx, ny, a)
 coords, lattice_ids = lattice.get_nodes_and_ids(nx, ny, a)
 N1, T1 = lattice.get_neighbours_list(coords, nx, ny, a)
 e1, e2 = lattice.get_basis()
-get_k = lattice.define_get_k(nx, ny, a)
+get_k = lattice.define_get_k_fbz(nx, ny, a)
 get_mtwist = lattice.define_get_mtwist(coords, nx, ny, a)
 
 # ====Physics====
