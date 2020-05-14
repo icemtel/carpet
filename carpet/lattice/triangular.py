@@ -240,6 +240,34 @@ def define_get_k_fbz(nx, ny, a):
     return get_k
 
 
+def define_get_k_fbz_all(nx, ny, a):
+    assert ny % 2 == 0  # check that ny is even
+    get_k_fbz = define_get_k_fbz(nx,ny, a)
+
+    b1, b2 = get_basis_dual_cell(a)
+    b3 = b1 + b2
+    bs = [b1, b2, b3]
+
+    def get_k_all(k1, k2, eps=1e-8):
+        """
+        Return a list of all possible representations of wave vector with wave numbers (k1,k2)
+        in the first Brillouin zone: 1 - if inside, 2 - if on the edge, 3 - in vertex
+        """
+        k = get_k_fbz(k1,k2)
+        ks = [k]
+        knorm = norm(k)
+        # Shift k in all lattice directions; if it still whithin FBZ (<=> equal norm)
+        # => add it to the list
+        for b in bs:
+            for sign in [-1, 1]:
+                if abs(norm(k + sign * b) - knorm) < eps:
+                    ks.append(k + sign * b)
+
+        return ks
+
+    return get_k_all
+
+
 
 def define_get_mtwist(coords, nx, ny, a):
     get_k = define_get_k_naive(nx, ny, a)
