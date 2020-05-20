@@ -1,5 +1,5 @@
 """
-The example with nx=3, ny=4 should run ~1.5secs
+The example with nx=3, ny=4. `solve_cycle` should run ~1.5secs
 """
 import time
 import numpy as np
@@ -25,13 +25,13 @@ N = nx * ny
 # Geometry
 L1, L2 = lattice.get_domain_sizes(nx, ny, a)
 coords, lattice_ids = lattice.get_nodes_and_ids(nx, ny, a)  # get cilia (nodes) coordinates
-N1, T1 = lattice.get_neighbours_list(coords, nx, ny, a)  # get list of neighbours and relative positions
+NN, TT = lattice.get_neighbours_list(coords, nx, ny, a)  # get list of neighbours and relative positions
 e1, e2 = lattice.get_basis()
 get_k = lattice.define_get_k_fbz(nx, ny, a)
 get_mtwist = lattice.define_get_mtwist(coords, nx, ny, a)
 
 # Physics
-gmat_glob, q_glob = physics.define_gmat_glob_and_q_glob(set_name, e1, e2, a, N1, T1, order_g11, order_g12, period,
+gmat_glob, q_glob = physics.define_gmat_glob_and_q_glob(set_name, e1, e2, a, NN, TT, order_g11, order_g12, period,
                                                         use_numba=False)
 right_side_of_ODE = physics.define_right_side_of_ODE(gmat_glob, q_glob)
 solve_cycle = carpet.define_solve_cycle(right_side_of_ODE, 2 * period, phi_global_func=carpet.get_mean_phase)

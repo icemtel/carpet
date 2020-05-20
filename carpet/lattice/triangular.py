@@ -196,6 +196,11 @@ def define_get_k(nx, ny, a):
 
 
 def define_shift_k_to_fbz(a):
+    '''
+    Defines a function, which get any wave vector, and shifts it into the first Brillouin zone
+    :param a:
+    :return:
+    '''
     def project(vec, basis_vec):
         basis_vec = np.asarray(basis_vec)
         return vec @ basis_vec / (basis_vec @ basis_vec)
