@@ -70,8 +70,12 @@ def get_neighbours_list(coords, nx, ny, a, distances=(1,)):
                 Assumption: d * a < max(L1,L2)
     :return: list of neighbours, list of relative neighbour positions
     '''
-    eps = 10 ** -4 * a
+    if nx == 2 or ny == 2:
+        import warnings
+        warnings.warn("nx=2 or ny=2 => wrong number of neighbours (5 or 4)\n"
+                      "some oscillators were supposed to be connected twice, but this is not implemented")
 
+    eps = 10 ** -4 * a
     L1, L2 = get_domain_sizes(nx, ny, a)
     if max(distances) * a >= max([L1, L2]):
         raise NotImplementedError("Assumption: d * a < max(L1,L2) is not satisfied")
