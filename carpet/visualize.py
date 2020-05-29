@@ -83,11 +83,12 @@ def landscape_figure(height):
 def plot_nodes(coords, phi=None, color=(0.5, 0.5, 0.5), s=100,
                 cmap = 'hsv',
                 colorbar=True, vmin=0, vmax=2 * np.pi, zorder=2,
-                fig=None, ax=None):
+                fig=None, ax=None, **kwargs):
     '''
     :param color: if no phi is given, use this color to color all nodes
     :param s: point size - 1 number or a list
-    :param zorder: 2: to plot on top of edges
+    :param zorder: zorder=2 to plot on top of edges
+    :param kwargs: dictionary of keyword arguments for scatter
     '''
     # Get a figure and axis to draw on, unless they were already specified in input
     if ax is None:
@@ -96,9 +97,9 @@ def plot_nodes(coords, phi=None, color=(0.5, 0.5, 0.5), s=100,
         fig = plt.gcf()
 
     if phi is not None:
-        colors = phi
+        kwargs['c'] = phi
     else:
-        colors = color
+        kwargs['color'] = color
     # Plot nodes
     ax.set_aspect('equal')
     #  plt.gca().get_xaxis().set_visible(False)
@@ -108,7 +109,8 @@ def plot_nodes(coords, phi=None, color=(0.5, 0.5, 0.5), s=100,
     norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
     # if isinstance(cmap, str):
     #     cmap = colors.Colormap(cmap)
-    cax = ax.scatter(coords[:, 0], coords[:, 1], c=colors, norm=norm, cmap=cmap, s=s, zorder=zorder) # , markersize=24
+    cax = ax.scatter(coords[:, 0], coords[:, 1], norm=norm, cmap=cmap, s=s, zorder=zorder,
+                     **kwargs) # , markersize=24
 
     ## Colorbar
     if colorbar is True and phi is not None:
