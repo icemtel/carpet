@@ -243,7 +243,7 @@ def _midpoint_imshow(vals, x1_min, x1_max, x2_min, x2_max, ax=None, colorbar=Tru
 
 def phase_plot(vals, ax=None, colorbar=True,
                title=None, midpoint=None, norm=None, cmap=None,
-               xlabel=r'$\phi_1$', ylabel=r'$\phi_2$',
+               xlabel=r'$\varphi_1$', ylabel=r'$\varphi_2$',
                phase_colored_lines=True, num_phases=20,
                **kwargs):
     '''

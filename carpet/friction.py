@@ -32,7 +32,7 @@ def get_basis_function(j1, j2):
     a = get_basis_function1D(j1)
     b = get_basis_function1D(j2)
     return lambda x1, x2: a(x1) * b(x2)
-    # basis1D_dict[j1](x1) * basis1D_dict[j2](x2) ! dont make one-liner, it runs slower
+    # basis1D_dict[j1](x1) * basis1D_dict[j2](x2) -> shorter, but runs slower
 
 
 # Compute value of two-dimensional Fourier series, given its list of coefficients
