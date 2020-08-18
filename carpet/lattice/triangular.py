@@ -50,8 +50,9 @@ def get_nodes_and_ids(nx, ny, a):
     coords = []  # list of position vectors for honeycomb lattice
     lattice_ids = []  # list of corresponding lattice indices (n,m)
 
-    for n in range(-2 * nx, 2 * nx):
-        for m in range(0, 2 * ny):
+    nmax = max(nx, ny)
+    for n in range(- nmax, nmax):
+        for m in range(0, nmax):
             x = n * a * e1 + m * a * e2  # position vector
             # position vector within bounds?
             if (x[0] >= 0 - eps) and (x[1] >= 0 - eps) and (x[0] < L1 - eps) and (x[1] < L2 - cell_height + eps):
@@ -75,7 +76,7 @@ def get_neighbours_list(coords, nx, ny, a, distances=(1,)):
                 Assumption: d * a < max(L1,L2)
     :return: list of neighbours, list of relative neighbour positions
     '''
-    if nx == 2 or ny ==2:
+    if nx == 2 or ny == 2:
         import warnings
         warnings.warn("nx=2 or ny=2 => wrong number of neighbours (5 or 4)\n"
                       "some oscillators were supposed to be connected twice, but this is not implemented")
@@ -129,6 +130,7 @@ def get_basis_dual_domain(nx, ny, a):
     b1, b2 = get_basis_dual(a1, a2)
     return b1, b2  # [rad/L]
 
+
 def get_basis_dual_cell(a):
     '''
     Reciprocal vectors for the triangular unit
@@ -136,8 +138,8 @@ def get_basis_dual_cell(a):
     e1, e2 = get_basis()
     a1 = a * e1
     a2 = a * e2
-    b1,b2 = get_basis_dual(a1, a2)
-    return b1, b2 # [rad/L]
+    b1, b2 = get_basis_dual(a1, a2)
+    return b1, b2  # [rad/L]
 
 
 def define_get_k_naive(nx, ny, a):
@@ -146,7 +148,7 @@ def define_get_k_naive(nx, ny, a):
     Other functions shift wave vector k to a different unit cell of reciprocal lattice.
     :return: wave vector k [rad/L]
     '''
-    a1dual, a2dual = get_basis_dual_domain(nx,ny, a)
+    a1dual, a2dual = get_basis_dual_domain(nx, ny, a)
 
     def get_k(k1, k2):  # get wave vector corresponding to wave numbers
         k = k1 * a1dual + k2 * a2dual
@@ -176,7 +178,7 @@ def define_get_k(nx, ny, a):
         '''
         return (k + s) % n - s
 
-    a1dual, a2dual = get_basis_dual_domain(nx,ny, a)
+    a1dual, a2dual = get_basis_dual_domain(nx, ny, a)
 
     nxhalf = nx // 2
     nyhalf = ny // 2
@@ -205,6 +207,7 @@ def define_shift_k_to_fbz(a):
     :param a:
     :return:
     '''
+
     def project(vec, basis_vec):
         basis_vec = np.asarray(basis_vec)
         return vec @ basis_vec / (basis_vec @ basis_vec)
@@ -251,7 +254,7 @@ def define_get_k_fbz(nx, ny, a):
 
 def define_get_k_fbz_all(nx, ny, a):
     assert ny % 2 == 0  # check that ny is even
-    get_k_fbz = define_get_k_fbz(nx,ny, a)
+    get_k_fbz = define_get_k_fbz(nx, ny, a)
 
     b1, b2 = get_basis_dual_cell(a)
     b3 = b1 + b2
@@ -262,7 +265,7 @@ def define_get_k_fbz_all(nx, ny, a):
         Return a list of all possible representations of wave vector with wave numbers (k1,k2)
         in the first Brillouin zone: 1 - if inside, 2 - if on the edge, 3 - in vertex
         """
-        k = get_k_fbz(k1,k2)
+        k = get_k_fbz(k1, k2)
         ks = [k]
         knorm = norm(k)
         # Shift k in all lattice directions; if it still whithin FBZ (<=> equal norm)
@@ -275,7 +278,6 @@ def define_get_k_fbz_all(nx, ny, a):
         return ks
 
     return get_k_all
-
 
 
 def define_get_mtwist(coords, nx, ny, a):
@@ -431,13 +433,13 @@ if __name__ == '__main__':
 
     # Check: get_k_fbz maps to FBZ (hexagon)
     b1, b2 = get_basis_dual_cell(a)
-    n1 = b1 / 2    # hexagon_from_edge_to_origin *np.array([0,1])
+    n1 = b1 / 2  # hexagon_from_edge_to_origin *np.array([0,1])
     n2 = b2 / 2
     n3 = n1 + n2
     ns = [n1, n2, n3]
 
     for _ in range(100):
-        k1, k2 = np.random.randint(100, size=2) # test on random wave numbers
+        k1, k2 = np.random.randint(100, size=2)  # test on random wave numbers
         k_naive = get_k_naive(k1, k2)
         k = get_k(k1, k2)
 
@@ -447,8 +449,8 @@ if __name__ == '__main__':
 
         # Check that it's whithin the hexagon borders
         for nvec in ns:
-            assert abs(k @ nvec) / (nvec @ nvec) <= 1 + 1e-8 # small number to account for numerical edge cases
+            assert abs(k @ nvec) / (nvec @ nvec) <= 1 + 1e-8  # small number to account for numerical edge cases
 
     ## Dual basis?
     print(get_cell_sizes(a))
-    print(get_basis_dual_domain(nx,ny, a))
+    print(get_basis_dual_domain(nx, ny, a))

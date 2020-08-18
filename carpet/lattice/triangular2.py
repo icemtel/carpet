@@ -45,8 +45,10 @@ def get_nodes_and_ids(nx, ny, a):
     coords = []  # list of position vectors for honeycomb lattice
     lattice_ids = []  # list of corresponding lattice indices (n,m)
 
-    for n in range(-2 * nx, 2 * nx):
-        for m in range(- 2 * ny, 2 * ny):
+
+    nmax = max(nx, ny)
+    for n in range(0, nmax):
+        for m in range(- nmax, nmax):
             x = n * a * e1 + m * a * e2  # position vector
             # position vector within bounds?
             if (x[0] >= 0 - eps) and (x[1] >= 0 - eps) and (x[0] < L1 - cell_length + eps) and (x[1] < L2 - eps):
