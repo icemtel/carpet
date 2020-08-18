@@ -8,7 +8,7 @@
 import logging
 import sys
 import numpy as np
-
+import math
 
 def rms(vec):
     '''
@@ -126,6 +126,17 @@ def define_load_object(default_output_folder='.'):
 
     return load_object
 
+
+def mod2pi(x):
+    '''
+    fmod(x,y) is not equivalent to (x % y): https://docs.python.org/3/library/math.html and
+    is preferred when working with floats
+    :return: a value in interval from 0 to 2pi
+    '''
+    x = math.fmod(x, 2 * np.pi)
+    if x < 0:
+        x += 2 * np.pi
+    return x
 
 
 

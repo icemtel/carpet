@@ -9,7 +9,7 @@ import math
 import numpy as np
 from scipy.linalg import norm
 
-from carpet.various import get_basis_dual
+from carpet.various import get_basis_dual, mod2pi
 
 
 def get_cell_sizes(a):
@@ -283,18 +283,6 @@ def define_get_k_fbz_all(nx, ny, a):
 def define_get_mtwist(coords, nx, ny, a):
     get_k = define_get_k_naive(nx, ny, a)
 
-    def mod(x):
-        '''
-        fmod(x,y) is not equivalent to (x % y): https://docs.python.org/3/library/math.html and
-        is preferred when working with floats
-        :return: a value in interval from 0 to 2pi
-        '''
-        x = math.fmod(x, 2 * np.pi)
-        if x < 0:
-            x += 2 * np.pi
-        return x
-
-    # Fill mtwist array
     mtwist_phi = np.zeros((nx, ny, nx * ny))
 
     for k1 in range(nx):
@@ -302,7 +290,7 @@ def define_get_mtwist(coords, nx, ny, a):
             # wave vector
             k = get_k(k1, k2)  # k1 * a1dual / nx + k2 * a2dual / ny
             for ix in range(nx * ny):
-                mtwist_phi[k1, k2, ix] = mod(- np.dot(k, coords[ix, :]))
+                mtwist_phi[k1, k2, ix] = mod2pi(- np.dot(k, coords[ix, :]))
 
     def get_mtwist(k1, k2):
         return np.array(mtwist_phi[k1, k2])
