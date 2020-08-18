@@ -53,7 +53,7 @@ vis.plot_nodes(coords, phi=phi)
 plt.ylim([-L1 / 10, L1 / 10])
 plt.show()
 
-# =====Lattice 1=====
+# =====Lattice Triangular 1=====
 import carpet.lattice.triangular as lattice
 
 # Geometry
@@ -76,7 +76,7 @@ vis.plot_edges(coords, TT)
 vis.plot_nodes(coords, phi=phi)
 plt.show()
 
-# ====Lattice 2=====
+# ====Lattice Triangular 2=====
 import carpet.lattice.triangular2 as lattice
 
 # Geometry
@@ -92,6 +92,29 @@ coords, lattice_ids = lattice.get_nodes_and_ids(nx, ny, a)  # get cilia (nodes) 
 NN, TT = lattice.get_neighbours_list(coords, nx, ny, a)  # get list of neighbours and relative positions
 e1, e2 = lattice.get_basis()
 get_k = lattice.define_get_k(nx, ny, a)
+get_mtwist = lattice.define_get_mtwist(coords, nx, ny, a)
+
+phi = get_mtwist(2, 0)  # sp.zeros([len(coords)])
+vis.plot_edges(coords, TT)
+vis.plot_nodes(coords, phi=phi)
+plt.show()
+
+# =====Lattice Rectangular=====
+import carpet.lattice.rectangular as lattice
+
+# Geometry
+a = 18  # [um]
+nx = 3  # number of cilia in x-direction
+ny = 4
+N = nx * ny
+
+## Initialize
+# Geometry
+L1, L2 = lattice.get_domain_sizes(nx, ny, a)
+coords, lattice_ids = lattice.get_nodes_and_ids(nx, ny, a)  # get cilia (nodes) coordinates
+NN, TT = lattice.get_neighbours_list(coords, nx, ny, a)  # get list of neighbours and relative positions
+e1, e2 = lattice.get_basis()
+get_k = lattice.define_get_k_fbz(nx, ny, a)
 get_mtwist = lattice.define_get_mtwist(coords, nx, ny, a)
 
 phi = get_mtwist(2, 0)  # sp.zeros([len(coords)])

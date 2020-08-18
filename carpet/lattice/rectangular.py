@@ -30,7 +30,7 @@ def get_domain_sizes(nx, ny, a):
     return L1, L2
 
 
-def get_nodes_and_ids_new(nx, ny, a):
+def get_nodes_and_ids(nx, ny, a):
     '''
     '''
     e1, e2 = get_basis()
@@ -255,7 +255,7 @@ if __name__ == '__main__':
     nx = 6
     ny = 6
     a = 10
-    coords, lattice_ids = get_nodes_and_ids_new(nx, ny, a)
+    coords, lattice_ids = get_nodes_and_ids(nx, ny, a)
 
     # N1, T1 = get_neighbours_list(coords, nx, ny, a, distances=[1])
     # print(N1, T1)
