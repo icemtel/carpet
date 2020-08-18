@@ -12,7 +12,7 @@ source activate py37 # activate conda environment
 
 sbatch << EOT
 #!/bin/bash
-#SBATCH --time=25:00:00   				# walltime
+#SBATCH --time=30:00:00   				# walltime
 #SBATCH --nodes=1   					# number of nodes
 #SBATCH --ntasks=1    					# limit to one node
 #SBATCH --cpus-per-task=$1				# number of processor cores (i.e. threads)

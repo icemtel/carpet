@@ -1,0 +1,7 @@
+2020-07-01 16:53:10,257 INFO Thread-1 root Starting: irun=0
+2020-07-01 16:53:11,028 INFO Thread-1 root Finished: irun=0 Random I.Co. D=0.000e+00; dt=3.125E-01
+2020-07-01 16:53:11,028 INFO MainThread root master_script (integrate_euler; random) finished
+2020-07-25 10:58:53,699 INFO Thread-1 root Starting: irun=0
+2020-07-25 10:59:03,279 INFO Thread-1 root Starting: irun=0
+2020-07-25 10:59:04,128 INFO Thread-1 root Finished: irun=0 Random I.Co. D=0.000e+00; dt=3.125E-01
+2020-07-25 10:59:04,128 INFO MainThread root master_script (integrate_euler; random) finished

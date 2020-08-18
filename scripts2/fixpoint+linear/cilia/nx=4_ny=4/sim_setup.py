@@ -1,11 +1,10 @@
 '''
-12x12 2-N triangular
+6x6 1-N triangular
 
-Renate:
-tol=1e-6 => 379 ms per cycle
-tol=e1-8 => 863 ms per cycle
-stochastic dt=0.01*T => 299 ms per cycle
-
+Renate+numba:
+tol=1e-6 => ms per cycle
+tol=e1-8 => ms per cycle
+stochastic dt=0.01*T =>  ms per period
 '''
 
 import numpy as np
@@ -23,8 +22,8 @@ period = 31.25            # [ms] period of cilia beat
 freq = 2 * np.pi / period # [rad/ms] angular frequency
 
 # Geometry
-nx = 12
-ny = 12  # even number
+nx = 4
+ny = 4  # even number
 N = nx * ny
 a = 18  # [um] lattice spacing
 
@@ -34,7 +33,7 @@ a = 18  # [um] lattice spacing
 L1,L2 = lattice.get_domain_sizes(nx,ny ,a)
 coords, lattice_ids = lattice.get_nodes_and_ids(nx, ny, a)  # get cilia (nodes) coordinates
 
-distances = [1, 3 ** 0.5]
+distances = [1]
 NN, TT = lattice.get_neighbours_list(coords, nx, ny, a, distances)
 e1, e2 = lattice.get_basis()
 get_k = lattice.define_get_k_fbz(nx, ny, a)

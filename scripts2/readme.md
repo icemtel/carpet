@@ -1,12 +1,11 @@
-Version 2?
-
-- use a combination of setup and simulations scripts
-- Setup: contains everything about geometry and phsyics
-- Simulation: contains the main job of the script, e.g. calculate eigenvalues, or fixed points.
-
-Pros:
-- This way I don't need to change every script if I change the data set - only the setup.
-- Scripts are shorter
-- Keep benchmarks in "setup" file
-Cons: 
-- syntax highlighting is not working properly -> Solution: import explicitly the objects needed
+Subfolders contain various simulation scripts
+- Each simulation contains of at least three files:
+  - `sim_setup.py`  --- contains a setup for geometry and physics.
+    A collection of such files is located in `sim_setup` folder
+  - `foo.py` --- a script to run a single simulation/computation.
+    Imports `sim_setup.py`, such that the script is reusable with different inputs.
+  - `master_foo.py` 
+     Calls `foo.py` with different parameters, uses multi-threading.
+     
+Example: `fixpoint`, the script tries to find a fixed point in vicinity of a plane wave. 
+          The master script is iterating through different wave modes.

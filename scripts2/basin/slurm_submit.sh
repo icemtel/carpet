@@ -23,7 +23,7 @@ sbatch << EOT
 #SBATCH -A p_cilia						# project name
 
 
-python master_basin_loc_backward.py $1  > "$OUTFILE"
+python master_basin.py $1  > "$OUTFILE"
 
 
 exit 0

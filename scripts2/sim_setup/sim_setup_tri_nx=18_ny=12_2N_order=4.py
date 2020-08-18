@@ -1,10 +1,10 @@
 '''
-12x12 2-N triangular
+18x12 2-N triangular
 
 Renate:
-tol=1e-6 => 379 ms per cycle
-tol=e1-8 => 863 ms per cycle
-stochastic dt=0.01*T => 299 ms per cycle
+tol=1e-6 => 565 ms per cycle
+tol=e1-8 => 1.3 s  per cycle
+stochastic dt=0.01*T => 459 ms per cycle
 
 '''
 
@@ -23,7 +23,7 @@ period = 31.25            # [ms] period of cilia beat
 freq = 2 * np.pi / period # [rad/ms] angular frequency
 
 # Geometry
-nx = 12
+nx = 18
 ny = 12  # even number
 N = nx * ny
 a = 18  # [um] lattice spacing
