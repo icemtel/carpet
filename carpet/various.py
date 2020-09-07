@@ -10,6 +10,7 @@ import sys
 import numpy as np
 import math
 
+
 def rms(vec):
     '''
     Root mean square; Quadratic averarge
@@ -139,7 +140,6 @@ def mod2pi(x):
     return x
 
 
-
 if __name__ == '__main__':
     ## Test RMS
     a = np.array([1, 1])
@@ -156,7 +156,7 @@ if __name__ == '__main__':
     #   logger.info("Can also log this")
 
 
-def get_basis_dual(a1,a2):
+def get_basis_dual(a1, a2):
     '''
     :param a1, a2: basis vectors
     :return: dual basis vectors; https://en.wikipedia.org/wiki/Reciprocal_lattice

@@ -18,6 +18,7 @@ default_colormap = 'viridis'
 default_midpoint_colormap = 'RdBu_r'
 default_cyclic_colormap = 'hsv'
 
+
 ### Colors, linestyles, figures
 def get_colors(num, cmap=default_colormap):
     '''
@@ -34,6 +35,7 @@ def get_colors(num, cmap=default_colormap):
 _lines = ["-", "--", "-.", ":"]
 _cmap = plt.get_cmap("tab10")
 _colors = [_cmap(i) for i in range(10)]
+
 
 def get_colorcycler():  # first cycle colors, then line styles
     cyc = cycler('linestyle', _lines) * cycler('color', _colors)
@@ -81,9 +83,9 @@ def landscape_figure(height):
 ### Plotting routines
 
 def plot_nodes(coords, phi=None, color=(0.5, 0.5, 0.5), s=100,
-                cmap = 'hsv',
-                colorbar=True, vmin=0, vmax=2 * np.pi, zorder=2,
-                fig=None, ax=None, **kwargs):
+               cmap='hsv',
+               colorbar=True, vmin=0, vmax=2 * np.pi, zorder=2,
+               fig=None, ax=None, **kwargs):
     '''
     :param color: if no phi is given, use this color to color all nodes
     :param s: point size - 1 number or a list
@@ -109,18 +111,24 @@ def plot_nodes(coords, phi=None, color=(0.5, 0.5, 0.5), s=100,
     norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
     # if isinstance(cmap, str):
     #     cmap = colors.Colormap(cmap)
-    cax = ax.scatter(coords[:, 0], coords[:, 1], norm=norm, cmap=cmap, s=s, zorder=zorder,
-                     **kwargs) # , markersize=24
+    sc = ax.scatter(coords[:, 0], coords[:, 1], norm=norm, cmap=cmap, s=s, zorder=zorder,
+                     **kwargs)  # , markersize=24
 
     ## Colorbar
     if colorbar is True and phi is not None:
-        cb = fig.colorbar(cax, cmap=cmap, norm=norm, fraction=0.046, pad=0.04) # Default fraction0.15, pad=0.05
+        cb = fig.colorbar(sc)  # Default fraction 0.15, pad=0.05
         if vmin == 0 and vmax == 2 * np.pi:
-            cb.set_ticks(ticks=[0, np.pi / 2, np.pi, 3 * np.pi / 2, 2 * np.pi])
-            cb.set_ticklabels(['$0$', r'$\frac{\pi}{2}$', r'$\pi$', r'$\frac{3 \pi}{2}$', r'$2 \pi$'])
-
+            set_phase_ticks(cb)
     return fig, ax
 
+
+def set_phase_ticks(cb):
+    '''
+    Set ticks from 0 to 2pi on a colorbar (or other applicable object)
+    '''
+    cb.set_ticks(ticks=[0, np.pi / 2, np.pi, 3 * np.pi / 2, 2 * np.pi])
+    cb.set_ticklabels(['$0$', r'$\frac{\pi}{2}$', r'$\pi$', r'$\frac{3 \pi}{2}$', r'$2 \pi$'])
+    return cb
 
 
 def plot_edges(coords, T1, fig=None, ax=None, color='red', zorder=1, **kwargs):
@@ -143,7 +151,7 @@ def plot_edges(coords, T1, fig=None, ax=None, color='red', zorder=1, **kwargs):
     return fig, ax
 
 
-def plot_node_numbers(coords, spacing, fig=None, ax=None, fontsize=12, shift=(-0.3,-0.1), zorder=3):
+def plot_node_numbers(coords, spacing, fig=None, ax=None, fontsize=12, shift=(-0.3, -0.1), zorder=3):
     '''
     :param shift: how much the numbers should be shifted with respect to the node center;
                   Will be shifted by shift * spacing
@@ -280,7 +288,6 @@ def phase_plot(vals, ax=None, colorbar=True,
         ax.set_ylim((-shift * (magic_num), np.pi * 2))
 
 
-
 if __name__ == '__main__':
     '''
     OK: plot nodes of a triangular lattice
@@ -295,10 +302,9 @@ if __name__ == '__main__':
     coords, lattice_ids = lattice.get_nodes_and_ids(nx, ny, a)
     N1, T1 = lattice.get_neighbours_list(coords, nx, ny, a)
 
-
     plot_edges(coords, T1, color='blue')
     fig, ax = plot_nodes(coords, phi=np.linspace(0, 2 * np.pi, len(coords)), vmin=0, vmax=2 * np.pi)
 
     plot_node_numbers(coords, a, fig=fig, ax=ax)
-
-    plt.savefig('1.png', bbox_inches='tight')
+    plt.show()
+    # plt.savefig('1.png', bbox_inches='tight')

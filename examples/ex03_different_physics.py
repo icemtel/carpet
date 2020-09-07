@@ -56,7 +56,7 @@ import carpet.physics.friction_pairwise as physics
 set_name = 'machemer_1'  # hydrodynamic friction coefficients data set
 period = 31.25  # [ms] period
 freq = 2 * np.pi / period  # [rad/ms] angular frequency
-order_g11 = (8, 0)  # order of Fourier expansion of friction coefficients
+order_g11 = (4, 0)  # order of Fourier expansion of friction coefficients
 order_g12 = (4, 4)
 
 gmat_glob, q_glob = physics.define_gmat_glob_and_q_glob(set_name, e1, e2, a, N1, T1, order_g11, order_g12, period)

@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt
 set_name = 'machemer_1'  # hydrodynamic friction coefficients data set
 period = 31.25  # [ms] period
 freq = 2 * np.pi / period  # [rad/ms] angular frequency
-order_g11 = (8, 0)  # order of Fourier expansion of friction coefficients
+order_g11 = (4, 0)  # order of Fourier expansion of friction coefficients
 order_g12 = (4, 4)
 # Geometry
 N = 6  # number of cilia

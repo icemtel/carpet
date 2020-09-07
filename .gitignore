@@ -42,3 +42,6 @@ doc/*.bbl
 doc/*.bcf
 doc/*.blg
 doc/*-blx.aux
+
+## Simulation scripts
+/scripts/
