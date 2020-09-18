@@ -1,6 +1,8 @@
 '''
 Functions to load Fourier series of hydrodynamic friction coefficients from a file
 
+- Almost not used in `physics.friction_pairwise.py` anymore
+
 MAYBE:
 - rewrite define_right_side_of_ODE - s.t. gii is not calculated twice
   in Gamma_glob and Q_glob - implemented, but the speed remained equal
@@ -134,6 +136,8 @@ def load_function_from_file(filename, order_max=None, truncate_triangular=False)
 def get_friction_coeffs_path(set_name):
     if set_name == 'machemer_1':
         friction_coeffs_root = os.path.join(script_path, '../data/friction_coeffs', 'machemer_1')
+    if set_name == 'machemer_2':
+        friction_coeffs_root = os.path.join(script_path, '../data/friction_coeffs', 'machemer_2')
     else:
         raise KeyError("Unknown hydr. friction coefficients set name")
     return friction_coeffs_root
