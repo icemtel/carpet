@@ -221,7 +221,7 @@ def _midpoint_imshow(vals, x1_min, x1_max, x2_min, x2_max, ax=None, colorbar=Tru
         else:
             cmap = default_colormap
 
-    if midpoint is not None:
+    if norm is None and midpoint is not None:
         norm = MidpointNormalize(np.amin(vals), np.amax(vals), midpoint)
 
     mappable = ax.imshow(vals, extent=[x1_min, x1_max, x2_min, x2_max],
