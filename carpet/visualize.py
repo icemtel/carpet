@@ -10,7 +10,6 @@ import scipy as sp
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-import matplotlib.colors as colors
 from matplotlib.colors import SymLogNorm, Normalize, LogNorm
 from cycler import cycler
 
@@ -20,7 +19,7 @@ default_cyclic_colormap = 'hsv'
 
 
 ### Colors, linestyles, figures
-def get_colors(num, cmap=default_colormap):
+def get_colors(num, cmap=default_colormap, endpoint=True):
     '''
     :param num: How many colors to return
     :param cmap: e.g. 'jet' 'viridis' 'RdBu_r' 'hsv'
@@ -28,7 +27,14 @@ def get_colors(num, cmap=default_colormap):
     '''
     import matplotlib.cm as mcm
     cm = getattr(mcm, cmap)
-    return cm(np.linspace(0, 1, num))
+    return cm(np.linspace(0, 1, num, endpoint=endpoint))
+
+def get_cilium_colors(num_phases, cmap=default_cyclic_colormap):
+    '''
+    Returns colors, coding cilia phases.
+    '''
+    colors = get_colors(num_phases, cmap, endpoint=False)
+    return colors
 
 
 # See usage below
@@ -112,7 +118,7 @@ def plot_nodes(coords, phi=None, color=(0.5, 0.5, 0.5), s=100,
     # if isinstance(cmap, str):
     #     cmap = colors.Colormap(cmap)
     sc = ax.scatter(coords[:, 0], coords[:, 1], norm=norm, cmap=cmap, s=s, zorder=zorder,
-                     **kwargs)  # , markersize=24
+                    **kwargs)  # , markersize=24
 
     ## Colorbar
     if colorbar is True and phi is not None:
@@ -173,7 +179,7 @@ def plot_node_numbers(coords, spacing, fig=None, ax=None, fontsize=12, shift=(-0
 
 # HELPER FUNCTIONS
 
-class MidpointNormalize(colors.Normalize):
+class MidpointNormalize(mpl.colors.Normalize):
     '''
     Note:
          - check out colors.OffsetNorm() in newer versions
@@ -182,7 +188,7 @@ class MidpointNormalize(colors.Normalize):
 
     def __init__(self, vmin=None, vmax=None, midpoint=0, clip=False):
         self.midpoint = midpoint
-        colors.Normalize.__init__(self, vmin, vmax, clip)
+        mpl.colors.Normalize.__init__(self, vmin, vmax, clip)
 
     def __call__(self, value, clip=None):
         normalized_min = max(0, 1 / 2 * (1 - abs((self.midpoint - self.vmin) / (self.midpoint - self.vmax))))
@@ -267,25 +273,38 @@ def phase_plot(vals, ax=None, colorbar=True,
                           ax=ax, colorbar=colorbar, title=title,
                           midpoint=midpoint, norm=norm, cmap=cmap,
                           xlabel=xlabel, ylabel=ylabel, **kwargs)
-    # set x phase ticks
+    if phase_colored_lines:
+        width = 2 * np.pi / num_phases  # 0.3141592653589793
+
+        phi = np.linspace(0, 2 * np.pi, num_phases,  endpoint=False)
+        dphi = phi[1] - phi[0]
+        colors = get_cilium_colors(num_phases)
+        for i, phi_i in enumerate(phi):
+            if i == 0:
+                continue
+            # horizontal
+            ax.add_artist(mpl.patches.Rectangle([phi_i - dphi / 2, -width], dphi, width, color=colors[i]))
+            # vertical
+            ax.add_artist(mpl.patches.Rectangle([-width, phi_i - dphi / 2], width, dphi, color=colors[i]))
+        # plot for 0; horizontal
+        ax.add_artist(mpl.patches.Rectangle([0, -width], dphi / 2, width, color=colors[0]))
+        # plot for 0; vertical
+        ax.add_artist(mpl.patches.Rectangle([-width, 0], width, dphi / 2, color=colors[0]))
+        # plot for 2pi; horizontal
+        ax.add_artist(mpl.patches.Rectangle([2 * np.pi - dphi / 2, -width], dphi / 2, width, color=colors[0]))
+        # plot for 2pi; vertical
+        ax.add_artist(mpl.patches.Rectangle([-width, 2 * np.pi - dphi / 2], width, dphi / 2, color=colors[0]))
+    else:
+        width = 0  # for x,y lim
+
+    # set x phase ticks and lim
+    ax.set_xlim([-width, 2 * np.pi])
     ax.set_xticks(ticks=[0, np.pi / 2, np.pi, 3 * np.pi / 2, 2 * np.pi])
     ax.set_xticklabels(['$0$', r'$\frac{\pi}{2}$', r'$\pi$', r'$\frac{3 \pi}{2}$', r'$2 \pi$'])
-    # set y phase ticks
+    # set y phase ticks and lim
+    ax.set_ylim([-width, 2 * np.pi])
     ax.set_yticks(ticks=[0, np.pi / 2, np.pi, 3 * np.pi / 2, 2 * np.pi])
     ax.set_yticklabels(['$0$', r'$\frac{\pi}{2}$', r'$\pi$', r'$\frac{3 \pi}{2}$', r'$2 \pi$'])
-
-    if phase_colored_lines:
-        color_func = lambda x: get_colors(x, cmap=default_cyclic_colormap)
-        shift = 2 * np.pi / 200 * 2
-        phi = np.array(range(num_phases)) * 2 * np.pi / (num_phases - 1)
-        # color_coding
-        magic_num = 10
-        for i in range(magic_num):
-            _trajectory(ax, phi, np.zeros(num_phases) - shift * (i + 1 / 2), color_func, lw=2)
-            _trajectory(ax, np.zeros(num_phases) - shift * (i + 1 / 2), phi, color_func, lw=2)
-
-        ax.set_xlim((-shift * (magic_num), np.pi * 2))
-        ax.set_ylim((-shift * (magic_num), np.pi * 2))
 
 
 if __name__ == '__main__':
@@ -293,18 +312,21 @@ if __name__ == '__main__':
     OK: plot nodes of a triangular lattice
     +-OK: plot node numbers
     '''
-    import carpet.lattice.triangular as lattice
-
-    a = 10
-    nx = 4
-    ny = 8
-
-    coords, lattice_ids = lattice.get_nodes_and_ids(nx, ny, a)
-    N1, T1 = lattice.get_neighbours_list(coords, nx, ny, a)
-
-    plot_edges(coords, T1, color='blue')
-    fig, ax = plot_nodes(coords, phi=np.linspace(0, 2 * np.pi, len(coords)), vmin=0, vmax=2 * np.pi)
-
-    plot_node_numbers(coords, a, fig=fig, ax=ax)
-    plt.show()
+    # import carpet.lattice.triangular as lattice
+    # a = 10
+    # nx = 4
+    # ny = 8
+    #
+    # coords, lattice_ids = lattice.get_nodes_and_ids(nx, ny, a)
+    # N1, T1 = lattice.get_neighbours_list(coords, nx, ny, a)
+    #
+    # plot_edges(coords, T1, color='blue')
+    # fig, ax = plot_nodes(coords, phi=np.linspace(0, 2 * np.pi, len(coords)), vmin=0, vmax=2 * np.pi)
+    #
+    # plot_node_numbers(coords, a, fig=fig, ax=ax)
+    # plt.show()
     # plt.savefig('1.png', bbox_inches='tight')
+
+    vals = [[0, 1], [2, 3]]
+    phase_plot(vals)
+    plt.show()
