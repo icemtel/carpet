@@ -7,7 +7,7 @@ Comment: It would be more natural to rewrite most of the functions here as metho
 '''
 import math
 import numpy as np
-from scipy.linalg import norm
+from numpy.linalg import norm
 
 from carpet.various import get_basis_dual, mod2pi
 
@@ -101,6 +101,56 @@ def get_neighbours_list(coords, nx, ny, a, distances=(1,)):
                 for d in distances:
                     if d * a - eps < norm(translation) < d * a + eps:
                         return translation
+        return None
+
+    N1 = [[] for _ in coords]  # list of lists of neighbours indices
+    T1 = [[] for _ in coords]  # list of lists of translation vectors between neighbours
+    # loop over pairs of lattice points
+    for i in range(N):
+        for j in range(i + 1, N):
+            translation = get_neighbours(i, j)  # check if neighbours
+            if translation is not None:  # is yes - add to the list
+                N1[i].append(j)
+                T1[i].append(translation)
+
+                N1[j].append(i)  # save some iterations by using that being neighbors is symmetrical relation
+                T1[j].append(- translation)
+    return N1, T1
+
+
+def get_neighbours_list_general(coords, nx, ny, a, connections):
+    '''
+    For each node looks for other nodes at specified translation vectors.
+    Those nodes are saved in `N1` list. Relative positions are saved in `T1` list.
+    :param connections: list of vectors - relative oscilator positions [units of length]
+    :return: list of neighbours, list of relative neighbour positions
+    '''
+    if nx == 2 or ny == 2:
+        import warnings
+        warnings.warn("nx=2 or ny=2 => wrong number of neighbours (5 or 4)\n"
+                      "some oscillators were supposed to be connected twice, but this is not implemented")
+
+    eps = 10 ** -4 * a
+    L1, L2 = get_domain_sizes(nx, ny, a)
+    N = len(coords)
+    # Check:
+    distances = norm(connections, axis=1)
+    if max(distances) >= max([L1, L2]):
+        raise NotImplementedError("Assumption: d * a < max(L1,L2) is not satisfied")
+
+    ## find nearest neighbors
+    def get_neighbours(i, j):
+        '''
+        If the distance between two points is equal to the lattice spacing, return vector connecting them, else None.
+        Takes into account lattice periodicity
+        OK: sign
+        '''
+        for a1 in range(-1, 2):
+            for a2 in range(-1, 2):
+                translation = coords[j, :] - coords[i, :] + [a1 * L1, 0] + [0, a2 * L2]
+                for t in connections:
+                    if norm(t - translation) < eps:
+                        return np.array(t)
         return None
 
     N1 = [[] for _ in coords]  # list of lists of neighbours indices
@@ -349,6 +399,7 @@ if __name__ == '__main__':
     # OK: translations direction (plot)
     # OK: mtwist no duplicates
     # OK: mtwist (plot)
+    # OK: new get_neighbours
 
     import matplotlib.pyplot as plt
     import carpet.visualize as visualize
@@ -358,12 +409,23 @@ if __name__ == '__main__':
     ny = 8  # must be even
 
     coords, lattice_ids = get_nodes_and_ids(nx, ny, a)
-    N1, T1 = get_neighbours_list(coords, nx, ny, a, distances=(1, np.sqrt(3), 2))
+    # N1, T1 = get_neighbours_list(coords, nx, ny, a, distances=(1, np.sqrt(3), 2))
+    # print("Neighbours as array shape:", np.array(N1).shape)
+
+    ## New get_neighbours:
+    translations = [a * np.array([np.cos(psi), np.sin(psi)]) # First neighbours
+                    for psi in np.linspace(0, 2 * np.pi, 6,endpoint=False)] \
+                   + [np.sqrt(3) * a  * np.array([np.cos(psi), np.sin(psi)])
+                      for psi in [np.pi /2 , 3 * np.pi /2]] # 2nd neighbour (only 1)
+    N1, T1 = get_neighbours_list_general(coords, nx, ny, a, translations)
     print("Neighbours as array shape:", np.array(N1).shape)
+
     ## Visualize
     visualize.plot_edges(coords, T1)
     visualize.plot_nodes(coords)
     visualize.plt.show()
+
+
 
     ### Check mtwists
     get_mtwist_phi = define_get_mtwist(coords, nx, ny, a)
@@ -442,3 +504,4 @@ if __name__ == '__main__':
     ## Dual basis?
     print(get_cell_sizes(a))
     print(get_basis_dual_domain(nx, ny, a))
+

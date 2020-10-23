@@ -1,6 +1,5 @@
 '''
-Copied from one of my packages on 2019-06-06 - Anton Solovev.
-Idea similar to https://stackoverflow.com/a/24092195
+Inspired by https://stackoverflow.com/a/24092195
 
 Use `run_parallel` function to parallelize a job.
 Important:
@@ -8,7 +7,7 @@ Important:
   - Must be careful that they don't overwrite some shared object.
   - Can cause a slowdown when reading shared memory.
   - The most natural way to avoid these problems - use `multiprocessing` instead of `threading` - requires more work.
-- One way to save results is to save them to a file, e.g. `sp.savetxt()`, a separate file for each input
+- One way to save results is to save them to a file, e.g. `np.savetxt()`, a separate file for each input
 - Another way - save results to a dictionary; this dictionary will be shared by all threads.
   That's a lazy way, but normally works.
 
