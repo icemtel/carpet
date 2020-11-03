@@ -413,10 +413,10 @@ if __name__ == '__main__':
     # print("Neighbours as array shape:", np.array(N1).shape)
 
     ## New get_neighbours:
-    translations = [a * np.array([np.cos(psi), np.sin(psi)]) # First neighbours
-                    for psi in np.linspace(0, 2 * np.pi, 6,endpoint=False)] \
-                   + [np.sqrt(3) * a  * np.array([np.cos(psi), np.sin(psi)])
-                      for psi in [np.pi /2 , 3 * np.pi /2]] # 2nd neighbour (only 1)
+    translations = [a * np.array([np.cos(psi), np.sin(psi)])  # First neighbours
+                    for psi in np.linspace(0, 2 * np.pi, 6, endpoint=False)] \
+                   + [np.sqrt(3) * a * np.array([np.cos(psi), np.sin(psi)])
+                      for psi in [np.pi / 2, 3 * np.pi / 2]]  # 2nd neighbour (only 1)
     N1, T1 = get_neighbours_list_general(coords, nx, ny, a, translations)
     print("Neighbours as array shape:", np.array(N1).shape)
 
@@ -424,8 +424,6 @@ if __name__ == '__main__':
     visualize.plot_edges(coords, T1)
     visualize.plot_nodes(coords)
     visualize.plt.show()
-
-
 
     ### Check mtwists
     get_mtwist_phi = define_get_mtwist(coords, nx, ny, a)
@@ -504,4 +502,3 @@ if __name__ == '__main__':
     ## Dual basis?
     print(get_cell_sizes(a))
     print(get_basis_dual_domain(nx, ny, a))
-
