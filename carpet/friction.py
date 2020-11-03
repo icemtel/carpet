@@ -68,7 +68,7 @@ def get_coeff_ids(order, sample_size=None, truncate_triangular=False):
                         then Sin(N_x x) will evaluate to zero at every sample point.
     :param truncate_triangular: If True: truncate series, s.t. n_x/N_x + n_y/N_y =< 1
     '''
-    if sample_size == None:
+    if sample_size is None:
         sample_size = (np.inf, np.inf)
     len_xs, len_ys = sample_size
     if order is None:
