@@ -122,7 +122,9 @@ def get_neighbours_list_general(coords, nx, ny, a, connections):
     '''
     For each node looks for other nodes at specified translation vectors.
     Those nodes are saved in `N1` list. Relative positions are saved in `T1` list.
-    :param connections: list of vectors - relative oscilator positions [units of length]
+    :param connections: list of vectors - relative oscillator positions [units of length];
+                        - if reciprocal, then for each vector `t`, the vector `-t` has to be included as well;
+                        - an oscillator can be its own neighbour.
     :return: list of neighbours, list of relative neighbour positions
     '''
     if nx == 2 or ny == 2:
@@ -157,14 +159,11 @@ def get_neighbours_list_general(coords, nx, ny, a, connections):
     T1 = [[] for _ in coords]  # list of lists of translation vectors between neighbours
     # loop over pairs of lattice points
     for i in range(N):
-        for j in range(i + 1, N):
+        for j in range(N):
             translation = get_neighbours(i, j)  # check if neighbours
             if translation is not None:  # is yes - add to the list
                 N1[i].append(j)
                 T1[i].append(translation)
-
-                N1[j].append(i)  # save some iterations by using that being neighbors is symmetrical relation
-                T1[j].append(- translation)
     return N1, T1
 
 
@@ -419,7 +418,18 @@ if __name__ == '__main__':
                       for psi in [np.pi / 2, 3 * np.pi / 2]]  # 2nd neighbour (only 1)
     N1, T1 = get_neighbours_list_general(coords, nx, ny, a, translations)
     print("Neighbours as array shape:", np.array(N1).shape)
+    ## Visualize
+    visualize.plot_edges(coords, T1)
+    visualize.plot_nodes(coords)
+    visualize.plt.show()
 
+    ## Non-reciprocal neighbours: (interactions in one direction)
+    translations = [a * np.array([np.cos(psi), np.sin(psi)])  # First neighbours
+                    for psi in np.linspace(0, np.pi, 3, endpoint=False)] \
+                   + [np.sqrt(3) * a * np.array([np.cos(psi), np.sin(psi)])
+                      for psi in [np.pi / 2]]  # 2nd neighbour (only 1)
+    N1, T1 = get_neighbours_list_general(coords, nx, ny, a, translations)
+    print("Neighbours as array shape:", np.array(N1).shape)
     ## Visualize
     visualize.plot_edges(coords, T1)
     visualize.plot_nodes(coords)
