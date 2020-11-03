@@ -134,7 +134,7 @@ def load_function_from_file(filename, order_max=None, truncate_triangular=False)
 
 
 def get_friction_coeffs_path(set_name):
-    if set_name in ['machemer_1', 'machemer_2', 'machemer_3']:
+    if set_name in ['machemer_1', 'machemer_2', 'machemer_3', 'machemer_3M']:
         friction_coeffs_root = os.path.join(script_path, '../data/friction_coeffs', set_name)
     else:
         raise KeyError("Unknown hydr. friction coefficients set name")
