@@ -134,6 +134,10 @@ def load_function_from_file(filename, order_max=None, truncate_triangular=False)
 
 
 def get_friction_coeffs_path(set_name):
+    if set_name in ['machemer_3', 'machemer_3M']:
+        import warnings
+        warnings.warn("machemer_3 and 3M -> bugged g22; use machemer_4")
+
     if set_name in ['machemer_1', 'machemer_2', 'machemer_3',
                     'machemer_3M', 'machemer_4']:
         friction_coeffs_root = os.path.join(script_path, '../data/friction_coeffs', set_name)
