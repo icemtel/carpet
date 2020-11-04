@@ -453,7 +453,7 @@ if __name__ == "__main__":
     import matplotlib.pyplot as plt
     import carpet.physics.friction_pairwise_v1 as physics_test
 
-    set_name = "machemer_1"
+    set_name = "machemer_3"
     connections = [(-1, 0), (1, 0)]
 
     a = 18
@@ -499,7 +499,7 @@ if __name__ == "__main__":
     distances = [1, 3 ** (0.5)]
     N1, T1 = lattice.get_neighbours_list(coords, nx, ny, a, distances)
     e1, e2 = lattice.get_basis()
-    get_k = lattice.define_get_k(nx, ny, a)
+    get_k = lattice.define_get_k_fbz(nx, ny, a)
     get_mtwist = lattice.define_get_mtwist(coords, nx, ny, a)
 
     # Physics
