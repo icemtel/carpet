@@ -330,8 +330,10 @@ def define_get_k_fbz_all(nx, ny, a):
 
 
 def define_get_mtwist(coords, nx, ny, a):
+    '''
+    :return: a function -> see its description
+    '''
     get_k = define_get_k_naive(nx, ny, a)
-
     mtwist_phi = np.zeros((nx, ny, nx * ny))
 
     for k1 in range(nx):
@@ -342,7 +344,35 @@ def define_get_mtwist(coords, nx, ny, a):
                 mtwist_phi[k1, k2, ix] = mod2pi(- np.dot(k, coords[ix, :]))
 
     def get_mtwist(k1, k2):
+        '''
+        :return: phase vector, corresponding to a wave with vector k with wave numbers k1,k2
+        '''
+        if k1 < 0 or k1 >= nx:
+            raise ValueError("k1 out of allowed interval")
+        if k2 < 0 or k2 >= ny:
+            raise ValueError("k2 out of allowed interval")
         return np.array(mtwist_phi[k1, k2])
+
+    return get_mtwist
+
+
+def define_get_mtwist_slow(coords, nx, ny, a):
+    '''
+    Returns a slower version of :get_mtwist: function
+    Advantage: can give any positive or negative k1 and k2
+    '''
+    get_k = define_get_k_naive(nx, ny, a)
+    coords_cp = np.array(coords)
+
+    def get_mtwist(k1, k2):
+        '''
+        :return: phase vector, corresponding to a wave with vector k with wave numbers k1,k2
+        '''
+        k = get_k(k1, k2)
+        mtwist = np.zeros(nx * ny)
+        for ix in range(nx * ny):
+            mtwist[ix] = mod2pi(- np.dot(k, coords_cp[ix, :]))
+        return mtwist
 
     return get_mtwist
 

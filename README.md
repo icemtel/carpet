@@ -35,7 +35,6 @@ Run in terminal `python setup.py develop`.
 
 - Many reusable functions reside outside the main package - they are located in `scripts`
 
-TODO: update requirements to python 3.7, etc
 
 ## Backwards compatibility
 - Some scripts might work on older versions of `carpet`. Important changes are usually tagged 
