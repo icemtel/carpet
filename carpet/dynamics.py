@@ -1,4 +1,3 @@
-import scipy as sp
 import numpy as np
 from scipy.integrate import solve_ivp
 import scipy.stats as stats

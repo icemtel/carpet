@@ -69,6 +69,8 @@ def get_neighbours_list(coords, nx, ny, a, distances=(1,)):
     '''
     For each node looks for other nodes at specified distances (multiplied by lattice edge length `a`).
     Those nodes are saved in `N1` list. Relative positions are saved in `T1` list.
+    WARNING: very slow for a large lattice; -> compute once and save to disk
+           - 64x64: ~90 minutes
     :distances: list of expected distances to neighbours (normalized by a)
                 Examples: 1-neighbours: [1]
                           2-neighbours*: [1, 3 ** 0.5]
