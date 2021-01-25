@@ -1,6 +1,7 @@
 machemer_4 vs machemer_3 and machemer_3M:
 
 2020-11-04: fixed a bug - g22 was constant; now it's the same as g11 (up to order of arguments)
+2021-01-25: add more relative positions (for rotated lattice)
 
 ---
 machemer_3M vs machemer_3:
