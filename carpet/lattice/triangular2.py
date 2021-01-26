@@ -169,6 +169,7 @@ def get_neighbours_list_general(coords, nx, ny, a, connections):
                 T1[i].append(translation)
     return N1, T1
 
+
 ### mtwist solutions ###
 
 def get_basis_dual_domain(nx, ny, a):
@@ -191,6 +192,7 @@ def get_basis_dual_cell(a):
     a2 = a * e2
     b1, b2 = get_basis_dual(a1, a2)
     return b1, b2  # [rad/L]
+
 
 # def get_dual_basis(a):
 #     '''
@@ -366,6 +368,7 @@ def define_get_k_fbz_all(nx, ny, a):
 
     return get_k_all
 
+
 def define_get_mtwist(coords, nx, ny, a):
     '''
     :return: a function -> see its description
@@ -414,7 +417,39 @@ def define_get_mtwist_slow(coords, nx, ny, a):
     return get_mtwist
 
 
+def plot_fbz(a, ax=None, **kwargs):
+    """
+    For triangular lattice FBZ is a hexagon.
+    Rotated lattice has a rotated hexagon
+    :param kwargs: passed to Polygon
+    :return:
+    """
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import Polygon
+
+    rot_matrix = lambda angle: np.array(
+        [[np.cos(angle), -np.sin(angle)], [np.sin(angle), np.cos(angle)]])  # rotation matrix
+
+    hexagon_edge = 4 * np.pi / 3 / a  # checked via numerical experiment
+
+    # Define hexagon
+    def get_hexagon(scale=hexagon_edge, center=np.array([0, 0]), **kwargs):
+        angles = np.pi / 2 + np.linspace(0, 2 * np.pi, 6, endpoint=False)
+        r = np.array((scale, 0))
+
+        polygon_kwargs = dict(fc="none", ec="black", linestyle='--', alpha=0.5, lw=2)  # default params
+        polygon_kwargs.update(kwargs)  # update with input kwargs
+        return Polygon([center + rot_matrix(angle) @ r for angle in angles], **polygon_kwargs)
+
+    # Plot hexagon
+    if ax is None:
+        ax = plt.gca()
+    ax.add_artist(get_hexagon(hexagon_edge, **kwargs))
+    return ax
+
+
 ### Friction coefficients - ver 1. ###
+## Use functions in "physics" instead.
 def get_connections():
     '''
     :return: Relative positions of neighbouring cilia in lattice coordinates
@@ -526,7 +561,7 @@ if __name__ == '__main__':
 
     for k1 in range(nx):
         for k2 in range(ny):
- #           print(k1, k2)
+            #           print(k1, k2)
 
             k = get_k(k1, k2)
             k_naive = get_k_naive(k1, k2)
@@ -540,3 +575,8 @@ if __name__ == '__main__':
     print(get_cell_sizes(a))
     print(get_basis_dual_domain(nx, ny, a))
     print(get_basis_dual_cell(a))
+
+    plot_fbz(a)
+    plt.xlim([-0.25, 0.25])
+    plt.ylim([-0.25, 0.25])
+    plt.show()

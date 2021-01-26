@@ -379,7 +379,42 @@ def define_get_mtwist_slow(coords, nx, ny, a):
     return get_mtwist
 
 
+### Visualize reciprocal lattice: plot the First Brillouin Zone (FBZ) border
+
+def plot_fbz(a, ax=None, **kwargs):
+    """
+    For triangular lattice FBZ is a hexagon
+    :param kwargs: passed to Polygon
+    :return:
+    """
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import Polygon
+
+    rot_matrix = lambda angle: np.array(
+        [[np.cos(angle), -np.sin(angle)], [np.sin(angle), np.cos(angle)]])  # rotation matrix
+
+    hexagon_edge = 4 * np.pi / 3 / a  # checked via numerical experiment
+
+    # Define hexagon
+    def get_hexagon(scale=hexagon_edge, center=np.array([0, 0]), **kwargs):
+        angles = np.linspace(0, 2 * np.pi, 6, endpoint=False)
+        r = np.array((scale, 0))
+
+        polygon_kwargs = dict(fc="none", ec="black", linestyle='--', alpha=0.5, lw=2)  # default params
+        polygon_kwargs.update(kwargs)  # update with input kwargs
+        return Polygon([center + rot_matrix(angle) @ r for angle in angles], **polygon_kwargs)
+
+    # Plot hexagon
+    if ax is None:
+        ax = plt.gca()
+    ax.add_artist(get_hexagon(hexagon_edge, **kwargs))
+    return ax
+
+
+
 ### Friction coefficients - ver 1. ###
+## Use functions in "physics" instead.
+
 def get_connections():
     '''
     :return: Relative positions of neighbouring cilia in lattice coordinates
@@ -544,3 +579,9 @@ if __name__ == '__main__':
     ## Dual basis?
     print(get_cell_sizes(a))
     print(get_basis_dual_domain(nx, ny, a))
+
+
+    plot_fbz(a)
+    plt.xlim([-0.25, 0.25])
+    plt.ylim([-0.25, 0.25])
+    plt.show()
