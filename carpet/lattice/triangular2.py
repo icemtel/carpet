@@ -1,11 +1,17 @@
 '''
+- Generate triangular lattice
+- In rectangular domain, assuming periodic boundary conditions.
+
+
 Triangular lattice, but rotated by 90 degrees. Because of rectangular domain, it is not trivial to introduce lattice for
 any rotation.
 '''
 import math
 import numpy as np
-from scipy.linalg import norm
-from carpet.various import mod2pi
+from numpy.linalg import norm
+
+from carpet.various import get_basis_dual, mod2pi
+
 
 def get_cell_sizes(a):
     cell_length = a * 3 ** (1 / 2) / 2
@@ -45,7 +51,6 @@ def get_nodes_and_ids(nx, ny, a):
     coords = []  # list of position vectors for honeycomb lattice
     lattice_ids = []  # list of corresponding lattice indices (n,m)
 
-
     nmax = max(nx, ny)
     for n in range(0, nmax):
         for m in range(- nmax, nmax):
@@ -65,6 +70,8 @@ def get_neighbours_list(coords, nx, ny, a, distances=(1,)):
     '''
     For each node looks for other nodes at specified distances (multiplied by lattice edge length `a`).
     Those nodes are saved in `N1` list. Relative positions are saved in `T1` list.
+    WARNING: very slow for a large lattice; -> compute once and save to disk
+           - 64x64: ~90 minutes
     :distances: list of expected distances to neighbours (normalized by a)
                 Examples: 1-neighbours: [1]
                           2-neighbours*: [1, 3 ** 0.5]
@@ -164,96 +171,200 @@ def get_neighbours_list_general(coords, nx, ny, a, connections):
 
 ### mtwist solutions ###
 
-def get_dual_basis(a):
+def get_basis_dual_domain(nx, ny, a):
     '''
-    Reciprocal lattice for rectangular unit cell
-    Ben's method
+    Reciprocal vectors for rectangular domain
     '''
-    ax, ay = get_cell_sizes(a)
-    a1 = ax * np.array([1, 0]) / a
-    a2 = ay * np.array([0, 1]) / a
-    R = np.array([[0, 1], [-1, 0]])  # rotation by 90deg
-    a1dual = 2 * np.pi * (R @ a2) / (a1 @ (R @ a2)) / a
-    a2dual = 2 * np.pi * (R @ a1) / (a2 @ (R @ a1)) / a
-    return a1dual, a2dual  # [1/L]
+    e1, e2 = get_basis()
+    a1 = nx * a * (2 * e1 - e2) / 2
+    a2 = ny * a * e2
+    b1, b2 = get_basis_dual(a1, a2)
+    return b1, b2  # [rad/L]
 
 
-def get_dual_basis2(a):
+def get_basis_dual_cell(a):
     '''
-    Does the same as the first one, but maybe it's more clear what the method does.
-    Google:
-    B = (a1, a2)
-    D = (a1dual, a2dual)
-    -> D = inv(B.T)
-    Below implemented the same thing, but with a factor of 2pi
+    Reciprocal vectors for the triangular unit
     '''
-    from scipy.linalg import inv, solve
-    ax, ay = get_cell_sizes(a)
-    a1 = ax * np.array([1, 0])
-    a2 = ay * np.array([0, 1])
-    # B = np.array([a1 ,a2]).T
-    BT = np.array([a1, a2])
-    # By definition D = inv(B.T)
-    # Miss a step of transposing
-    D = 2 * np.pi * inv(BT)
+    e1, e2 = get_basis()
+    a1 = a * e1
+    a2 = a * e2
+    b1, b2 = get_basis_dual(a1, a2)
+    return b1, b2  # [rad/L]
 
-    return D[:, 0], D[:, 1]
+# def get_dual_basis(a):
+#     '''
+#     Reciprocal lattice for rectangular unit cell
+#     Ben's method
+#     '''
+#     ax, ay = get_cell_sizes(a)
+#     a1 = ax * np.array([1, 0]) / a
+#     a2 = ay * np.array([0, 1]) / a
+#     R = np.array([[0, 1], [-1, 0]])  # rotation by 90deg
+#     a1dual = 2 * np.pi * (R @ a2) / (a1 @ (R @ a2)) / a
+#     a2dual = 2 * np.pi * (R @ a1) / (a2 @ (R @ a1)) / a
+#     return a1dual, a2dual  # [1/L]
+#
+#
+# def get_dual_basis2(a):
+#     '''
+#     Does the same as the first one, but maybe it's more clear what the method does.
+#     Google:
+#     B = (a1, a2)
+#     D = (a1dual, a2dual)
+#     -> D = inv(B.T)
+#     Below implemented the same thing, but with a factor of 2pi
+#     '''
+#     from scipy.linalg import inv, solve
+#     ax, ay = get_cell_sizes(a)
+#     a1 = ax * np.array([1, 0])
+#     a2 = ay * np.array([0, 1])
+#     # B = np.array([a1 ,a2]).T
+#     BT = np.array([a1, a2])
+#     # By definition D = inv(B.T)
+#     # Miss a step of transposing
+#     D = 2 * np.pi * inv(BT)
+#
+#     return D[:, 0], D[:, 1]
 
 
 def define_get_k_naive(nx, ny, a):
-    a1dual, a2dual = get_dual_basis(a)
+    '''
+    The simplest way to get a wave vector from the dual basis.
+    Other functions shift wave vector k to a different unit cell of reciprocal lattice.
+    :return: wave vector k [rad/L]
+    '''
+    a1dual, a2dual = get_basis_dual_domain(nx, ny, a)
 
     def get_k(k1, k2):  # get wave vector corresponding to wave numbers
-        k = k1 * a1dual / nx + k2 * a2dual / ny
+        k = k1 * a1dual + k2 * a2dual
         return k
 
     return get_k
 
 
-def define_get_k(nx, ny, a):
+# def define_get_k(nx, ny, a):
+#     '''
+#     Checked: get_k is equivalent to get_k_naive: gives the same mtwists mod 2pi
+#     '''
+#     import warnings
+#     warnings.warn("To be depricated! Returns vectors from a rectangular, rather than hexagonal cell (FBZ)",
+#                   DeprecationWarning)
+#
+#     assert nx % 2 == 0 # check that nx is even
+#
+#     def shift_integer(k, n, s):
+#         '''
+#         :param k,n,s: integers
+#         Assuming that k in Z/nZ (n-periodic integer),
+#         shift it to interval [-s,n-s]
+#
+#         e.g. if s= n//2, the interval is:
+#         even: - n1 / 2      to  n1 / 2 - 1
+#         odd:  - (n1-1) / 2  to  (n1-1)/2
+#         '''
+#         return (k + s) % n - s
+#
+#     a1dual, a2dual = get_dual_basis(a)
+#
+#     nxhalf = nx // 2
+#     nyhalf = ny // 2
+#
+#     def get_k(k1, k2, shiftx=nxhalf, shifty=nyhalf):
+#         '''
+#         :param k1,k2: wavemodes
+#         :param shiftx,shifty: define additionally a shift
+#                             Get k in region, x: [- shiftx * a1dual / nx, a1dual - shiftx * a1dual / nx]
+#                                              y: ...
+#         :return:
+#         '''
+#         div = (k2 + shifty) // ny
+#         k1 = k1 - nx * div / 2  # shift k1 as a response on shift in k2
+#
+#         k = shift_integer(k1, nx, shiftx) * a1dual / nx + shift_integer(k2, ny, shifty) * a2dual / ny
+#
+#         return k
+#
+#     return get_k
+
+
+def define_shift_k_to_fbz(a):
     '''
-    Checked: get_k is equivalent to get_k_naive: gives the same mtwists mod 2pi
+    Defines a function, which get any wave vector, and shifts it into the first Brillouin zone
+    :param a:
+    :return:
     '''
-    import warnings
-    warnings.warn("To be depricated! Returns vectors from a rectangular, rather than hexagonal cell (FBZ)",
-                  DeprecationWarning)
 
-    assert nx % 2 == 0 # check that nx is even
+    def project(vec, basis_vec):
+        basis_vec = np.asarray(basis_vec)
+        return vec @ basis_vec / (basis_vec @ basis_vec)
 
-    def shift_integer(k, n, s):
-        '''
-        :param k,n,s: integers
-        Assuming that k in Z/nZ (n-periodic integer),
-        shift it to interval [-s,n-s]
+    def decompose_recip(k):
+        # decompose a vector to vectors b1,b2,b3 (double of normals of the hexagon cell)
+        ms = np.array([project(k, bi) for bi in bs])
+        return ms
 
-        e.g. if s= n//2, the interval is:
-        even: - n1 / 2      to  n1 / 2 - 1
-        odd:  - (n1-1) / 2  to  (n1-1)/2
-        '''
-        return (k + s) % n - s
+    b1, b2 = get_basis_dual_cell(a)
+    b3 = b1 + b2
+    bs = [b1, b2, b3]
 
-    a1dual, a2dual = get_dual_basis(a)
+    def k_to_fbz(k, eps=1e-8):
+        k = np.array(k)
+        num_iter = 0
+        ms = decompose_recip(k)
 
-    nxhalf = nx // 2
-    nyhalf = ny // 2
-
-    def get_k(k1, k2, shiftx=nxhalf, shifty=nyhalf):
-        '''
-        :param k1,k2: wavemodes
-        :param shiftx,shifty: define additionally a shift
-                            Get k in region, x: [- shiftx * a1dual / nx, a1dual - shiftx * a1dual / nx]
-                                             y: ...
-        :return:
-        '''
-        div = (k2 + shifty) // ny
-        k1 = k1 - nx * div / 2  # shift k1 as a response on shift in k2
-
-        k = shift_integer(k1, nx, shiftx) * a1dual / nx + shift_integer(k2, ny, shifty) * a2dual / ny
-
+        while np.amax(abs(ms)) > 0.5 + eps and num_iter < 10:  # +eps to acccount for numerical edge case
+            i = int(np.argmax(abs(ms)))  # start with the direction with the biggest projection
+            mi = ms[i]
+            bi = bs[i]
+            k -= bi * np.round(mi)  # shift by integer value
+            ms = decompose_recip(k)
+            num_iter += 1
+        if num_iter == 10:
+            raise ValueError("Didn't converge to a unit cell - check algorithm!")
         return k
+
+    return k_to_fbz
+
+
+def define_get_k_fbz(nx, ny, a):
+    assert ny % 2 == 0  # check that ny is even
+    get_k_naive = define_get_k_naive(nx, ny, a)
+    k_to_fbz = define_shift_k_to_fbz(a)
+
+    def get_k(k1, k2, eps=1e-8):
+        k = get_k_naive(k1, k2)
+        return k_to_fbz(k, eps)
 
     return get_k
 
+
+def define_get_k_fbz_all(nx, ny, a):
+    assert ny % 2 == 0  # check that ny is even
+    get_k_fbz = define_get_k_fbz(nx, ny, a)
+
+    b1, b2 = get_basis_dual_cell(a)
+    b3 = b1 + b2
+    bs = [b1, b2, b3]
+
+    def get_k_all(k1, k2, eps=1e-8):
+        """
+        Return a list of all possible representations of wave vector with wave numbers (k1,k2)
+        in the first Brillouin zone: 1 - if inside, 2 - if on the edge, 3 - in vertex
+        """
+        k = get_k_fbz(k1, k2)
+        ks = [k]
+        knorm = norm(k)
+        # Shift k in all lattice directions; if it still whithin FBZ (<=> equal norm)
+        # => add it to the list
+        for b in bs:
+            for sign in [-1, 1]:
+                if abs(norm(k + sign * b) - knorm) < eps:
+                    ks.append(k + sign * b)
+
+        return ks
+
+    return get_k_all
 
 def define_get_mtwist(coords, nx, ny, a):
     '''
@@ -410,12 +521,12 @@ if __name__ == '__main__':
 
     ### Check get_k vs get_k_naive:
     # Result: they are equivalent
-    get_k = define_get_k(nx, ny, a)
+    get_k = define_get_k_fbz(nx, ny, a)
     get_k_naive = define_get_k_naive(nx, ny, a)
 
     for k1 in range(nx):
         for k2 in range(ny):
-            print(k1, k2)
+ #           print(k1, k2)
 
             k = get_k(k1, k2)
             k_naive = get_k_naive(k1, k2)
@@ -427,5 +538,5 @@ if __name__ == '__main__':
 
     ### Dual basis test?
     print(get_cell_sizes(a))
-    print(get_dual_basis(a))
-    print(get_dual_basis2(a))
+    print(get_basis_dual_domain(nx, ny, a))
+    print(get_basis_dual_cell(a))
