@@ -384,6 +384,7 @@ def define_get_mtwist_slow(coords, nx, ny, a):
 def plot_fbz(a, ax=None, **kwargs):
     """
     For triangular lattice FBZ is a hexagon
+    :param a: lattice spacing
     :param kwargs: passed to Polygon
     :return:
     """

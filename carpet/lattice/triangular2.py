@@ -194,42 +194,6 @@ def get_basis_dual_cell(a):
     return b1, b2  # [rad/L]
 
 
-# def get_dual_basis(a):
-#     '''
-#     Reciprocal lattice for rectangular unit cell
-#     Ben's method
-#     '''
-#     ax, ay = get_cell_sizes(a)
-#     a1 = ax * np.array([1, 0]) / a
-#     a2 = ay * np.array([0, 1]) / a
-#     R = np.array([[0, 1], [-1, 0]])  # rotation by 90deg
-#     a1dual = 2 * np.pi * (R @ a2) / (a1 @ (R @ a2)) / a
-#     a2dual = 2 * np.pi * (R @ a1) / (a2 @ (R @ a1)) / a
-#     return a1dual, a2dual  # [1/L]
-#
-#
-# def get_dual_basis2(a):
-#     '''
-#     Does the same as the first one, but maybe it's more clear what the method does.
-#     Google:
-#     B = (a1, a2)
-#     D = (a1dual, a2dual)
-#     -> D = inv(B.T)
-#     Below implemented the same thing, but with a factor of 2pi
-#     '''
-#     from scipy.linalg import inv, solve
-#     ax, ay = get_cell_sizes(a)
-#     a1 = ax * np.array([1, 0])
-#     a2 = ay * np.array([0, 1])
-#     # B = np.array([a1 ,a2]).T
-#     BT = np.array([a1, a2])
-#     # By definition D = inv(B.T)
-#     # Miss a step of transposing
-#     D = 2 * np.pi * inv(BT)
-#
-#     return D[:, 0], D[:, 1]
-
-
 def define_get_k_naive(nx, ny, a):
     '''
     The simplest way to get a wave vector from the dual basis.
@@ -421,6 +385,7 @@ def plot_fbz(a, ax=None, **kwargs):
     """
     For triangular lattice FBZ is a hexagon.
     Rotated lattice has a rotated hexagon
+    :param a: lattice spacing
     :param kwargs: passed to Polygon
     :return:
     """
