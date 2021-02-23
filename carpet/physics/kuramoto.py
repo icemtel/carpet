@@ -1,9 +1,11 @@
 """
 Kuramoto-type model.
 
+v1 supports
 - Sinusoidal coupling
 - Cosine + sine coupling
-- Possible to define any other
+- Define an arbitrary coupling function
+- NOT accelerated with numba
 """
 import numpy as np
 import math
