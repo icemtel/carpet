@@ -26,8 +26,9 @@ from carpet.friction import get_translation_rotation_folder, load_coeffs_from_fi
 def njit_wrapper(use_numba, *args, **kwargs):
     '''
     Wrapper for numba njit decorator
-    If `use_numba` is True - will use @njit with given args and kwargs.
-    Else just uses the function
+    If :param use_numba: is True  -> will use @njit with given args and kwargs.
+                            False -> decorator does not do anything
+    :return: a decorator
     '''
     if use_numba:
         from numba import njit
