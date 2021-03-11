@@ -258,7 +258,7 @@ def define_gmat_glob_and_q_glob(set_name, e1, e2, a, neighbours_indices, neighbo
     :param e1,e2: lattice basis vectors
     :param neighbours_indices: list of list: first list has indices of the first cilium, second - neighbours of second cilium, etc.
     :param neighbours_rel_positions: the same structure as `neighbours_indices`; contains relative positions of cilia (taking into account periodicity)
-    :param period: period of single cilium beat - used to calibrate active driving force
+    :param period: period of single cilium beat - used to calibrate active driving force; can be a vector of periods for each cilium
     :param eps: small number; used to check that cilia positions are at lattice nodes
     :param use_numba: Whether to optimize execution time with numba;
                       Reasons not to: 1. numba not installed 2. small system => might be no gain
@@ -383,7 +383,7 @@ def define_gmat_glob_and_q_glob(set_name, e1, e2, a, neighbours_indices, neighbo
     ## Could optimize this and calculate right_side_of_ODE straight away
     ## But having q_glob and gmat decoupled will allow easier changes in the future
     ## And the speed gain is not big (not tested)
-    freq = 2 * np.pi / period
+    freq = 2 * np.pi / np.array(period)
 
     get_AT_2cilia = define_get_basis_matrix(order1, 2, use_numba=False)
 
@@ -395,7 +395,9 @@ def define_gmat_glob_and_q_glob(set_name, e1, e2, a, neighbours_indices, neighbo
         '''
         :param phi: vector of phases, corresponding to each of the cilia
         '''
-        return np.array([freq * get_gii(phii, 0) for phii in phi])
+        gii_array = np.array([get_gii(phii, 0) for phii in phi])
+        return freq * gii_array # work both for scalar and vector of frequencies
+
 
     return gmat_glob, q_glob
 
@@ -454,7 +456,7 @@ if __name__ == "__main__":
     import matplotlib.pyplot as plt
     import carpet.physics.friction_pairwise_v1 as physics_test
 
-    set_name = "machemer_3"
+    set_name = "machemer_4"
     connections = [(-1, 0), (1, 0)]
 
     a = 18
@@ -497,14 +499,14 @@ if __name__ == "__main__":
 
     L1, L2 = lattice.get_domain_sizes(nx, ny, a)
     coords, lattice_ids = lattice.get_nodes_and_ids(nx, ny, a)
-    distances = [1, 3 ** (0.5)]
+    distances = [1]
     N1, T1 = lattice.get_neighbours_list(coords, nx, ny, a, distances)
     e1, e2 = lattice.get_basis()
     get_k = lattice.define_get_k_fbz(nx, ny, a)
     get_mtwist = lattice.define_get_mtwist(coords, nx, ny, a)
 
     # Physics
-    set_name = 'machemer_1'  # hydrodynamic friction coefficients data set
+    set_name = 'machemer_4'  # hydrodynamic friction coefficients data set
     period = 31.25  # [ms] period
     freq = 2 * np.pi / period  # [rad/ms] angular frequency
     order_g11 = (4, 0)  # order of Fourier expansion of friction coefficients

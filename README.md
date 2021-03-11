@@ -8,10 +8,10 @@ Run in terminal `python setup.py develop`.
 - After that package is ready to be imported.
 - Any changes to the code will be applied immediately.
 - Package `numba` is an optional requirement. It speeds up some simulations
-  (`carpet.physics.friction_pairwise.py`)
+  (`carpet.physics.friction_pairwise`, `carpet.physics.kuramoto_numpy`)
 
 ## Structure
-- **`carpet`** - importing it immediately gives access to several modules, e.g.
+- `carpet` - importing it immediately gives access to several modules, e.g.
     - `dynamics` 
       - Contains functions to solve ODE
       - Define global phase

@@ -19,15 +19,16 @@ default_cyclic_colormap = 'hsv'
 
 
 ### Colors, linestyles, figures
-def get_colors(num, cmap=default_colormap, endpoint=True):
+def get_colors(num, cmap=default_colormap, minval=0.0, maxval=1.0, endpoint=True):
     '''
     :param num: How many colors to return
+    :param minval, maxval: truncate colormap by choosing numbers between 0 and 1 (untruncated = [0,1])
     :param cmap: e.g. 'jet' 'viridis' 'RdBu_r' 'hsv'
     :return:
     '''
-    import matplotlib.cm as mcm
-    cm = getattr(mcm, cmap)
-    return cm(np.linspace(0, 1, num, endpoint=endpoint))
+    if isinstance(cmap, str):
+        cmap = plt.get_cmap(cmap) #
+    return cmap(np.linspace(minval, maxval, num, endpoint=endpoint))
 
 def get_cilium_colors(num_phases, cmap=default_cyclic_colormap):
     '''
