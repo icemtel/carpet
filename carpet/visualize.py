@@ -92,11 +92,12 @@ def landscape_figure(height):
 def plot_nodes(coords, phi=None, color=(0.5, 0.5, 0.5), s=100,
                cmap='hsv',
                colorbar=True, vmin=0, vmax=2 * np.pi, zorder=2,
-               fig=None, ax=None, **kwargs):
+               fig=None, ax=None, warn=True, **kwargs):
     '''
     :param color: if no phi is given, use this color to color all nodes
     :param s: point size - 1 number or a list
     :param zorder: zorder=2 to plot on top of edges
+    :param warn: whether to raise warning if phi values are outside vmin,vmax range
     :param kwargs: dictionary of keyword arguments for scatter
     '''
     # Get a figure and axis to draw on, unless they were already specified in input
@@ -116,6 +117,10 @@ def plot_nodes(coords, phi=None, color=(0.5, 0.5, 0.5), s=100,
     # plt.gcf().set_size_inches(8,6)
 
     norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
+    if warn:
+        import warnings
+        if np.any(phi < vmin) or np.any(phi > vmax):
+            warnings.warn("WARNING: phi outside [vmin, vmax] range")
     # if isinstance(cmap, str):
     #     cmap = colors.Colormap(cmap)
     sc = ax.scatter(coords[:, 0], coords[:, 1], norm=norm, cmap=cmap, s=s, zorder=zorder,
@@ -313,19 +318,19 @@ if __name__ == '__main__':
     OK: plot nodes of a triangular lattice
     +-OK: plot node numbers
     '''
-    # import carpet.lattice.triangular as lattice
-    # a = 10
-    # nx = 4
-    # ny = 8
-    #
-    # coords, lattice_ids = lattice.get_nodes_and_ids(nx, ny, a)
-    # N1, T1 = lattice.get_neighbours_list(coords, nx, ny, a)
+    import carpet.lattice.triangular as lattice
+    a = 10
+    nx = 4
+    ny = 8
+
+    coords, lattice_ids = lattice.get_nodes_and_ids(nx, ny, a)
+    N1, T1 = lattice.get_neighbours_list(coords, nx, ny, a)
     #
     # plot_edges(coords, T1, color='blue')
-    # fig, ax = plot_nodes(coords, phi=np.linspace(0, 2 * np.pi, len(coords)), vmin=0, vmax=2 * np.pi)
-    #
+    fig, ax = plot_nodes(coords, phi=np.linspace(0,5 * np.pi, len(coords)), vmin=0, vmax=2 * np.pi)
+
     # plot_node_numbers(coords, a, fig=fig, ax=ax)
-    # plt.show()
+    plt.show()
     # plt.savefig('1.png', bbox_inches='tight')
 
     vals = [[0, 1], [2, 3]]
