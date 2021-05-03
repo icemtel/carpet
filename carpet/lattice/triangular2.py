@@ -294,7 +294,7 @@ def define_shift_k_to_fbz(a):
 
 
 def define_get_k_fbz(nx, ny, a):
-    assert ny % 2 == 0  # check that ny is even
+    assert nx % 2 == 0  # check that ny is even
     get_k_naive = define_get_k_naive(nx, ny, a)
     k_to_fbz = define_shift_k_to_fbz(a)
 
@@ -306,7 +306,7 @@ def define_get_k_fbz(nx, ny, a):
 
 
 def define_get_k_fbz_all(nx, ny, a):
-    assert ny % 2 == 0  # check that ny is even
+    assert nx % 2 == 0  # check that ny is even
     get_k_fbz = define_get_k_fbz(nx, ny, a)
 
     b1, b2 = get_basis_dual_cell(a)

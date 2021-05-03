@@ -34,15 +34,15 @@ def define_sine_cosine_coupling(sin_str, cos_str):
 def define_right_side_of_ODE(coupling_func, freq, neighbours_list, translations_list):
     '''
     :param coupling_func: function of pairwise interactions with signature f(phi1,phi2, translation)
-    :param freq: frequency of a single oscillator
+    :param freq: frequency of a single oscillator; can be a vector of frequencies
     :param neighbours_list: list of lists of neighbours indices
     :param translations_list: UNUSED - keep for generalizations
     :return:
     '''
 
     def right_side_of_ODE(t, phi):
-        # Self-driving (multiply by frequency later
-        right_side = np.full(len(neighbours_list), fill_value=freq)
+        # Self-driving
+        right_side = freq * np.ones(len(neighbours_list))
         # Interactions
         # MAYBE: Optimize -  sum array for; or numba
         for ix, (neighbours, translations) in enumerate(zip(neighbours_list, translations_list)):
@@ -61,15 +61,17 @@ if __name__ == '__main__':
 
     a = 18  # [um]
     period = 31.25  # [ms] period
-    freq = 2 * np.pi / period
     nx = 3
     ny = 4  # must be even
     tol = 10 ** -6  # solver tolerance
+    freq0 = 2 * np.pi / period
+    freq = freq0 * np.ones(nx * ny)
+
 
     coords, lattice_ids = lattice.get_nodes_and_ids(nx, ny, a)  # get cilia (nodes) coordinates
     N1, T1 = lattice.get_neighbours_list(coords, nx, ny, a)  # get list of neighbours and relative positions
 
-    sin_str = 0.001 * freq
+    sin_str = 0.001 * freq0
     coupling = define_sine_coupling(sin_str)
     right_side_of_ODE = define_right_side_of_ODE(coupling, freq, N1, T1)
     solve_cycle = carpet.define_solve_cycle(right_side_of_ODE, 2 * period, phi_global_func=carpet.get_mean_phase)
@@ -96,5 +98,5 @@ if __name__ == '__main__':
     # Plot as a function of time
     ys = sol.y[5]
     ts = sol.t
-    plt.plot(ts, ys  - freq * ts, 'o')
+    plt.plot(ts, ys  - freq0 * ts, 'o')
     plt.show()

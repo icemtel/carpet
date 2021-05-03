@@ -97,7 +97,7 @@ connections = [a * np.array([np.cos(psi), np.sin(psi)])  # First neighbours
 # Geometry
 L1, L2 = lattice.get_domain_sizes(nx, ny, a)
 coords, lattice_ids = lattice.get_nodes_and_ids(nx, ny, a)  # get cilia (nodes) coordinates
-NN, TT = lattice.get_neighbours_list2(coords, nx, ny, a, connections)  # get list of neighbours and relative positions
+NN, TT = lattice.get_neighbours_list_general(coords, nx, ny, a, connections)  # get list of neighbours and relative positions
 e1, e2 = lattice.get_basis()
 get_k = lattice.define_get_k_fbz(nx, ny, a)
 get_mtwist = lattice.define_get_mtwist(coords, nx, ny, a)
@@ -124,7 +124,7 @@ L1, L2 = lattice.get_domain_sizes(nx, ny, a)
 coords, lattice_ids = lattice.get_nodes_and_ids(nx, ny, a)  # get cilia (nodes) coordinates
 NN, TT = lattice.get_neighbours_list(coords, nx, ny, a)  # get list of neighbours and relative positions
 e1, e2 = lattice.get_basis()
-get_k = lattice.define_get_k(nx, ny, a)
+get_k = lattice.define_get_k_fbz(nx, ny, a)
 get_mtwist = lattice.define_get_mtwist(coords, nx, ny, a)
 
 phi = get_mtwist(2, 0)  # sp.zeros([len(coords)])

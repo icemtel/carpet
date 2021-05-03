@@ -1,7 +1,5 @@
 import numpy as np
 from scipy.integrate import solve_ivp
-import scipy.stats as stats
-
 
 def define_solve_cycle(right_side_of_ODE, t_max, phi_global_func, backwards=False):
     '''
@@ -135,45 +133,3 @@ def integrate_euler(y0, fun, D, dt, t_span, eps=10 ** -8):
     return np.array(ys), np.array(ts)
 
 
-## Global phase
-### Circular Average
-from scipy.stats import circmean, circstd, circvar
-
-
-def circ_dist(phi, phi0=0, axis=None):
-    '''
-    If two phase vectors age given, calculate for dphi=phi-phi0
-    Without axis option is equivalent to math.sqrt(- 2 * math.log(abs(np.exp(1j *(phi0 - phi)).mean())))
-    '''
-    return stats.circstd(phi - phi0, axis=axis)
-
-
-def complex_exp_mean(phi, phi0=0):
-    '''
-    Mean of complex exponents of array of phases phi, relative to phi0
-    '''
-    return np.mean(np.exp(1j * (phi - phi0)))
-
-
-def define_circular_mean_phase(phi0):
-    '''
-    :return: function which computes circular mean phase of phi, relative to phi0.
-    '''
-
-    def get_phi_global(phi):  # equivalent up to mod 2pi to np.angle(np.mean(np.exp(1j * (phi - phi0))))
-        return circmean(phi - phi0)
-
-    return get_phi_global
-
-
-def order_parameter(phi, phi0=0):
-    return abs(complex_exp_mean(phi, phi0))
-
-
-### Mean phase
-def get_mean_phase(phi):  # keep for compatibility
-    return np.mean(phi)
-
-
-def mean_phase(phi):
-    return np.mean(phi)

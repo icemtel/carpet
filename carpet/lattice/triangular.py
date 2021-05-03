@@ -412,10 +412,8 @@ def plot_fbz(a, ax=None, **kwargs):
     return ax
 
 
-
 ### Friction coefficients - ver 1. ###
 ## Use functions in "physics" instead.
-
 def get_connections():
     '''
     :return: Relative positions of neighbouring cilia in lattice coordinates
