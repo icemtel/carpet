@@ -117,7 +117,7 @@ def plot_nodes(coords, phi=None, color=(0.5, 0.5, 0.5), s=100,
     # plt.gcf().set_size_inches(8,6)
 
     norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
-    if warn:
+    if warn and phi is not None:
         import warnings
         if np.any(phi < vmin) or np.any(phi > vmax):
             warnings.warn("WARNING: phi outside [vmin, vmax] range")
