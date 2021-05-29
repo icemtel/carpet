@@ -1,5 +1,5 @@
 '''
-LEGACY VERSION. The new one should be faster.
+LEGACY VERSION. The new one is faster.
 Define coupling and driving force based on hydrodynamic simulations of cilia.
 
 - Sum up pair-wise interactions

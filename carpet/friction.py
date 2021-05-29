@@ -1,7 +1,6 @@
 '''
 Functions to load Fourier series of hydrodynamic friction coefficients from a file
-
-- Almost not used in `physics.friction_pairwise.py` anymore
+- Used in `physics.friction_pairwise.py` and also kept for compatibility.
 
 MAYBE:
 - rewrite define_right_side_of_ODE - s.t. gii is not calculated twice
