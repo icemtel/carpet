@@ -3,11 +3,9 @@
 - Computes matrix L and eigenvalues for the fixpoint, located, corresponding to a wave with wave numbers (k1,k2).
 - Creates a subfolder and save the result
 
-IMPORTANT:
-- needs fixpoint_dict.pkl -> dictionary of fixed points
-
-script takes arguments
-- k1, k2, delta0, tol
+INPUT:
+- args: k1, k2, delta0, tol
+- fixpoint_dict.pkl -> dictionary of fixed points
 """
 import sys
 import logging
