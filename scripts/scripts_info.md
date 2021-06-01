@@ -1,6 +1,18 @@
 
+Subfolders contain various simulation scripts
 
-# sim_setup
+Each simulation should contain:
+-  Setup: `sim_geometry.py`  and `sim_physics.py` --- contains a setup for geometry and physics.
+    A collection of such files is located in `sim_setup` folder
+- `worker_foo.py` --- a script to run a single simulation/computation.
+Imports sim_geometry.py`  and `sim_physics.py`, such that the script is reusable with different inputs.
+- `master_foo.py` 
+ calls `worker_foo.py` many times, each time with different parameters, uses multi-threading.
+
+Example: `fixpoint` - the script tries to find a fixed point in vicinity of a plane wave. 
+           The master script is iterating through different wave modes.
+
+## sim_setup
 
 `sim_geometry.py`
 - get positions of oscillators, their connections
@@ -10,20 +22,20 @@
 - info about coupling between oscillators, e.g., cilia carpet model, Kuramoto model.
 - functions to integrate dynamical equation
 
-
-# Numerical simulations
+## Numerical simulations
 
 Scripts use the same folder logic:
 - Use `obj/` for input and intermediate/non-essential results
 - Use `out/` for results (trajectories data)
-
-
+     
 Finding fixed points - `fixpoint`
+- the script tries to find a fixed point in vicinity of a plane wave. 
+  The master script is iterating through different wave modes.
+  
 
 Linear stability analysis - `linear`
 
 Basins of attraction - `basin`
-
 
 
 # Various
