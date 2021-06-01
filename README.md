@@ -3,6 +3,13 @@ Anton Solovev 2020
 Package to solve ODEs for cilia carpets - hence the name `carpet`. 
 Can be applied to lattices and networks of phase oscillators.
 
+
+# Solve dynamics of N>>1 coupled oscillators
+
+
+Package to solve ODEs for cilia carpets - hence the name `carpet`. 
+Can be applied to lattices and networks of phase oscillators.
+
 ## Installation
 Run in terminal `python setup.py develop`. 
 - After that package is ready to be imported.
@@ -36,10 +43,6 @@ Run in terminal `python setup.py develop`.
 - Many reusable functions reside outside the main package - they are located in `scripts`
 
 
-## Backwards compatibility
-- Some scripts might work on older versions of `carpet`. Important changes are usually tagged 
-  (see them with `git tag`)
-
 ## How to use
 
 - See examples
@@ -47,3 +50,14 @@ Run in terminal `python setup.py develop`.
                 import physics/coupling as `import carpet.coupling.SOME_TYPE as coupling`
                 => define geometry and physics, define right_side_of_ODE
                 Then use `define_solve_cycle` and dynamics can be integrated.
+  
+
+### Authors
+
+- [Anton Solovev](https://github.com/icemtel)
+- [Benjamin M. Friedrich](https://cfaed.tu-dresden.de/friedrich-home) benjamin.m.friedrich@tu-dresden.de
+
+Publication to cite: [1]
+
+- [1]: [Solovev & Friedrich 2020 EPJ E ST](https://link.springer.com/article/10.1140/epje/s10189-021-00016-x);  also available on [arXiv](https://arxiv.org/abs/2010.08111 ) 
+- [2]: [Solovev & Friedrich 2020b arXiv](https://arxiv.org/abs/2012.11741)
