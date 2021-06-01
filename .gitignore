@@ -16,32 +16,5 @@
 # Jupyter notebook files
 */.ipynb_checkpoints
 
-
-# TeX
-doc/*.aux
-doc/*.lof
-doc/*.log
-doc/*.lot
-doc/*.fls
-doc/*.out
-doc/*.toc
-doc/*.fmt
-doc/*.fot
-doc/*.cb
-doc/*.cb2
-doc/*.lb
-doc/*.tex.bak
-
-## Intermediate documents:
-doc/*.dvi
-doc/*.xdv
-doc/*-converted-to.*
-
-## Bibliography auxiliary files (bibtex/biblatex/biber):
-doc/*.bbl
-doc/*.bcf
-doc/*.blg
-doc/*-blx.aux
-
 ## Simulation scripts
 /scripts/
