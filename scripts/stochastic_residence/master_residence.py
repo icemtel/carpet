@@ -11,7 +11,7 @@ from sim_physics import period, N
 
 ## Script
 script_path = '.'
-script_name = "intergrate_trajectory_noise_run_or_prolong_until.py"  # _ROTATED
+script_name = "worker_residence.py"
 
 
 def integrate_trajectory_script(*args):
