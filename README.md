@@ -1,11 +1,20 @@
-# Solve dynamics of N>>1 coupled oscillators
+# Study dynamics of coupled phase oscillators
+
+![Lattice.png](../assets/lattice.png)
 
 Python package to study systems of coupled phase oscillators:
 - 2D Kuramoto model
 - cilia carpet model (references [1, 2])  - hence the name `carpet`.
 - new models can be easily added
 
+Features:
+- define coupling and solve ODE (see examples)
+- visualize oscillator positions 
+- helpers for large-scale simulations (`various.parallel_with_threads`, `various.logging`)
+- scripts: find fixed points, linear stability analysis, basins of attractions, etc.
+
 Can be applied to lattices and networks of phase oscillators.
+
 
 
 ## How to use
@@ -41,7 +50,7 @@ Other modules should be imported separately, e.g., `import carpet.visualize as v
 - `visualize` - functions for visualization
 
 - `parallel_with_threads.py`  - code to run a function in parallel on a list of inputs.
-- `classes.py` - implementation of cilia classes; assume symmetry classes and reduce dimensionality of the ODE system.
+- `classes.py` - implementation of oscillator classes; assume symmetry classes and reduce dimensionality of the ODE system.
 - Many reusable functions reside outside the main package - they are located in `scripts`
 
 ### Authors
