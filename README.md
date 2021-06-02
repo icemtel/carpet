@@ -56,9 +56,9 @@ Other modules should be imported separately, e.g., `import carpet.visualize as v
 ### Authors
 
 - [Anton Solovev](https://github.com/icemtel)
-- [Benjamin M. Friedrich](https://cfaed.tu-dresden.de/friedrich-home) email: benjamin.m.friedrich@tu-dresden.de
+- [Benjamin M. Friedrich](https://cfaed.tu-dresden.de/friedrich-home), email: benjamin.m.friedrich@tu-dresden.de
 
 Publication to cite: [2]
 
 - [1]: [Solovev & Friedrich 2021 EPJ E ST](https://link.springer.com/article/10.1140/epje/s10189-021-00016-x);  also available as [arXiv preprint](https://arxiv.org/abs/2010.08111 ) 
-- [2]: [Solovev & Friedrich 2020b arXiv](https://arxiv.org/abs/2012.11741)
+- [2]: [Solovev & Friedrich 2020 arXiv:2012:11741](https://arxiv.org/abs/2012.11741)
