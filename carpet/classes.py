@@ -1,11 +1,11 @@
 '''
 Take advantage of carpet symmetries by implementing "classes" procedure.
-If a number of cilia has the same phase - map them into one class.
-Then we can solve ODE taking only 1 cilium from each class, saving some resources.
+If a number of oscillators has the same phase - map them into one class.
+Then we can solve ODE taking only 1 oscillator from each class, saving some resources.
 
 Important:
-- If two cilia have the same phase, it doesn't in general imply that they will have the same phase in every moment of time.
-  This will be True, only if those cilia have identical neighbours, and those neighbours have identical neighbours, etc..
+- If two oscillators have the same phase, it doesn't in general imply that they will have the same phase in every moment of time.
+  This will be True, only if those oscillators have identical neighbours, and those neighbours have identical neighbours, etc..
   For m-twist solutions this holds True, and as a quick check below there is a function check_class_neighbours(), which
   checks phases of the first level neighbours.
 '''
@@ -17,7 +17,7 @@ import copy
 
 def get_classes(phi, eps=1e-8):
     """
-    Which cilia have the same phase values?
+    Which oscillators have the same phase values?
     define classes of nodes, according to which nodes have the same phase for the given m-twist solution
     :param eps: a small number
     """
@@ -47,12 +47,12 @@ def get_classes(phi, eps=1e-8):
     return ix_to_class, class_to_ix
 
 
-def get_neighbours_list_class(unique_cilia_ids, ix_to_class, N1, T1):
-    # Define a class number as the position in `unique_cilia_ids` array
-    # Rewrite neighbours of cilia in terms of classes
+def get_neighbours_list_class(unique_oscillators_ids, ix_to_class, N1, T1):
+    # Define a class number as the position in `unique_oscillators_ids` array
+    # Rewrite neighbours of oscillators in terms of classes
     N1_class = []
     T1_class = []
-    for id in unique_cilia_ids:
+    for id in unique_oscillators_ids:
         translations = T1[id]
         T1_class.append(copy.copy(translations))
 
@@ -65,20 +65,20 @@ def get_neighbours_list_class(unique_cilia_ids, ix_to_class, N1, T1):
         N1_class.append(neighbour_classes)
     return N1_class, T1_class
 
-def get_unique_cilia_ix(class_to_ix):
+def get_unique_oscillators_ix(class_to_ix):
     """
-    Get one cilium from each class. Return their indices.
+    Get one oscillator from each class. Return their indices.
     """
     nclass = len(class_to_ix)
-    unique_cilia_ix = np.array([class_to_ix[iclass][0] for iclass in range(nclass)], dtype=np.int64)
-    return unique_cilia_ix
+    unique_oscillators_ix = np.array([class_to_ix[iclass][0] for iclass in range(nclass)], dtype=np.int64)
+    return unique_oscillators_ix
 
 def check_class_neighbours(phi_k, class_to_ix, N1, T1, eps=10**-8):
     """
-    This one is not very clean, but it checks if each cilium in a class have identical neighbours:
-    - Take one cilium from a class
-    - For every other cilium in this class check that it has neighbours with the same phases and with the same relative positions
-    as neighbours of the first cilium
+    This one is not very clean, but it checks if each oscillator in a class have identical neighbours:
+    - Take one oscillator from a class
+    - For every other oscillator in this class check that it has neighbours with the same phases and with the same relative positions
+    as neighbours of the first oscillator
     - Raises a error message if that's not True
     - Otherwise prints a success message
     """
@@ -99,12 +99,12 @@ def check_class_neighbours(phi_k, class_to_ix, N1, T1, eps=10**-8):
     phi_k = np.array(phi_k)
 
     for c in class_to_ix:
-        # Get neighbours parameters of the first cilium in a class - compare others with it
+        # Get neighbours param`eters of the first oscillator in a class - compare others with it
         first_neighbours_ix = N1[c[0]]
-        first_neighbours_translations = np.array(T1[c[0]])  # position of the neighbour, relative to the cilium
+        first_neighbours_translations = np.array(T1[c[0]])  # position of the neighbour, relative to the oscillator
         first_neighbours_phases = phi_k[first_neighbours_ix]
 
-        # Go through cilia from the same class
+        # Go through oscillators from the same class
         for ix in c[1:]:
             neighbours_ix = N1[ix]
             neighbours_translations = T1[ix]
@@ -167,7 +167,7 @@ if __name__ == '__main__':
 
     ix_to_class, class_to_ix = get_classes(phi_k)
 
-    # Test if each cilium is classified only once
+    # Test if each oscillator is classified only once
     assert len(set(np.concatenate(class_to_ix))) == N
 
     # Test if classes are balanced
