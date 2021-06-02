@@ -60,7 +60,7 @@ phi1 = sol.y.T[-1] - 2 * np.pi  # after one cycle
 ix_to_class, class_to_ix = cc.get_classes(phi0)
 nclass = len(class_to_ix)
 # Get classes representatives
-# Get one cilium from each of cilia classes
+# Get one oscillator from each of cilia classes
 unique_cilia_ids = cc.get_unique_cilia_ix(
     class_to_ix)  # equivalent to sp.array([class_to_ix[iclass][0] for iclass in range(nclass)], dtype=sp.int64)
 # Get connections

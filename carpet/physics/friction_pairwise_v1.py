@@ -49,7 +49,7 @@ def define_gmat_glob_and_q_glob(set_name, e1, e2, a, neighbours_indices, neighbo
 
     :param connections: neighbours positions in lattice coordinates
     :param e1,e2: lattice basis vectors
-    :param neighbours_indices: list of list: first list has indices of the first cilium, second - neighbours of second cilium, etc.
+    :param neighbours_indices: list of list: first list has indices of the first oscillator, second - neighbours of second oscillator, etc.
     :param neighbours_rel_positions: the same structure as `neighbours_indices`; contains relative positions of cilia (taking into account periodicity)
     '''
 

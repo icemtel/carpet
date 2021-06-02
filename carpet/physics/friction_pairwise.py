@@ -74,7 +74,7 @@ def load_gii_coeff_matrix(friction_coeffs_root, translation, order_g11, eps=1e-8
     """
     Load Fourier expansion coefficients of friction coefficients gii and gij.
     Represent result as a matrix (numpy.array)
-    :param translation: means relative position of the second cilium
+    :param translation: means relative position of the second oscillator
     """
 
     # Determine if translation vector is in lower half-plane - then use coeffs from upper part of the plane
@@ -124,7 +124,7 @@ def load_gij_coeff_matrix(friction_coeffs_root, translation, order_g12, eps=1e-8
     """
     Load Fourier expansion coefficients of friction coefficients gii and gij.
     Represent result as a matrix (numpy.array)
-    :param translation: means relative position of the second cilium
+    :param translation: means relative position of the second oscillator
     """
 
     # Determine if translation vector is in lower half-plane - then use coeffs from upper part of the plane
@@ -256,9 +256,9 @@ def define_gmat_glob_and_q_glob(set_name, e1, e2, a, neighbours_indices, neighbo
 
     :param connections: neighbours positions in lattice coordinates
     :param e1,e2: lattice basis vectors
-    :param neighbours_indices: list of list: first list has indices of the first cilium, second - neighbours of second cilium, etc.
+    :param neighbours_indices: list of list: first list has indices of the first oscillator, second - neighbours of second oscillator, etc.
     :param neighbours_rel_positions: the same structure as `neighbours_indices`; contains relative positions of cilia (taking into account periodicity)
-    :param period: period of single cilium beat - used to calibrate active driving force; can be a vector of periods for each cilium
+    :param period: period of single oscillator beat - used to calibrate active driving force; can be a vector of periods for each oscillator
     :param eps: small number; used to check that cilia positions are at lattice nodes
     :param use_numba: Whether to optimize execution time with numba;
                       Reasons not to: 1. numba not installed 2. small system => might be no gain

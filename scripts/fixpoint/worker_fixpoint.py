@@ -49,7 +49,7 @@ def find_fixpoint(phi0, tol, mini_tol):
     ix_to_class, class_to_ix = cc.get_classes(phi0)  # cc.get_classes(phi0)
     nclass = len(class_to_ix)
     # Get classes representatives
-    # Get one cilium from each of cilia classes
+    # Get one oscillator from each of cilia classes
     unique_cilia_ids = np.array([class_to_ix[iclass][0] for iclass in range(nclass)], dtype=np.int64)
     # Get neighbours
     NN_class, TT_class = cc.get_neighbours_list_class(unique_cilia_ids, ix_to_class, NN, TT)

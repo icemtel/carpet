@@ -25,7 +25,7 @@ get_mtwist = lattice.define_get_mtwist(coords, nx, ny, a)
 ## Sine-coupling
 import carpet.physics.kuramoto as physics
 
-period = 31.25  # [ms] period of cilia beat; freq = 2 * sp.pi / period [rad/ms]
+period = 31.25  # [ms] period of oscillators beat; freq = 2 * sp.pi / period [rad/ms]
 freq = 2 * np.pi / period
 sin_str = 0.003 * freq
 coupling = physics.define_sine_coupling(sin_str)

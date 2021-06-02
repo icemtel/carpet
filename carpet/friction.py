@@ -147,7 +147,7 @@ def get_friction_coeffs_path(set_name):
 
 def load_gii(friction_coeffs_root, translation, order_g11, eps=1e-8):
     """
-    :param translation: means relative position of the second cilium
+    :param translation: means relative position of the second oscillator
     """
     # Determine if translation vector is in lower half-plane - then use coeffs from upper part of the plane
     # but change indexes 1 and 2
@@ -183,10 +183,10 @@ def load_gii(friction_coeffs_root, translation, order_g11, eps=1e-8):
 
 def load_gij(friction_coeffs_root, translation, order_g12, eps=1e-8):
     """
-    translation means relative position of the second cilium
+    translation means relative position of the second oscillator
     """
     # Determine if translation vector is in lower half-plane - then use coeffs from upper part of the plane
-    # but swap cilia indices
+    # but swap oscillators indices
     if translation[1] < 0 or (abs(translation[1]) < eps and translation[0] < 0):
         in_lower_halfplane = True
         translation = - translation
@@ -221,7 +221,7 @@ def load_gij(friction_coeffs_root, translation, order_g12, eps=1e-8):
 def load_self_friction_and_interactions(set_name, connections, e1, e2, a, order_g11, order_g12, eps=1e-8):
     '''
     :param set_name: e.g. 'machemer_1'
-    :param connections: [(n1,m1),(n2,m2),..] - relative positions of the second cilia in lattice coordinates - integer numbers
+    :param connections: [(n1,m1),(n2,m2),..] - relative positions of the second oscillators in lattice coordinates - integer numbers
     :param e1,e2: directors of the lattice - unit vectors
     :param a: lattice spacing
     :return: a tuple of dictionaries. keys: (n,m), values: function gii or gij of two arguments - phases of two cilia
@@ -236,7 +236,7 @@ def load_self_friction_and_interactions(set_name, connections, e1, e2, a, order_
 
     # Load interactions
     interactions_dict = {}
-    for n, m in connections:  # relative cilia positions in lattice space
+    for n, m in connections:  # relative oscillators positions in lattice space
         translation = a * e1 * n + a * e2 * m
         interactions_dict[(n, m)] = load_gij(friction_coeffs_root, translation, order_g12, eps)
 
