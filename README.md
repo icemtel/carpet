@@ -3,7 +3,7 @@
 ![Lattice.png](../assets/lattice.png)
 
 Python package to study systems of coupled phase oscillators, for example
-- two-dimensional Kuramoto model with local coupling
+- Kuramoto model with local coupling on a two-dimensional lattice
 - cilia carpet model (as studied in references [1, 2]; this example from biological physics gave this repository its name)
 - new models can be added in a flexible manner
 
@@ -62,3 +62,4 @@ Publication to cite: [2]
 
 - [1]: [Solovev & Friedrich 2021 EPJ E ST](https://link.springer.com/article/10.1140/epje/s10189-021-00016-x);  also available as [arXiv preprint](https://arxiv.org/abs/2010.08111 ) 
 - [2]: [Solovev & Friedrich 2020 arXiv:2012:11741](https://arxiv.org/abs/2012.11741)
+
