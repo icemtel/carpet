@@ -27,32 +27,47 @@ def integrate_cycles(y0, D, dt, T, ncycle, eps, save_every=1):
     Use right_side_of_ODE as input function.
     Reset phase to (0, 2 pi) interval after every cycle.
     Save initial state and after every :save_every:-th cycle
+    Output: phases modulo 2pi, times, winding number increments
     '''
-    y = y0
+    y = y0 % (2 * np.pi)  # initial phase modulo 2pi
+    dw = np.zeros_like(y, dtype=np.int) # will be filled with the winding number increment
     t = 0
     ys_coarse = [y]
     ts_coarse = [t]
+    dws_coarse = []
     save_counter = 1
     for icycle in range(ncycle):
         ys, ts = carpet.integrate_euler(y, right_side_of_ODE, D, dt, (t, t + T), eps)
         y = ys[-1]
-        y = phases_to_interval(y)  # phases to -2pi and 2pi; mean phase is preserved up to modulus 2pi
+        # add up winding number increment
+        dw += np.array(np.floor_divide(y, 2 * np.pi), dtype=np.int)  # .astype(np.int) is slightly slower
+        y = y % (2 * np.pi)  # phase vector moduli 2pi
         t = ts[-1]
 
         if save_counter == save_every:
             save_counter = 1
             ys_coarse.append(y)
             ts_coarse.append(t)
+            dws_coarse.append(dw)
+            dw = np.zeros_like(y, dtype=np.int)
         else:
             save_counter += 1
 
-    return ys_coarse, ts_coarse
+    return ys_coarse, ts_coarse, dws_coarse
+
 
 def get_traj_filename(irun, ipart, path):
     if ipart == 0:
         return os.path.join(path, f'phi_{irun}.npy')
     else:
         return os.path.join(path, f'phi_{irun}_pt{ipart}.npy')
+
+
+def get_winding_number_increments_filename(irun, ipart, path):
+    if ipart == 0:
+        return os.path.join(path, f'winding_{irun}.npy')
+    else:
+        return os.path.join(path, f'winding_{irun}_pt{ipart}.npy')
 
 
 def get_state_filename(irun, ipart, path):
@@ -74,7 +89,8 @@ def load_phis(irun, path):
             phis_list.append(phis_pt)
         else:
             break
-    return np.concatenate(phis_list) # trajectory glued back from parts
+    return np.concatenate(phis_list)  # trajectory glued back from parts
+
 
 ## Load arguments
 irun, ncycle_total, D, dt, save_every, sim_name = int(sys.argv[1]), int(sys.argv[2]), float(sys.argv[3]), \
@@ -82,7 +98,6 @@ irun, ncycle_total, D, dt, save_every, sim_name = int(sys.argv[1]), int(sys.argv
 # Folder names
 objfolder = f'obj/{sim_name}/'
 outfolder = f'out/{sim_name}/'
-
 
 # Find how many parts the trajectory already has
 ipart_last = None
@@ -97,10 +112,10 @@ for i in range(64):  # maximum number of parts
 # If trajectory exists -> load, get initial condition and number of cycles
 if ipart_last is not None:
     phis_old = load_phis(irun, outfolder)
-    ncycle_old = (len(phis_old) - 1) * save_every # assume that input save_every is the same as used in prev. sims!
+    ncycle_old = (len(phis_old) - 1) * save_every  # assume that input save_every is the same as used in prev. sims!
     phi0 = phis_old[-1]
     ipart = ipart_last + 1
-    del phis_old # free up memory
+    del phis_old  # free up memory
 else:
     ipart = 0
     ncycle_old = 0
@@ -108,24 +123,26 @@ else:
     input_filename = objfolder + f'phi0_{irun}.npy'
     phi0 = np.load(input_filename)
 
-
 ## Save rng state
 dump_object = carpet.various.define_dump_object(objfolder)
 state = np.random.get_state()
 with open(get_state_filename(irun, ipart, objfolder), 'wb') as f:
     pickle.dump(state, f, pickle.HIGHEST_PROTOCOL)
 
-
 ## Run simulation
 ncycle_extra = ncycle_total - ncycle_old
 if ncycle_extra > 0:
-    phis, ts = integrate_cycles(phi0, D, dt, period, ncycle_extra, eps=10 ** -3 * dt, save_every=save_every)
+    phis, ts, dws = integrate_cycles(phi0, D, dt, period, ncycle_extra, eps=10 ** -3 * dt, save_every=save_every)
 
     if ipart > 0:  # remove the first point because it's the same as the last point in the first part
         phis = phis[1:]
+
+
     ## Save output
     os.makedirs(outfolder, exist_ok=True)
     filename = get_traj_filename(irun, ipart, outfolder)
     np.save(filename, phis)
+    filename = get_winding_number_increments_filename(irun, ipart, outfolder)
+    np.save(filename, dws)
 
 # logging.info("Finished run {} at random I.Co.; D={:.3E}; dt={:.3E}".format(irun, D, dt))
