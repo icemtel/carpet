@@ -4,7 +4,7 @@ import logging
 import os
 import sys
 import subprocess
-import carpet.parallel_with_threads as pwt
+import carpet.various.parallel_with_threads as pwt
 import carpet
 import numpy as np
 from sim_physics import period, N

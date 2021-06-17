@@ -10,7 +10,7 @@ args:
 import logging
 import subprocess
 import sys
-import carpet.parallel_with_threads as pwt  # to find fixpoints faster
+import carpet.various.parallel_with_threads as pwt  # to find fixpoints faster
 import carpet
 from sim_geometry import nx, ny
 

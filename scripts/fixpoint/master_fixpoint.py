@@ -11,7 +11,7 @@ import logging
 import subprocess
 import sys
 import numpy as np
-import carpet.parallel_with_threads as pwt
+import carpet.various.parallel_with_threads as pwt
 import carpet
 from sim_geometry import nx, ny
 
