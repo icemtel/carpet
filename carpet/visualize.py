@@ -107,6 +107,7 @@ def plot_nodes(coords, phi=None, color=(0.5, 0.5, 0.5), s=100,
         fig = plt.gcf()
 
     if phi is not None:
+        phi = np.array(phi)
         kwargs['c'] = phi
     else:
         kwargs['color'] = color
@@ -118,8 +119,8 @@ def plot_nodes(coords, phi=None, color=(0.5, 0.5, 0.5), s=100,
 
     norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
     if warn and phi is not None:
-        import warnings
         if np.any(phi < vmin) or np.any(phi > vmax):
+            import warnings
             warnings.warn("WARNING: phi outside [vmin, vmax] range")
     # if isinstance(cmap, str):
     #     cmap = colors.Colormap(cmap)
