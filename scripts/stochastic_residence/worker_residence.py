@@ -7,7 +7,6 @@ Integrate with Euler method with noise
   Prolongs existing trajectories until some total number of cycles ncycle_total.
 - `phases_to_interval` is used -> after each cycles phases are mapped to [-2pi,2pi] interval without changing mean phase
 
-
 INPUT:
  - irun, ncycle_total, D, dt, save_every, sim_name
 '''
@@ -143,6 +142,7 @@ if ncycle_extra > 0:
     filename = get_traj_filename(irun, ipart, outfolder)
     np.save(filename, phis)
     filename = get_winding_number_increments_filename(irun, ipart, outfolder)
+    # dws = np.array(dws, dtype=np.int32) # - > already int32 by default
     np.save(filename, dws)
 
 # logging.info("Finished run {} at random I.Co.; D={:.3E}; dt={:.3E}".format(irun, D, dt))

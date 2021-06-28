@@ -1,4 +1,5 @@
 #!/bin/bash
+## MAYBE: the first line is not needed
 # Run: `./slurm_submit.sh <script_name> <nthreads>`
 # Normally, no commands are allowed before #SBATCH. In this file we use a workaround.
 # Access `$SLURM_CPUS_PER_TASK` by escaping $-sign`\$SLURM_CPUS_PER_TASK`
