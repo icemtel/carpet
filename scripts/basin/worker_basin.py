@@ -55,7 +55,7 @@ def solve_cycles_many(phi0, tol, ncycle, save_every, conv_eps):
                 return np.array(phis), np.array(ts), np.array(dphis_norm)
             # For small dphi; with zero mean phase; the norm above is equivalent to
             # `np.sqrt(1 - carpet.order_parameter(dphi) ** 2)`
-        elif save_counter == save_every:
+        if save_counter == save_every:
             phis.append(phi1)
             ts.append(t)
             save_counter = 0 # reset save counter
