@@ -37,8 +37,6 @@ def solve_cycles_many(phi0, tol, ncycle, save_every, conv_eps):
     t = 0
     save_counter = 0
 
-    # phidots_mean = []
-    # phidots_std = []
     for icycle in range(ncycle):
         sol = solve_cycle(phi0, tol, ncycle=1)
         phi1 = sol.y.T[-1] - 2 * np.pi
