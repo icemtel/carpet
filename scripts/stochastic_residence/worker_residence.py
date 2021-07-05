@@ -130,7 +130,7 @@ with open(get_state_filename(irun, ipart, objfolder), 'wb') as f:
 
 ## Run simulation
 ncycle_extra = ncycle_total - ncycle_old
-if ncycle_extra > 0:
+if ncycle_extra >= save_every:
     phis, ts, dws = integrate_cycles(phi0, D, dt, period, ncycle_extra, eps=10 ** -3 * dt, save_every=save_every)
 
     if ipart > 0:  # remove the first point because it's the same as the last point in the first part
