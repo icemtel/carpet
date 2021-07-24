@@ -10,3 +10,6 @@ Produced with 2020-10-01_LAMAS_SPP_code
 - g12 - a copy of g21
 - g11 is taken from single cilium experiment
 - g22 is taken as transpose of g11
+
+TODO: check is it mirrored; compared to machemer_4 
+[in that case, machemer_4 is correct]
