@@ -1,7 +1,3 @@
-'''
-2021-03-12: separate geometry and physics in order to have 1 geometry file for different frequqncies sets
-'''
-
 import numpy as np
 import carpet
 import carpet.lattice.triangular as lattice

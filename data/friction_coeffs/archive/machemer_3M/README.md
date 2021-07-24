@@ -1,3 +1,12 @@
+machemer_3M vs machemer_3:
+
+- found out that the beat pattern was mirrored =>
+   to account for this, in this data set translations are mirrored around y-axis
+   
+   
+---
+machemer_3:
+
 Produced with 2020-10-01_cilia_manuscript_code
 
 - Computed with background cilia
@@ -15,3 +24,6 @@ Produced with 2020-10-01_cilia_manuscript_code
 - g12 - a copy of g21
 - g11 is taken from single cilium experiment
 - g22 is taken as transpose of g11
+
+
+UPD: was a bug in g22; use machemer_4 instead
