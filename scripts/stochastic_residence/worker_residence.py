@@ -98,6 +98,9 @@ irun, ncycle_total, D, dt, save_every, sim_name = int(sys.argv[1]), int(sys.argv
 objfolder = f'obj/{sim_name}/'
 outfolder = f'out/{sim_name}/'
 
+## Logging
+carpet.setup_logging(objfolder + f'worker_irun={irun}.log')
+
 # Find how many parts the trajectory already has
 ipart_last = None
 # Find the last existing part of the trajectory
