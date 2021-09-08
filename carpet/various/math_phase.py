@@ -95,6 +95,20 @@ def order_parameter(phi, phi0=0):
     return abs(complex_exp_mean(phi, phi0))
 
 
+## Centralized phase difference
+def phase_diffs_centralized(phis, phi0):
+    '''
+    :param phis: list of phase vectors
+    :param phi0: phase vector to subtract
+    :return: list of phase-vector differences; centralized,
+            i.e. circular mean of the phase vector differences equals to zero
+            [For movies of phase deviations]
+    '''
+    dphis = (phis - phi0) % (2  *np.pi)
+    for i, dphi in enumerate(dphis): # Centralzie
+        dphis[i] -= circmean(dphi)
+    return dphis
+
 ### Mean phase
 def get_mean_phase(phi):  # keep for compatibility
     return np.mean(phi)
