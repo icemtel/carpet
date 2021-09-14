@@ -38,10 +38,7 @@ except:
     np.save('TT.npy', TT)
 
 assert len(NN) == len(TT)== N # check
-if len(distances) == 1:
-    assert len(TT[0]) == 6 # check that there are 6 neighbours
-else:
-    print("WARNING: ! check sim geom -> distances")
+assert len(TT[0]) == 2 # check that there are 6 neighbours
 
 L1 = lattice.get_domain_size(N ,a)
 e1, e2 = lattice.get_basis(e1)
