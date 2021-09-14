@@ -29,13 +29,14 @@ def njit_wrapper(use_numba, *args, **kwargs):
     return decorator
 
 
-def define_right_side_of_ODE_kuramoto(neighbours_indices, omega, sin_str, use_numba=True):
+def define_right_side_of_ODE_kuramoto(neighbours_indices, omega_vec, sin_str, use_numba=True):
     '''
     :param use_numba: if True, accelerate code with numba (5-50 times faster);
                       requires the same number of neighbours for every oscillator
+    :param omega_vec: vector of frequencies
     :return:
     '''
-    N = len(omega)
+    N = len(neighbours_indices)
 
     if use_numba:
         neighbours_indices = np.array(neighbours_indices)  # numba doesn't like list of lists
@@ -57,7 +58,7 @@ def define_right_side_of_ODE_kuramoto(neighbours_indices, omega, sin_str, use_nu
             coupling = 0
             for neighbour_index in neighbours:
                 coupling += sin_str * math.sin(phi[i] - phi[neighbour_index])
-            q[i] = omega[i] - coupling
+            q[i] = omega_vec[i] - coupling
         return q
 
     return q_glob
