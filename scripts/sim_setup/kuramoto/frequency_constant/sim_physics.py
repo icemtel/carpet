@@ -1,11 +1,3 @@
-'''
-To load frequencies
-
-Renate+numba:
-tol=1e-6 => ms per cycle
-tol=e1-8 => ms per cycle
-stochastic dt=0.01*T =>  ms per period
-'''
 from sim_geometry import  *
 import carpet.physics.kuramoto as physics
 
