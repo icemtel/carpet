@@ -40,7 +40,7 @@ def get_nodes_and_ids(nx, ny, a):
     a2 = e2 * a
     for i in range(nx):
         for j in range(ny):
-            c = i * a1 + j * a2  # extra term for triangular lattice
+            c = i * a1 + j * a2
             coords.append(c)
             lattice_ids.append((i, j))
 
@@ -99,6 +99,54 @@ def get_neighbours_list(coords, nx, ny, a, distances=(1,)):
                 T1[j].append(- translation)
     return N1, T1
 
+
+def get_neighbours_list_general(coords, nx, ny, a, connections):
+    '''
+    For each node looks for other nodes at specified translation vectors.
+    Those nodes are saved in `N1` list. Relative positions are saved in `T1` list.
+    :param connections: list of vectors - relative oscillator positions [units of length];
+                        - if reciprocal, then for each vector `t`, the vector `-t` has to be included as well;
+                        - an oscillator can be its own neighbour.
+    :return: list of neighbours, list of relative neighbour positions
+    '''
+    if nx == 2 or ny == 2:
+        import warnings
+        warnings.warn("nx=2 or ny=2 => wrong number of neighbours (5 or 4)\n"
+                      "some oscillators were supposed to be connected twice, but this is not implemented")
+
+    eps = 10 ** -4 * a
+    L1, L2 = get_domain_sizes(nx, ny, a)
+    N = len(coords)
+    # Check:
+    distances = norm(connections, axis=1)
+    if max(distances) >= max([L1, L2]):
+        raise NotImplementedError("Assumption: d * a < max(L1,L2) is not satisfied")
+
+    ## find nearest neighbors
+    def get_neighbours(i, j):
+        '''
+        If the distance between two points is equal to the lattice spacing, return vector connecting them, else None.
+        Takes into account lattice periodicity
+        OK: sign
+        '''
+        for a1 in range(-1, 2):
+            for a2 in range(-1, 2):
+                translation = coords[j, :] - coords[i, :] + [a1 * L1, 0] + [0, a2 * L2]
+                for t in connections:
+                    if norm(t - translation) < eps:
+                        return np.array(t)
+        return None
+
+    N1 = [[] for _ in coords]  # list of lists of neighbours indices
+    T1 = [[] for _ in coords]  # list of lists of translation vectors between neighbours
+    # loop over pairs of lattice points
+    for i in range(N):
+        for j in range(N):
+            translation = get_neighbours(i, j)  # check if neighbours
+            if translation is not None:  # is yes - add to the list
+                N1[i].append(j)
+                T1[i].append(translation)
+    return N1, T1
 
 ### Wave vectors and reciprocal lattice ###
 
