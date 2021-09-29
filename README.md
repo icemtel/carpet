@@ -1,3 +1,5 @@
+The version of the package used to produce the ["active noise" manuscript](https://arxiv.org/abs/2012.11741).
+
 # Nonlinear dynamics of coupled phase oscillators
 
 ![Lattice.png](../assets/lattice.png)
