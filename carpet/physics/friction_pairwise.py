@@ -174,7 +174,8 @@ def load_gij_coeff_matrix(friction_coeffs_root, translation, order_g12, eps=1e-8
 def load_self_friction_coeffs_dict(set_name, connections, e1, e2, a, order_g11, eps=1e-8):
     '''
     A shortcut to load friction coeffs for a number of different relative positions of cilia.
-    :param set_name: e.g. 'machemer_1'
+    :param set_name: known set of friction coefficients (saved in `data/friction_coeffs`) e.g. 'machemer_4';
+                     or a path to a custom folder containing friction coefficients
     :param connections: [(n1,m1),(n2,m2),..] - relative positions of the second cilia in lattice coordinates - integer numbers
     :param e1,e2: directors of the lattice - unit vectors
     :param a: lattice spacing

@@ -4,7 +4,7 @@ import carpet.physics.kuramoto as physics
 # Physics
 period = 31.25            # [ms] period of cilia beat
 freq = 2 * np.pi / period # [rad/ms] angular frequency
-sin_str = 0.0016 * freq   # coupling strength
+sin_str = 3.45e-4   # coupling strength
 
 # Load frequencies
 period = 2 * np.pi / freq

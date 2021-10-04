@@ -141,7 +141,7 @@ def get_friction_coeffs_path(set_name):
                     'machemer_3M', 'machemer_4']:
         friction_coeffs_root = os.path.join(script_path, '../data/friction_coeffs', set_name)
     else:
-        raise KeyError("Unknown hydr. friction coefficients set name")
+        return set_name # custom folder
     return friction_coeffs_root
 
 

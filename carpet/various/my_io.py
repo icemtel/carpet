@@ -32,6 +32,7 @@ def define_load_object(default_output_folder='.'):
     '''
     Define a function-shortcut for loading (un-pickling) objects.
     - There is a chance that won't be able to load objects on a different python/libraries version.
+    - defines "load_object" function with the given default folder
     '''
     import pickle, os
 
