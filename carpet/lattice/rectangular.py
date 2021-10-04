@@ -273,6 +273,11 @@ def define_get_k_fbz_all(nx, ny, a):
 
 
 def define_get_mtwist(coords, nx, ny, a):
+    '''
+    - Returns a function which gives m-twists, i.e. phase vectors for the wave with wave integer numbers k1,k2
+    - pre-saves m-twists in an array to make the computation faster
+    - but accepts only k1,k2 in range  0<= k1 <= nx, 0<=k2 <=ny
+    '''
     get_k = define_get_k_naive(nx, ny, a)
 
     # Fill mtwist array
@@ -287,6 +292,27 @@ def define_get_mtwist(coords, nx, ny, a):
 
     def get_mtwist(k1, k2):
         return np.array(mtwist_phi[k1, k2])
+
+    return get_mtwist
+
+
+def define_get_mtwist_slow(coords, nx, ny, a):
+    '''
+    Returns a slower version of :get_mtwist: function
+    Advantage: can give any positive or negative k1 and k2
+    '''
+    get_k = define_get_k_naive(nx, ny, a)
+    coords_cp = np.array(coords)
+
+    def get_mtwist(k1, k2):
+        '''
+        :return: phase vector, corresponding to a wave with vector k with wave numbers k1,k2
+        '''
+        k = get_k(k1, k2)
+        mtwist = np.zeros(nx * ny)
+        for ix in range(nx * ny):
+            mtwist[ix] = mod2pi(- np.dot(k, coords_cp[ix, :]))
+        return mtwist
 
     return get_mtwist
 

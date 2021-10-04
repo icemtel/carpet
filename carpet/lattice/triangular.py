@@ -333,7 +333,8 @@ def define_get_k_fbz_all(nx, ny, a):
 
 def define_get_mtwist(coords, nx, ny, a):
     '''
-    :return: a function -> see its description
+    - Returns a function which gives m-twists, i.e. phase vectors for the wave with wave integer numbers k1,k2
+    - pre-saves m-twists in an array to make the computation faster
     '''
     get_k = define_get_k_naive(nx, ny, a)
     mtwist_phi = np.zeros((nx, ny, nx * ny))
