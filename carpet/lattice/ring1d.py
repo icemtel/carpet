@@ -85,23 +85,20 @@ def define_get_k(N, a, direction):
 
 
 def define_get_mtwist(N):
-    a = 1 # result is independent of this
-    direction = np.array([1,0])  # the result is indepd
-    coords, _ = get_nodes_and_ids(N, a, direction)
-    get_k = define_get_k(N, a, direction)
-
-    # Fill mtwist array
-    mtwist_phi = np.zeros((N, 1, N * 1))
-
-    for k1 in range(N):
-        for k2 in range(1):
-            # wave vector
-            k = get_k(k1)  # k1 * a1dual / nx + k2 * a2dual / ny
-            for ix in range(N * 1):
-                mtwist_phi[k1, k2, ix] = mod2pi(- np.dot(k, coords[ix, :]))
-
+    '''
+    :param N:
+    :return:
+    '''
     def get_mtwist(k1, k2=0):  # two arguments for compatibility
-        return np.array(mtwist_phi[k1, k2])
+        '''
+        Cleaner version; supports negative wave numbers;
+        The second wave number is not doing anything; present for compatibility with the 2D lattice.
+        :param k1:
+        :param k2:
+        :return:
+        '''
+        mtwist = np.array([ mod2pi(-  k1 * 2 * np.pi / N * ix )  for ix in range(N * 1)])
+        return mtwist
 
     return get_mtwist
 
