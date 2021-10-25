@@ -84,7 +84,9 @@ def define_get_k(N, a, direction):
     return get_k
 
 
-def define_get_mtwist(coords, N, a, direction):
+def define_get_mtwist(N):
+    a = 1 # result is independent of this
+    direction = np.array([1,0])  # the result is indepd
     coords, _ = get_nodes_and_ids(N, a, direction)
     get_k = define_get_k(N, a, direction)
 
