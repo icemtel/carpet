@@ -85,6 +85,7 @@ def define_get_k(N, a, direction):
 
 
 def define_get_mtwist(coords, N, a, direction):
+    coords, _ = get_nodes_and_ids(N, a, direction)
     get_k = define_get_k(N, a, direction)
 
     # Fill mtwist array
