@@ -162,4 +162,4 @@ if ncycle_extra > max(save_every_phi, save_every_r): # would need to handle sepa
     # dws = np.array(dws, dtype=np.int32) # - > already int32 by default
     np.save(filename, dws)
 
-# logging.info("Finished run {} at random I.Co.; D={:.3E}; dt={:.3E}".format(irun, D, dt))
+# logging.info("Finished run {} at random I.Co.; N={} D={:.3E}; dt={:.3E}".format(irun, N, D, dt))

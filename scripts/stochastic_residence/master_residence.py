@@ -1,4 +1,5 @@
 """
+TODO: rename folder: residence -> stochastic
 """
 import logging
 import os
@@ -25,7 +26,7 @@ def integrate_trajectory_script(*args):
     if completedProcess.returncode == 1:
         raise RuntimeError("Subprocess finished with an error")
     logging.info(
-        "Finished: irun={} Random I.Co. D={:.3e}; dt={:.3E}".format(irun, args[2], args[3]))  # MAYBE: more info
+        "Finished: irun={} Random I.Co. N={}, D={:.3e}; dt={:.3E}".format(irun, N, args[2], args[3]))  # MAYBE: more info
 
 
 ## Setup logging
