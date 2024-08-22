@@ -2,28 +2,33 @@
 
 ![Lattice.png](../assets/lattice.png)
 
-Python package to study systems of coupled phase oscillators, for example
-- Kuramoto model with local coupling on a two-dimensional lattice
-- cilia carpet model (as studied in references [1, 2]; this example from biological physics gave this repository its name)
-- new models can be added in a flexible manner
+`carpet` is a python package to study systems of coupled phase oscillators, such as
+- [Kuramoto model](https://en.wikipedia.org/wiki/Kuramoto_model) with local coupling on a two-dimensional lattice
+- cilia carpet model (see references [1, 2]; this example from biological physics gave this repository its name)
+
+Using the package, you can define oscillator coupling and solve the corresponding equation of motion for the oscillator network (see [examples](examples/)).
+
 
 Features:
-- define oscillator coupling and solve the corresponding equation of motion for the oscillator network (see examples below)
-- visualize oscillator positions and phases 
-- useful routines for large-scale simulations (`various.parallel_with_threads`, `various.logging`)
-- scripts: find fixed points, linear stability analysis, basins of attractions, etc.
-
-The code can be applied to regular lattices as well as general networks of coupled phase oscillators.
-
+- Supports both regular lattices and general networks.
+- Supports custom coupling functions.
+- Includes code for parallel computation (`various.parallel_with_threads`, `various.logging`).
+- Includes scripts for analyzing simulation results:
+  - visualization of oscillator phases 
+  - find fixed points, linear stability analysis, basins of attractions, etc.
 
 
 ## How to use
 
-- See examples
-- General idea: import lattice type as `import carpet.lattice.SOME_TYPE as lattice`,
-                import physics/coupling as `import carpet.coupling.SOME_TYPE as coupling`
-                => define geometry and physics, define right_side_of_ODE
-                Then use `define_solve_cycle` and dynamics can be integrated.
+See [examples](examples/) folder.
+General idea:
+1. Import lattice type & physics/coupling
+```
+import carpet.lattice.<LATTICE_TYPE> as lattice
+import physics/coupling as `import carpet.coupling.<COUPLING_TYPE> as coupling
+```
+2. Define specific geometry and physics, define the `right_side_of_ODE`.
+3. Then use `define_solve_cycle` to integrate the differential equation.
 
 ## Installation
 Run in terminal `python setup.py develop`. 
@@ -58,8 +63,8 @@ Other modules should be imported separately, e.g., `import carpet.visualize as v
 - [Anton Solovev](https://github.com/icemtel)
 - [Benjamin M. Friedrich](https://cfaed.tu-dresden.de/friedrich-home), email: benjamin.m.friedrich@tu-dresden.de
 
-Publication to cite: [2]
+You found this package useful, please cite [2].
 
 - [1]: [Solovev & Friedrich 2021 EPJ E ST](https://link.springer.com/article/10.1140/epje/s10189-021-00016-x);  also available as [arXiv preprint](https://arxiv.org/abs/2010.08111) 
-- [2]: [Solovev & Friedrich 2020 arXiv:2012:11741](https://arxiv.org/abs/2012.11741)
+- [2]: [Solovev & Friedrich 2022 NJP](https://iopscience.iop.org/article/10.1088/1367-2630/ac2ae4); also available as [arXiv preprint](https://arxiv.org/abs/2012.11741)
 
